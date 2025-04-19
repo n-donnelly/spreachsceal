@@ -1,26 +1,26 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { Character } from "../../types";
+import { Chapter } from "../../types";
 import { useState, useEffect } from "react";
 import { getProject, saveProject } from "../../data/storage";
 
-export const CharacterPage = () => {
-    const { id, charId } = useParams();
+export const ChapterPage = () => {
+    const {id, chapterId} = useParams();
     const navigate = useNavigate();
 
-    const [character, setCharacter] = useState<Character | null>(null);
+    const [chapter, setChapter] = useState<Chapter | null>(null);
 
     useEffect(() => {
         const project = getProject(id!);
-        const char = project?.characters.find(c => c.id === charId);
-        setCharacter(char || null);
-    }, [id, charId]);
+        const chap = project?.chapters.find(c => c.id === chapterId);
+        setChapter(chap || null);
+    }, [id, chapterId]);
 
-    if(!character) {
-        return <div>Character not found</div>;
+    if(!chapter) {
+        return <div>Chapter not found</div>;
     }
 
-    const updateCharacter = (updates: Partial<Character>) => {
-        if (!character) return;
+    const updateChapter = (updates: Partial<Chapter>) => {
+        if (!chapter) return;
 
         const project = getProject(id!);
         if (!project) {
@@ -28,15 +28,15 @@ export const CharacterPage = () => {
             return;
         }
 
-        const charIndex = project.characters.findIndex(c => c.id === charId);
-        if (charIndex === undefined || charIndex === -1) {
-            console.error('Character not found in project');
+        const chapIndex = project.chapters.findIndex(c => c.id === chapterId);
+        if (chapIndex === undefined || chapIndex === -1) {
+            console.error('Chapter not found in project');
             return;
         }
 
-        const updated = { ...project.characters[charIndex], ...updates };
-        project.characters[charIndex] = updated;
-        setCharacter(updated);
+        const updated = { ...project.chapters[chapIndex], ...updates };
+        project.chapters[chapIndex] = updated;
+        setChapter(updated);
         saveProject(project);
     }
 
@@ -45,8 +45,8 @@ export const CharacterPage = () => {
             <div className="flex justify-between items-center">
                 <input
                 className="text-3xl font-bold w-full p-2 border rounded"
-                value={character.name}
-                onChange={(e) => updateCharacter({ name: e.target.value })}
+                value={chapter.title}
+                onChange={(e) => updateChapter({ title: e.target.value })}
                 />
                 <button
                 onClick={() => navigate(-1)}
@@ -58,12 +58,13 @@ export const CharacterPage = () => {
 
             <div>
                 <h2 className="text-xl font-semibold mb-2">Description</h2>
-                <textarea
+                <input
                     className="w-full h-40 p-2 border rounded"
-                    value={character.description}
-                    onChange={(e) => updateCharacter({ description: e.target.value })}
+                    type="number"
+                    value={chapter.index}
+                    onChange={(e) => updateChapter({ index: parseInt(e.target.value) })}
                 />
             </div>
         </div>
-    );
-};
+    )
+}

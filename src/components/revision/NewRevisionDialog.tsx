@@ -6,7 +6,7 @@ import { Revision } from '../../types';
 interface Props {
   projectId: string;
   onClose: () => void;
-  onCreated: () => void;
+  onCreated: (name: string) => void;
 }
 
 const NewRevisionDialog: React.FC<Props> = ({
@@ -37,7 +37,7 @@ const NewRevisionDialog: React.FC<Props> = ({
       project.revisions.push(newRevision);
       saveProject(project);
 
-      onCreated();
+      onCreated(newRevision.versionName);
     }
   };
 

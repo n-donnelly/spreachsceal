@@ -21,10 +21,16 @@ export const CreateProjectDialog: React.FC<Props> = ({ onClose, onCreated }) => 
         description,
         chapters: [],
         revisions: [],
-        encyclopedia: {},
+        encyclopedia: {
+            entries: []
+        },
         notes: [],
         characters: [],
-        locations: []
+        locations: [],
+        outline: {
+          content: "",
+          notes: [],
+        }
     };
     addProject(newProject);
     onCreated();

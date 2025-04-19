@@ -12,8 +12,6 @@ interface Props {
 export const NewCharacterDialog: React.FC<Props> = ({ projectId, onClose, onCreated }) => {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
-    const [notes, setNotes] = useState('');
-    const [relationships, setRelationships] = useState<Map<string, string>>(new Map());
 
     const handleCreate = ()=> {
         const project = getProject(projectId);
@@ -26,9 +24,10 @@ export const NewCharacterDialog: React.FC<Props> = ({ projectId, onClose, onCrea
         const newCharacter: Character = {
             id: uuidv4(),
             name,
-            notes,
+            aliases: [],
+            notes: [],
             description,
-            relationships,
+            relationships: new Map<string, string>()
         };
 
         project.characters.push(newCharacter);
@@ -49,9 +48,9 @@ export const NewCharacterDialog: React.FC<Props> = ({ projectId, onClose, onCrea
                 />
                 <textarea
                 className="w-full p-2 border rounded mb-4"
-                placeholder="Notes"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 />
                 <div className="flex justify-end space-x-2">
                 <button onClick={onClose} className="text-gray-600 hover:underline">Cancel</button>

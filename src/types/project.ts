@@ -3,6 +3,9 @@ import { Revision } from './revision';
 import { NoteFile } from './notes';
 import { Chapter } from './chapter';
 import { Character } from './character';
+import { Location } from './location';
+import { Outline } from './outline';
+import { Encyclopedia } from './encyclopedia';
 
 export interface Project {
   id: string;
@@ -11,8 +14,9 @@ export interface Project {
   description: string;
   chapters: Chapter[];
   revisions: Revision[];
-  encyclopedia: Record<string, string>;
+  encyclopedia: Encyclopedia;
   notes: NoteFile[];
   characters: Character[];
   locations: Location[];
+  outline: Outline;
 }

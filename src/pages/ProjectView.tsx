@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { getProject } from "../data/storage";
 import { Project } from "../types";
 import NewRevisionDialog from "../components/revision/NewRevisionDialog";
+import { NewCharacterDialog } from "../components/character/NewCharacterDialog";
+import { NewLocationDialog } from "../components/location/NewLocationDialog";
 
 export const ProjectView = () => {
     const { id } = useParams();
@@ -10,6 +12,7 @@ export const ProjectView = () => {
     const [project, setProject] = useState<Project | null>(null);
     const [showRevisionDialog, setShowRevisionDialog] = useState(false);
     const [showCharDialog, setShowCharDialog] = useState(false);
+    const [showLocationDialog, setShowLocationDialog] = useState(false);
 
     const refreshProject = () => {
         setProject(getProject(id!))
@@ -61,39 +64,74 @@ export const ProjectView = () => {
                 />
             )}
 
-        <div>
-            <div className="flex justify-between items-center mb-2">
-            <h2 className="text-xl font-bold">Characters</h2>
-            <button
-                onClick={() => setShowCharDialog(true)}
-                className="bg-blue-600 text-white px-3 py-1 rounded"
-            >
-                + New Character
-            </button>
+            <div>
+                <div className="flex justify-between items-center mb-2">
+                    <h2 className="text-xl font-bold">Characters</h2>
+                    <button
+                        onClick={() => setShowCharDialog(true)}
+                        className="bg-blue-600 text-white px-3 py-1 rounded"
+                    >
+                        + New Character
+                    </button>
+                </div>
+                <ul className="grid grid-cols-2 gap-4">
+                {project?.characters.map((char) => (
+                    <li
+                    key={char.id}
+                    className="p-4 border rounded cursor-pointer hover:bg-gray-50"
+                    onClick={() =>
+                        navigate(`/project/${project.id}/character/${char.id}`)
+                    }
+                    >
+                        <h3 className="font-semibold">{char.name}</h3>
+                        <p className="text-sm text-gray-600">{char.description}</p>
+                    </li>
+                ))}
+                </ul>
             </div>
-            <ul className="grid grid-cols-2 gap-4">
-            {project?.characters.map((char) => (
-                <li
-                key={char.id}
-                className="p-4 border rounded cursor-pointer hover:bg-gray-50"
-                onClick={() =>
-                    navigate(`/projects/${project.id}/characters/${char.id}`)
-                }
-                >
-                <h3 className="font-semibold">{char.name}</h3>
-                <p className="text-sm text-gray-600">{char.notes.slice(0, 60)}...</p>
-                </li>
-            ))}
-            </ul>
-        </div>
 
-        {showCharDialog && (
-            <NewCharacterDialog
-            projectId={project.id}
-            onClose={() => setShowCharDialog(false)}
-            onCreated={() => refreshProject()}
-            />
-        )}
+            {showCharDialog && (
+                <NewCharacterDialog
+                projectId={project.id}
+                onClose={() => setShowCharDialog(false)}
+                onCreated={() => refreshProject()}
+                />
+            )}
+
+            <div>
+                <div className="flex justify-between items-center mb-2">
+                    <h2 className="text-xl font-bold">Locations</h2>
+                    <button
+                        onClick={() => setShowLocationDialog(true)}
+                        className="bg-blue-600 text-white px-3 py-1 rounded"
+                    >
+                        + New Location
+                    </button>
+                </div>
+                <ul className="grid grid-cols-2 gap-4">
+                {project?.locations.map((location) => (
+                    <li
+                    key={location.id}
+                    className="p-4 border rounded cursor-pointer hover:bg-gray-50"
+                    onClick={() =>
+                        navigate(`/project/${project.id}/location/${location.id}`)
+                    }
+                    >
+                        <h3 className="font-semibold">{location.name}</h3>
+                        <p className="text-sm text-gray-600">{location.description}</p>
+                    </li>
+                ))}
+                </ul>
+            </div>
+
+            {showLocationDialog && (
+                <NewLocationDialog
+                    projectId={project.id}
+                    onClose={() => setShowLocationDialog(false)}
+                    onCreated={() => refreshProject()}
+                />
+            )}
+
         </div>
     );
 };
