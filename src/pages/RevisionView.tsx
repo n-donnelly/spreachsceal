@@ -3,10 +3,15 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Project, Revision } from '../types';
 import { v4 as uuidv4 } from 'uuid';
+import NewRevisionDialog from '../components/revision/NewRevisionDialog';
 
 const RevisionView = () => {
   const { id: projectId } = useParams<{id: string}>();
   const [project, setProject] = useState<Project | null>(null);
+  const [showDialog, setShowDialog] = useState(false);
+
+  console.log('Project ID:', projectId);
+  console.log('Project:', project);
 
   //Temp: Mock data until storage is implemented
   useEffect(() => {
@@ -16,9 +21,8 @@ const RevisionView = () => {
     }
   }, [projectId]);
 
-  const handleAddRevision = () => {
-    const name = prompt('Enter revision name:');
-    if (!name || !project) return;
+  const addRevision = (name: string) => {
+    if ( !project) return;
     
     const newRevision: Revision = {
       id: uuidv4(),
@@ -32,8 +36,10 @@ const RevisionView = () => {
       revisions: [...project.revisions, newRevision]
     };
 
+    console.log('Updated Project:', updatedProject);
     setProject(updatedProject);
     localStorage.setItem(`project_${projectId}`, JSON.stringify(updatedProject));
+    setShowDialog(false);
   }
 
   return (
@@ -59,10 +65,17 @@ const RevisionView = () => {
 
         <button
           className="mt-4 bg-blue-600 text-white px-4 py-2 rounded"
-          onClick={handleAddRevision}
+          onClick={() => setShowDialog(true)}
         >
           ➕ Add Revision
         </button>
+
+        {showDialog && (
+          <NewRevisionDialog
+            onSubmit={addRevision}
+            onClose={() => setShowDialog(false)}
+          />
+        )}
       </div>
     </div>
   );

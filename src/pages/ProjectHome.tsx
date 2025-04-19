@@ -1,38 +1,43 @@
 import { useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import { Project } from '../types';
+import { getProjects } from '../data/storage';
+import { CreateProjectDialog } from '../components/project/CreateProjectDialog';
 
 const ProjectHome = () => {
-    const [projects, setProjects] = useState<Project[]>([]);
+    const [showDialog, setShowDialog] = useState(false);
+    const [projects, setProjects] = useState(getProjects());
 
-    const createProject = () => {
-        const newProject: Project = {
-            id: uuidv4(),
-            title: 'New Project',
-            description: 'Project description',
-            revisions: [],
-            encyclopedia: {},
-            notes: [],
-            characters: [],
-            locations: [],
-            genre: 'Fiction'
-        };
-        setProjects([...projects, newProject]);
-    };
+    const refreshProjects = () => setProjects(getProjects());
 
     return (
-        <div className="p-4">
-            <h1 className="text-2xl font-bold">Your Projects</h1>
-            <button onClick={createProject} className="mt-2">+ New Project</button>
-            <ul className="mt-4">
-                {projects.map((project) => (
-                <li key={project.id}>
-                    <a href={`/project/${project.id}`}>{project.title}</a>
-                </li>
-                ))}
-            </ul>
+        <div className="p-6">
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+            onClick={() => setShowDialog(true)}
+          >
+            + New Project
+          </button>
+    
+          {showDialog && (
+            <CreateProjectDialog
+              onClose={() => setShowDialog(false)}
+              onCreated={refreshProjects}
+            />
+          )}
+    
+          <ul className="mt-6 space-y-2">
+            {projects.map((proj) => (
+              <li 
+                key={proj.id} 
+                className="p-4 bg-white shadow rounded"
+                onClick={() => window.location.href = `/project/${proj.id}`}
+                style={{ cursor: 'pointer' }}
+            >
+                <h3 className="text-lg font-semibold">{proj.title}</h3>
+              </li>
+            ))}
+          </ul>
         </div>
-    )
+    );
 };
 
 export default ProjectHome;

@@ -3,5 +3,5 @@ export interface Character {
     name: string;
     notes: string;
     description: string;
-    relationships: Map<Character, string>;
+    relationships: Map<string, string>; // Map of character ID to relationship description
 }
