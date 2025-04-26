@@ -1,0 +1,115 @@
+/* Dashboard.css */
+.dashboard-container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  .sidebar {
+    width: 240px;
+    min-width: 240px; /* Prevents sidebar from shrinking */
+    background-color: #1a1a2e;
+    color: #fff;
+    padding: 20px 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .logo {
+    font-size: 20px;
+    font-weight: bold;
+    padding: 12px 20px;
+    margin-bottom: 20px;
+  }
+  
+  .nav-menu {
+    flex: 1;
+  }
+  
+  .nav-item {
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+  }
+  
+  .nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .nav-item.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-left: 4px solid #4d9de0;
+    padding-left: 16px; /* Adjust padding to account for border */
+  }
+  
+  .nav-item-text {
+    margin-left: 12px;
+  }
+  
+  .main-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background-color: #f5f7fa;
+  }
+  
+  .header {
+    height: 64px;
+    background-color: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  .header h1 {
+    font-size: 20px;
+    font-weight: 500;
+    margin: 0;
+  }
+  
+  .header-actions {
+    display: flex;
+    gap: 12px;
+  }
+  
+  .content-area {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+  }
+  
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  
+  .section-header h2 {
+    margin: 0;
+  }
+  
+  /* For responsive design */
+  @media (max-width: 768px) {
+    .dashboard-container {
+      flex-direction: column;
+    }
+    
+    .sidebar {
+      width: 100%;
+      height: auto;
+      min-height: 56px;
+    }
+    
+    .nav-menu {
+      display: flex;
+      overflow-x: auto;
+    }
+  }
