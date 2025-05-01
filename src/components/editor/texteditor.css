@@ -1,0 +1,82 @@
+/* Editor container */
+.editor-container {
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+  }
+  
+  /* Editor toolbar */
+  .editor-toolbar {
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  /* Editor buttons */
+  .editor-button {
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .editor-button:hover {
+    background-color: #f3f4f6;
+  }
+  
+  .editor-button.active {
+    background-color: #e5e7eb;
+  }
+  
+  /* Editor content area */
+  .editor-content-area {
+    padding: 0.75rem;
+    min-height: 200px;
+  }
+  
+  /* Editor content styling */
+  .editor-content {
+    font-family: inherit;
+    line-height: 1.5;
+    width: 100%;
+    max-width: none;
+    outline: none;
+  }
+  
+  .editor-content h1 {
+    font-size: 2rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .editor-content h2 {
+    font-size: 1.5rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .editor-content h3 {
+    font-size: 1.25rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .editor-content p {
+    margin-bottom: 0.75rem;
+  }
+  
+  .editor-content ul, .editor-content ol {
+    padding-left: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .editor-content li {
+    margin-bottom: 0.25rem;
+  }
+  
+  .editor-content a {
+    color: #3b82f6;
+    text-decoration: underline;
+  }
+  

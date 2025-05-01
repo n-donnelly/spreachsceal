@@ -3,7 +3,7 @@ import { Project } from "../../types";
 import { v4 as uuidv4 } from 'uuid';
 import { useNavigate } from "react-router-dom";
 import { addProject, getProject, getProjects } from "../../data/storage";
-import './ProjectsPage.css';
+import './../../styles/ProjectsList.css'; // Assuming you have a CSS file for styling
 
 interface ProjectListProps {
     project: Project;
