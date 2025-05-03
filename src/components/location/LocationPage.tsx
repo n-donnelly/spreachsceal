@@ -1,68 +1,154 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { getProject } from "../../data/storage";
-import { Location } from "../../types";
+import { Location, NoteFile, Project } from "../../types";
+import { useState, useEffect } from "react";
+import NoteCard from "../note/notecard";
 
-export const LocationPage = () => {
-    const { id, locationId } = useParams();
-    const navigate = useNavigate();
-    const [location, setLocation] = useState<Location | null>(null);
+interface LocationPageProps {
+    location: Location;
+    project: Project;
+    onLocationUpdate: (location: Location) => void;
+    onDeselect: () => void;
+}
 
-    useEffect(() => {
-        const project = getProject(id!);
-        const loc = project?.locations.find((l) => l.id === locationId);
-        setLocation(loc || null);
-    }, [id, locationId]);
-
-    const updateLocation = (updates: Partial<Location>) => {
-        if (!location) return;
-
-        const project = getProject(id!);
-        if (!project) {
-            console.error("Project not found");
-            return;
-        }
-
-        const locIndex = project.locations.findIndex((l) => l.id === locationId);
-        if (locIndex === undefined || locIndex === -1) {
-            console.error("Location not found in project");
-            return;
-        }
-
-        const updated = { ...project.locations[locIndex], ...updates };
-        project.locations[locIndex] = updated;
-        setLocation(updated);
-    };
-
-    if (!location) {
-        return <div>Location not found</div>;
+export const LocationPage = ({ location, project, onLocationUpdate, onDeselect }: LocationPageProps) => {
+    const getNewNote = () => {
+        return {
+            id: crypto.randomUUID(),
+            title: "",
+            content: ""
+        };
     }
 
-    return (
-        <div className="p-6 max-w-3xl mx-auto space-y-6">
-            <div className="flex justify-between items-center">
-                <input
-                    className="text-3xl font-bold w-full p-2 border rounded"
-                    value={location.name}
-                    onChange={(e) => updateLocation({ name: e.target.value })}
-                />
-                <button
-                    onClick={() => navigate(-1)}
-                    className="text-blue-600 underline ml-4"
-                >
-                    ← Back
-                </button>
-            </div>            
+    const [name, setName] = useState(location.name);
+    const [description, setDescription] = useState(location.description);
+    const [notes, setNotes] = useState<NoteFile[]>(location.notes || []);
+    const [newNote, setNewNote] = useState(getNewNote());
+    const [isEdited, setIsEdited] = useState(false); 
 
-            <div>
-                <h2 className="text-xl font-semibold mb-2">Description</h2>
-                <textarea
-                    className="w-full h-40 p-2 border rounded"
-                    value={location.description}
-                    onChange={(e) => updateLocation({ description: e.target.value })}
-                />
+    useEffect(() => {
+        // Update state when character prop changes
+        setName(location.name);
+        setDescription(location.description);
+        setNotes(location.notes || []);
+    }, [location]);
+
+    const handleSave = () => {
+        onLocationUpdate({
+            ...location,
+            name,
+            description,
+            notes
+        });
+        setIsEdited(false);
+    };
+
+    const handleAddNote = () => {
+        if (newNote.title.trim()) {
+            setNotes([...notes, newNote]);
+            setNewNote(getNewNote());
+            setIsEdited(true);
+        }
+    };
+
+    const handleRemoveNote = (index: number) => {
+        const updatedNotes = [...notes];
+        updatedNotes.splice(index, 1);
+        setNotes(updatedNotes);
+        setIsEdited(true);
+    };
+
+    const handleEditNote = (updatedNode: NoteFile) => {
+        const updatedNotes = [...notes];
+        const index = updatedNotes.findIndex(note => note.id === updatedNode.id);
+        if (index !== -1) {
+            updatedNotes[index] = updatedNode;
+            setNotes(updatedNotes);
+            setIsEdited(true);
+        }
+    };
+
+    const handleDeselect = () => {
+        onDeselect();
+    };
+
+    return (
+        <div className="p-6 max-w-4xl mx-auto">
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold">Location Details</h1>
+                <div className="space-x-2">
+                    <button 
+                        onClick={handleDeselect} 
+                        className="px-4 py-2 border rounded text-gray-600"
+                    >
+                        Back
+                    </button>
+                    <button 
+                        onClick={handleSave} 
+                        className={`px-4 py-2 rounded text-white ${isEdited ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'}`}
+                        disabled={!isEdited}
+                    >
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+
+            <div className="space-y-6">
+                {/* Location Name */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                    <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => {
+                            setName(e.target.value);
+                            setIsEdited(true);
+                        }}
+                        className="w-full p-2 border rounded"
+                    />
+                </div>
+
+                {/* Character Description */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <textarea
+                        value={description}
+                        onChange={(e) => {
+                            setDescription(e.target.value);
+                            setIsEdited(true);
+                        }}
+                        rows={4}
+                        className="w-full p-2 border rounded"
+                    />
+                </div>
+
+                {/* Location Notes */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                    <div className="flex mb-2">
+                        <input
+                            type="text"
+                            value={newNote.content}
+                            onChange={(e) => setNewNote({ ...newNote, content: e.target.value })}
+                            className="flex-grow p-2 border rounded-l"
+                            placeholder="Add a new note"
+                        />
+                        <button
+                            onClick={handleAddNote}
+                            className="bg-blue-600 text-white px-4 py-2 rounded-r"
+                        >
+                            Add
+                        </button>
+                    </div>
+                    <div className="space-y-2">
+                        {notes.length === 0 ? (
+                            <p className="text-gray-500 italic">No notes added</p>
+                        ) : (
+                            notes.map((note, index) => (
+                                <NoteCard key={index} note={note} onDelete={() => handleRemoveNote(index)} onEdit={handleEditNote} />
+                            ))
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );
-
 }

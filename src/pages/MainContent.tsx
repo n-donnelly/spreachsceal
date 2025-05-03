@@ -1,4 +1,5 @@
 import CharacterListView from "../components/character/CharacterListView";
+import LocationListView from "../components/location/LocationListView";
 import NotesList from "../components/note/noteslist";
 import { OutlinePage } from "../components/outline/OutlinePage";
 import { saveProject } from "../data/storage";
@@ -40,7 +41,10 @@ export const MainContent = ({ activeSection, project, onSectionChange }: MainCon
                     onProjectUpdate={handleProjectUpdate}
                    />;
         case "locations":
-            return <div>Locations</div>;
+            return <LocationListView 
+                        project={project} 
+                        onProjectUpdate={handleProjectUpdate}
+                    />;;
         case "outline":
             return <OutlinePage
                         project={project}

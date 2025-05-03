@@ -37,8 +37,6 @@ export const CharacterPage = ({ character, project, onCharacterUpdate, onDeselec
     }, [character]);
 
     const handleSave = () => {
-        // Find the project containing this character
-        
         onCharacterUpdate({
             ...character,
             name,
