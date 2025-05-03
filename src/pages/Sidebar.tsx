@@ -10,10 +10,10 @@ interface NavSection {
 
 const navSections: NavSection[] = [
     { id: "overview", label: "Overview" },
+    { id: "outline", label: "Outline" },
+    { id: "chapters", label: "Chapters" },
     { id: "characters", label: "Characters" },
     { id: "locations", label: "Locations" },
-    { id: "chapters", label: "Chapters" },
-    { id: "outline", label: "Outline" },
     { id: "encyclopedia", label: "Encyclopedia" },
     { id: "notes", label: "Notes" },
     { id: "revisions", label: "Revisions" },

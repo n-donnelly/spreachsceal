@@ -12,6 +12,10 @@ export const Dashboard = () => {
     console.log("Current Project:", currentProject);
     console.log("Loading:", loading); 
     console.log("Error:", error);
+
+    const handleSectionChange = (section: string, optionalId?: string) => {
+        setActiveSection(section);
+    };
     
     if (loading) {
         return <div className="p-6">Loading...</div>;
@@ -44,7 +48,8 @@ export const Dashboard = () => {
                 <Header projectTitle={currentProject.title} />
                 <MainContent 
                     activeSection={activeSection} 
-                    project={currentProject} 
+                    project={currentProject}
+                    onSectionChange={handleSectionChange}
                 />
             </div>
         </div>
