@@ -24,7 +24,7 @@ export const MainContent = ({ activeSection, project }: MainContentProps) => {
         case "chapters":
             return <div>Chapters</div>;
         case "characters":
-            return <CharacterListView characters={project?.characters || []} />;
+            return <CharacterListView project={project} onProjectUpdate={handleProjectUpdate} />;
         case "locations":
             return <div>Locations</div>;
         case "outline":
