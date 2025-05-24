@@ -1,24 +1,33 @@
-// Inside RevisionView.tsx
 import React, { useState } from 'react';
+import { Revision } from '../../types/revision';
 import { getProject, saveProject } from '../../data/storage';
-import { Revision } from '../../types';
+import './Revision.css';
 
 interface Props {
   projectId: string;
   onClose: () => void;
-  onCreated: (name: string) => void;
+  onCreated: (versionName: string) => void;
 }
 
-const NewRevisionDialog: React.FC<Props> = ({
+export const NewRevisionDialog: React.FC<Props> = ({
   projectId,
   onClose,
   onCreated,
 }) => {
   const [name, setName] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
 
-  const handleCreate = (e: React.FormEvent) => {
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (name.trim()) {
+    
+    if (!name.trim()) {
+      alert('Please enter a revision name');
+      return;
+    }
+
+    setIsCreating(true);
+
+    try {
       const project = getProject(projectId);
       
       if (!project) {
@@ -27,45 +36,131 @@ const NewRevisionDialog: React.FC<Props> = ({
         return;
       }
 
-      const newRevision: Revision = {
-        id: crypto.randomUUID(),
-        versionName: name,
-        chapters: project.chapters,
-        date: new Date().toISOString()
+      // Check if revision name already exists
+      const existingRevision = project.revisions.find(
+        revision => revision.versionName.toLowerCase() === name.trim().toLowerCase()
+      );
+
+      if (existingRevision) {
+        alert('A revision with this name already exists. Please choose a different name.');
+        return;
       }
 
-      project.revisions.push(newRevision);
-      saveProject(project);
+      // Create a deep copy of the current chapters to avoid reference issues
+      const chaptersCopy = JSON.parse(JSON.stringify(project.chapters));
 
+      const newRevision: Revision = {
+        id: crypto.randomUUID(),
+        versionName: name.trim(),
+        chapters: chaptersCopy,
+        date: new Date().toISOString()
+      };
+
+      // Add the new revision to the project
+      const updatedProject = {
+        ...project,
+        revisions: [...project.revisions, newRevision]
+      };
+
+      // Save the updated project
+      saveProject(updatedProject);
+
+      // Call the success callback
       onCreated(newRevision.versionName);
+      onClose();
+    } catch (error) {
+      console.error('Error creating revision:', error);
+      alert('Failed to create revision. Please try again.');
+    } finally {
+      setIsCreating(false);
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      onClose();
+    }
+  };
+
+  const generateSuggestedName = () => {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      year: 'numeric'
+    });
+    const timeStr = now.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      hour12: true 
+    });
+    return `Revision ${dateStr} ${timeStr}`;
+  };
+
+  const handleUseSuggested = () => {
+    setName(generateSuggestedName());
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4">New Revision</h2>
-        <form onSubmit={handleCreate} className="space-y-4">
-          <input
-            className="w-full p-2 border rounded"
-            placeholder="Revision Name (e.g., First Draft)"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-          <div className="flex justify-end space-x-2">
+    <div className="dialog-overlay">
+      <div className="dialog-content">
+        <h2 className="dialog-title">Create New Revision</h2>
+        
+        <div className="dialog-info">
+          <p className="dialog-description">
+            This will create a snapshot of your current project state, including all chapters and scenes.
+          </p>
+        </div>
+
+        <form onSubmit={handleCreate} className="dialog-form">
+          <div className="dialog-field">
+            <label htmlFor="revision-name" className="dialog-label">
+              Revision Name
+            </label>
+            <input
+              id="revision-name"
+              className="dialog-input"
+              placeholder="e.g., First Draft, Chapter 5 Complete, etc."
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={isCreating}
+              autoFocus
+              required
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={handleUseSuggested}
+            className="suggested-name-button"
+            disabled={isCreating}
+          >
+            Use suggested name: "{generateSuggestedName()}"
+          </button>
+
+          <div className="dialog-footer">
             <button
               type="button"
               onClick={onClose}
-              className="text-gray-500 hover:underline"
+              className="cancel-button"
+              disabled={isCreating}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded"
+              className={`create-button ${isCreating ? 'loading' : ''}`}
+              disabled={isCreating || !name.trim()}
             >
-              Create
+              {isCreating ? (
+                <>
+                  <span className="loading-spinner"></span>
+                  Creating...
+                </>
+              ) : (
+                'Create Revision'
+              )}
             </button>
           </div>
         </form>
@@ -73,4 +168,3 @@ const NewRevisionDialog: React.FC<Props> = ({
     </div>
   );
 };
-export default NewRevisionDialog;

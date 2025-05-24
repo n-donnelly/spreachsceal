@@ -45,7 +45,6 @@
     transition: transform 0.2s, box-shadow 0.2s;
     cursor: pointer;
     border: 1px solid #e0e0e0;
-    height: 200px;
     display: flex;
     flex-direction: column;
   }

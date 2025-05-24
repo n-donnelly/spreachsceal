@@ -1,0 +1,295 @@
+/* Chapter list styles */
+.chapters-container {
+  padding: 24px;
+}
+
+.chapters-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.chapters-title {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.add-chapter-button {
+  background-color: #3b82f6;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+.add-chapter-button:hover {
+  background-color: #2563eb;
+}
+
+.empty-chapters-message {
+  text-align: center;
+  padding: 32px 0;
+  color: #6b7280;
+}
+
+.chapters-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.chapter-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.chapter-card:hover {
+  background-color: #f9fafb;
+}
+
+.chapter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chapter-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.scenes-count {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.scenes-list {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #4b5563;
+}
+
+/* Dialog styles */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.dialog-content {
+  background-color: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+}
+
+.dialog-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.dialog-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.cancel-button {
+  color: #4b5563;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.create-button {
+  background-color: #3b82f6;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+.create-button:hover {
+  background-color: #2563eb;
+}
+
+/* Chapter View Page styles */
+.chapter-view-container {
+  padding: 24px;
+}
+
+.chapter-view-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  cursor: pointer;
+  font-size: 16px;
+  margin-right: 16px;
+}
+
+.chapter-view-title {
+  font-size: 24px;
+  font-weight: bold;
+  flex-grow: 1;
+}
+
+.add-scene-button {
+  background-color: #3b82f6;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+.add-scene-button:hover {
+  background-color: #2563eb;
+}
+
+.chapter-info {
+  margin-bottom: 24px;
+}
+
+.chapter-stats {
+  display: flex;
+  gap: 16px;
+  color: #6b7280;
+}
+
+.empty-scenes-message {
+  text-align: center;
+  padding: 32px 0;
+  color: #6b7280;
+}
+
+.scenes-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.scene-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.scene-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #f9fafb;
+  cursor: pointer;
+}
+
+.scene-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.scene-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.edit-button, .delete-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.edit-button {
+  color: #3b82f6;
+}
+
+.delete-button {
+  color: #ef4444;
+}
+
+.expand-icon {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.scene-overview-editor {
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.overview-textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  resize: vertical;
+}
+
+.scene-content {
+  padding: 16px;
+}
+
+.scene-editor {
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+}
+
+.scene-content-editor {
+  min-height: 200px;
+}
+
+.scene-content-display {
+  line-height: 1.6;
+}
+
+.scene-card.dragging {
+  opacity: 0.5;
+}
+
+.scene-card {
+  cursor: move;
+}
+
+.move-button {
+  background: none;
+  border: 1px solid #ccc;
+  padding: 2px 6px;
+  margin: 0 2px;
+  cursor: pointer;
+}
+
+.move-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

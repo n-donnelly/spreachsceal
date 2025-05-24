@@ -1,10 +1,13 @@
+import { ChaptersList } from "../components/chapter/ChapterListView";
 import CharacterListView from "../components/character/CharacterListView";
+import { EncyclopediaPage } from "../components/encylcopedia/EncyclopediaPage";
 import LocationListView from "../components/location/LocationListView";
 import NotesList from "../components/note/noteslist";
 import { OutlinePage } from "../components/outline/OutlinePage";
+import { RevisionListView } from "../components/revision/RevisionListView";
 import { saveProject } from "../data/storage";
 import { Project } from "../types";
-import { ProjectView } from "./ProjectView";
+import { ProjectView } from "../components/project/ProjectView";
 
 interface MainContentProps {
     activeSection: string;
@@ -29,41 +32,50 @@ export const MainContent = ({ activeSection, project, onSectionChange }: MainCon
         case "overview":
         case "project":
             return <ProjectView 
-                    project={project} 
-                    onProjectUpdate={handleProjectUpdate} 
-                    onSectionChange={handleSectionChange} 
+                        project={project} 
+                        onProjectUpdate={handleProjectUpdate} 
+                        onSectionChange={handleSectionChange} 
                    />;  
         case "chapters":
-            return <div>Chapters</div>;
+            return <ChaptersList 
+                        project={project} 
+                        onProjectUpdate={handleProjectUpdate}
+                   />;
         case "characters":
             return <CharacterListView 
-                    project={project} 
-                    onProjectUpdate={handleProjectUpdate}
+                        project={project} 
+                        onProjectUpdate={handleProjectUpdate}
                    />;
         case "locations":
             return <LocationListView 
                         project={project} 
                         onProjectUpdate={handleProjectUpdate}
-                    />;;
+                    />;
         case "outline":
             return <OutlinePage
                         project={project}
                         onProjectUpdate={handleProjectUpdate}
                     />;
         case "encyclopedia":
-            return <div>Encyclopedia</div>;
+            return <EncyclopediaPage
+                        project={project}
+                        onProjectUpdate={handleProjectUpdate}
+                    />;
         case "notes":
             return <NotesList 
-                    project={project} 
-                    onProjectUpdate={handleProjectUpdate}
+                        project={project} 
+                        onProjectUpdate={handleProjectUpdate}
                    />;
         case "revisions":
-            return <div>Revisions</div>;
+            return <RevisionListView
+                        project={project}
+                        onProjectUpdate={handleProjectUpdate}
+                    />;
         default:
-            return <ProjectView 
-                    project={project} 
-                    onProjectUpdate={handleProjectUpdate} 
-                    onSectionChange={handleSectionChange} 
-                   />;  
+            return <ProjectView
+                        project={project}
+                        onProjectUpdate={handleProjectUpdate}
+                        onSectionChange={handleSectionChange}
+                   />;
     }
 };

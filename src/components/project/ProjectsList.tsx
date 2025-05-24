@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { Project } from "../../types";
 import { v4 as uuidv4 } from 'uuid';
 import { useNavigate } from "react-router-dom";
-import { addProject, getProject, getProjects } from "../../data/storage";
+import { addProject, getProjects } from "../../data/storage";
 import './../../styles/ProjectsList.css'; // Assuming you have a CSS file for styling
+import ReadOnlyEditor from "../editor/readonlyeditor";
 
 interface ProjectListProps {
     project: Project;
@@ -14,9 +15,7 @@ export const ProjectCard = ({ project, onSelect }: ProjectListProps) => {
     return (
         <div className="project-card" onClick={() => onSelect(project.id)}>
             <h3>{project.title}</h3>
-            <p className="project-description">
-                {project.description?.substring(0, 100) || 'No description'}
-            </p>
+            <ReadOnlyEditor content={project.description?.substring(0, 100) || 'No description'} />
             <p>Genre: {project.genre}</p>
             <p>Chapters: {project.chapters.length}</p>
         </div>

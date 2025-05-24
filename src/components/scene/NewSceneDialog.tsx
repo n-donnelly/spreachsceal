@@ -6,12 +6,13 @@ import { v4 as uuidv4 } from 'uuid';
 interface Props {
     projectId: string;
     chapterId: string;
+    nextSceneNumber: number;
     onClose: () => void;
     onCreated: () => void;
 }
 
-export const NewSceneDialog: React.FC<Props> = ({ projectId, chapterId, onClose, onCreated }) => {
-    const [number, setNumber] = useState(1);
+export const NewSceneDialog: React.FC<Props> = ({ projectId, chapterId, nextSceneNumber,onClose, onCreated }) => {
+    const [number, setNumber] = useState(nextSceneNumber);
     const [overview, setOverview] = useState('');
 
     const handleCreate = () => {
