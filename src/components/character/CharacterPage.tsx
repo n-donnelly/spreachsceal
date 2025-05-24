@@ -1,6 +1,10 @@
-import { Character, NoteFile, Project } from "../../types";
-import { useState, useEffect } from "react";
-import NoteCard from "../note/notecard";
+import React, { useState, useEffect } from 'react';
+import { Character } from '../../types/character';
+import { Project } from '../../types/project';
+import { NoteFile } from '../../types/notes';
+import { saveProject } from '../../data/storage';
+import RichTextEditor from '../editor/texteditor';
+import './Character.css';
 
 interface CharacterPageProps {
     character: Character;
@@ -9,206 +13,420 @@ interface CharacterPageProps {
     onDeselect: () => void;
 }
 
-export const CharacterPage = ({ character, project, onCharacterUpdate, onDeselect }: CharacterPageProps) => {
-    const getNewNote = () => {
-        return {
-            id: crypto.randomUUID(),
-            title: "",
-            content: ""
-        };
-    }
-
-    const [name, setName] = useState(character.name);
-    const [description, setDescription] = useState(character.description);
-    const [aliases, setAliases] = useState<string[]>(character.aliases || []);
-    const [newAlias, setNewAlias] = useState("");
-    const [notes, setNotes] = useState<NoteFile[]>(character.notes || []);
-    const [newNote, setNewNote] = useState(getNewNote());
-    const [isEdited, setIsEdited] = useState(false);  
-    
-    const otherCharacters = project.characters.filter((c) => c.id !== character.id);
+export const CharacterPage: React.FC<CharacterPageProps> = ({
+    character,
+    project,
+    onCharacterUpdate,
+    onDeselect
+}) => {
+    const [editedCharacter, setEditedCharacter] = useState<Character>(character);
+    const [newAlias, setNewAlias] = useState('');
+    const [showAddNote, setShowAddNote] = useState(false);
+    const [newNoteTitle, setNewNoteTitle] = useState('');
+    const [newNoteContent, setNewNoteContent] = useState('');
+    const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+    const [editedNoteTitle, setEditedNoteTitle] = useState('');
+    const [editedNoteContent, setEditedNoteContent] = useState('');
 
     useEffect(() => {
-        // Update state when character prop changes
-        setName(character.name);
-        setDescription(character.description);
-        setAliases(character.aliases || []);
-        setNotes(character.notes || []);
+        setEditedCharacter(character);
     }, [character]);
 
-    const handleSave = () => {
-        onCharacterUpdate({
-            ...character,
-            name,
-            description,
-            aliases,
-            notes
+    const handleSaveCharacter = () => {
+        onCharacterUpdate(editedCharacter);
+        saveProject({
+            ...project,
+            characters: project.characters.map(char => 
+                char.id === editedCharacter.id ? editedCharacter : char
+            )
         });
-        setIsEdited(false);
+    };
+
+    const handleNameChange = (name: string) => {
+        const updated = { ...editedCharacter, name };
+        setEditedCharacter(updated);
+        handleSaveCharacter();
+    };
+
+    const handleDescriptionChange = (description: string) => {
+        const updated = { ...editedCharacter, description };
+        setEditedCharacter(updated);
+        handleSaveCharacter();
     };
 
     const handleAddAlias = () => {
-        if (newAlias.trim()) {
-            setAliases([...aliases, newAlias.trim()]);
-            setNewAlias("");
-            setIsEdited(true);
+        if (!newAlias.trim()) {
+            alert('Please enter an alias');
+            return;
         }
+
+        if (editedCharacter.aliases.includes(newAlias.trim())) {
+            alert('This alias already exists');
+            return;
+        }
+
+        const updated = {
+            ...editedCharacter,
+            aliases: [...editedCharacter.aliases, newAlias.trim()]
+        };
+        setEditedCharacter(updated);
+        onCharacterUpdate(updated);
+        setNewAlias('');
     };
 
-    const handleRemoveAlias = (index: number) => {
-        const updatedAliases = [...aliases];
-        updatedAliases.splice(index, 1);
-        setAliases(updatedAliases);
-        setIsEdited(true);
+    const handleRemoveAlias = (aliasToRemove: string) => {
+        const updated = {
+            ...editedCharacter,
+            aliases: editedCharacter.aliases.filter(alias => alias !== aliasToRemove)
+        };
+        setEditedCharacter(updated);
+        onCharacterUpdate(updated);
     };
 
     const handleAddNote = () => {
-        newNote.title = newNote.title.trim();
-        newNote.content = newNote.content.trim();
-        newNote.id = crypto.randomUUID();
-        setNotes([...notes, newNote]);
-        setNewNote(getNewNote());
-        setIsEdited(true);
-    };
-
-    const handleRemoveNote = (index: number) => {
-        const updatedNotes = [...notes];
-        updatedNotes.splice(index, 1);
-        setNotes(updatedNotes);
-        setIsEdited(true);
-    };
-
-    const handleEditNote = (updatedNote: NoteFile) => {
-        const updatedNotes = [...notes];
-        const noteIndex = updatedNotes.findIndex(note => note.id === updatedNote.id);
-        if (noteIndex !== -1) {
-            updatedNotes[noteIndex] = updatedNote;
+        if (!newNoteTitle.trim()) {
+            alert('Please enter a title for the note');
+            return;
         }
-        setNotes(updatedNotes);
-        setIsEdited(true);
+
+        const newNote: NoteFile = {
+            id: crypto.randomUUID(),
+            title: newNoteTitle.trim(),
+            content: newNoteContent
+        };
+
+        const updated = {
+            ...editedCharacter,
+            notes: [...editedCharacter.notes, newNote]
+        };
+
+        setEditedCharacter(updated);
+        onCharacterUpdate(updated);
+
+        // Reset form
+        setNewNoteTitle('');
+        setNewNoteContent('');
+        setShowAddNote(false);
     };
 
-    const handleBack = () => {
-        onDeselect();
-    }
+    const handleDeleteNote = (noteId: string) => {
+        if (!window.confirm('Are you sure you want to delete this note?')) {
+            return;
+        }
+
+        const updated = {
+            ...editedCharacter,
+            notes: editedCharacter.notes.filter(note => note.id !== noteId)
+        };
+
+        setEditedCharacter(updated);
+        onCharacterUpdate(updated);
+    };
+
+    const handleEditNote = (note: NoteFile) => {
+        setEditingNoteId(note.id);
+        setEditedNoteTitle(note.title);
+        setEditedNoteContent(note.content);
+    };
+
+    const handleSaveEditedNote = () => {
+        if (!editedNoteTitle.trim()) {
+            alert('Please enter a title for the note');
+            return;
+        }
+
+        const updated = {
+            ...editedCharacter,
+            notes: editedCharacter.notes.map(note => 
+                note.id === editingNoteId 
+                    ? { ...note, title: editedNoteTitle.trim(), content: editedNoteContent }
+                    : note
+            )
+        };
+
+        setEditedCharacter(updated);
+        onCharacterUpdate(updated);
+
+        // Reset editing state
+        setEditingNoteId(null);
+        setEditedNoteTitle('');
+        setEditedNoteContent('');
+    };
+
+    const handleCancelEdit = () => {
+        setEditingNoteId(null);
+        setEditedNoteTitle('');
+        setEditedNoteContent('');
+    };
+
+    const handleCancelAddNote = () => {
+        setShowAddNote(false);
+        setNewNoteTitle('');
+        setNewNoteContent('');
+    };
+
+    // Get other characters for potential relationships
+    const otherCharacters = project.characters.filter(char => char.id !== character.id);
 
     return (
-        <div className="p-6 max-w-4xl mx-auto">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">Character Details</h1>
-                <div className="space-x-2">
-                    <button 
-                        onClick={handleBack} 
-                        className="px-4 py-2 border rounded text-gray-600"
-                    >
-                        Back
-                    </button>
-                    <button 
-                        onClick={handleSave} 
-                        className={`px-4 py-2 rounded text-white ${isEdited ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'}`}
-                        disabled={!isEdited}
-                    >
-                        Save Changes
-                    </button>
+        <div className="character-page-container">
+            <div className="character-page-header">
+                <button onClick={onDeselect} className="back-button">
+                    ← Back to Characters
+                </button>
+                <h1 className="character-page-title">{editedCharacter.name}</h1>
+            </div>
+
+            <div className="character-content">
+                <div className="character-info-section">
+                    <h2 className="character-section-title">Basic Information</h2>
+                    
+                    <div className="character-field">
+                        <label htmlFor="character-name" className="character-field-label">
+                            Name
+                        </label>
+                        <input
+                            id="character-name"
+                            type="text"
+                            className="character-input"
+                            value={editedCharacter.name}
+                            onChange={(e) => handleNameChange(e.target.value)}
+                            placeholder="Character name"
+                        />
+                    </div>
+
+                    <div className="character-field">
+                        <label htmlFor="character-description" className="character-field-label">
+                            Description
+                        </label>
+                        <textarea
+                            id="character-description"
+                            className="character-textarea"
+                            value={editedCharacter.description}
+                            onChange={(e) => handleDescriptionChange(e.target.value)}
+                            placeholder="Character description"
+                        />
+                    </div>
+
+                    <div className="aliases-section">
+                        <label className="character-field-label">Aliases</label>
+                        
+                        {editedCharacter.aliases.length > 0 && (
+                            <div className="aliases-list">
+                                {editedCharacter.aliases.map((alias, index) => (
+                                    <span key={index} className="alias-tag">
+                                        {alias}
+                                        <button
+                                            className="alias-remove"
+                                            onClick={() => handleRemoveAlias(alias)}
+                                            title="Remove alias"
+                                        >
+                                            ×
+                                        </button>
+                                    </span>
+                                ))}
+                            </div>
+                        )}
+
+                        <div className="alias-input-container">
+                            <input
+                                type="text"
+                                className="alias-input"
+                                placeholder="Add alias"
+                                value={newAlias}
+                                onChange={(e) => setNewAlias(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        handleAddAlias();
+                                    }
+                                }}
+                            />
+                            <button
+                                className="add-alias-button"
+                                onClick={handleAddAlias}
+                                disabled={!newAlias.trim()}
+                            >
+                                Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="relationships-section">
+                    <h2 className="character-section-title">Relationships</h2>
+                    
+                    {otherCharacters.length > 0 ? (
+                        <div className="relationships-list">
+                            {otherCharacters.map((otherChar) => {
+                                const relationship = editedCharacter.relationships?.get?.(otherChar.id) || '';
+                                return (
+                                    <div key={otherChar.id} className="relationship-item">
+                                        <div className="relationship-character">{otherChar.name}</div>
+                                        <input
+                                            type="text"
+                                            className="character-input"
+                                            placeholder="Describe relationship..."
+                                            value={relationship}
+                                            onChange={(e) => {
+                                                const newRelationships = new Map(editedCharacter.relationships);
+                                                if (e.target.value.trim()) {
+                                                    newRelationships.set(otherChar.id, e.target.value);
+                                                } else {
+                                                    newRelationships.delete(otherChar.id);
+                                                }
+                                                const updated = {
+                                                    ...editedCharacter,
+                                                    relationships: newRelationships
+                                                };
+                                                setEditedCharacter(updated);
+                                                onCharacterUpdate(updated);
+                                            }}
+                                        />
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <p className="empty-notes">
+                            No other characters to create relationships with yet.
+                        </p>
+                    )}
                 </div>
             </div>
 
-            <div className="space-y-6">
-                {/* Character Name */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                    <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => {
-                            setName(e.target.value);
-                            setIsEdited(true);
-                        }}
-                        className="w-full p-2 border rounded"
-                    />
+            <div className="notes-section">
+                <div className="notes-header">
+                    <h2 className="character-section-title">Character Notes</h2>
+                    <button 
+                        className="add-note-button"
+                        onClick={() => setShowAddNote(true)}
+                    >
+                        Add Note
+                    </button>
                 </div>
 
-                {/* Character Description */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                    <textarea
-                        value={description}
-                        onChange={(e) => {
-                            setDescription(e.target.value);
-                            setIsEdited(true);
-                        }}
-                        rows={4}
-                        className="w-full p-2 border rounded"
-                    />
-                </div>
+                {showAddNote && (
+                    <div className="add-note-form">
+                        <h3 className="add-note-form-title">Add New Note</h3>
+                        
+                        <div className="add-note-field">
+                            <label htmlFor="note-title" className="add-note-label">
+                                Title *
+                            </label>
+                            <input
+                                id="note-title"
+                                type="text"
+                                className="add-note-input"
+                                placeholder="Note title"
+                                value={newNoteTitle}
+                                onChange={(e) => setNewNoteTitle(e.target.value)}
+                            />
+                        </div>
 
-                {/* Character Aliases */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Aliases</label>
-                    <div className="flex mb-2">
-                        <input
-                            type="text"
-                            value={newAlias}
-                            onChange={(e) => setNewAlias(e.target.value)}
-                            className="flex-grow p-2 border rounded-l"
-                            placeholder="Add a new alias"
-                        />
-                        <button
-                            onClick={handleAddAlias}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-r"
-                        >
-                            Add
-                        </button>
-                    </div>
-                    <div className="space-y-2">
-                        {aliases.length === 0 ? (
-                            <p className="text-gray-500 italic">No aliases added</p>
-                        ) : (
-                            aliases.map((alias, index) => (
-                                <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                                    <span>{alias}</span>
-                                    <button
-                                        onClick={() => handleRemoveAlias(index)}
-                                        className="text-red-600 hover:text-red-800"
-                                    >
-                                        Remove
-                                    </button>
-                                </div>
-                            ))
-                        )}
-                    </div>
-                </div>
+                        <div className="add-note-field">
+                            <label htmlFor="note-content" className="add-note-label">
+                                Content
+                            </label>
+                            <RichTextEditor
+                                content={newNoteContent}
+                                onChange={setNewNoteContent}
+                                placeholder="Note content..."
+                                className="note-editor"
+                            />
+                        </div>
 
-                {/* Character Notes */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-                    <div className="flex mb-2">
-                        <input
-                            type="text"
-                            value={newNote.content}
-                            onChange={(e) => setNewNote({ ...newNote, content: e.target.value })}
-                            className="flex-grow p-2 border rounded-l"
-                            placeholder="Add a new note"
-                        />
-                        <button
-                            onClick={handleAddNote}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-r"
-                        >
-                            Add
-                        </button>
+                        <div className="add-note-actions">
+                            <button 
+                                className="add-note-cancel-button"
+                                onClick={handleCancelAddNote}
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                className="add-note-save-button"
+                                onClick={handleAddNote}
+                                disabled={!newNoteTitle.trim()}
+                            >
+                                Add Note
+                            </button>
+                        </div>
                     </div>
-                    <div className="space-y-2">
-                        {notes.length === 0 ? (
-                            <p className="text-gray-500 italic">No notes added</p>
-                        ) : (
-                            notes.map((note, index) => (
-                                <NoteCard key={index} note={note} onDelete={() => handleRemoveNote(index)} onEdit={handleEditNote} />
-                            ))
-                        )}
-                    </div>
-                </div>
+                )}
 
-                {/* Relationships section could be added here in the future */}
+                <div className="notes-list">
+                    {editedCharacter.notes.length > 0 ? (
+                        editedCharacter.notes.map((note) => (
+                            <div key={note.id} className="note-item">
+                                {editingNoteId === note.id ? (
+                                    <div>
+                                        <div className="add-note-field">
+                                            <label className="add-note-label">Title *</label>
+                                            <input
+                                                type="text"
+                                                className="add-note-input"
+                                                value={editedNoteTitle}
+                                                onChange={(e) => setEditedNoteTitle(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="add-note-field">
+                                            <label className="add-note-label">Content</label>
+                                            <RichTextEditor
+                                                content={editedNoteContent}
+                                                onChange={setEditedNoteContent}
+                                                placeholder="Note content..."
+                                                className="note-editor"
+                                            />
+                                        </div>
+                                        <div className="add-note-actions">
+                                            <button 
+                                                className="add-note-cancel-button"
+                                                onClick={handleCancelEdit}
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button 
+                                                className="add-note-save-button"
+                                                onClick={handleSaveEditedNote}
+                                                disabled={!editedNoteTitle.trim()}
+                                            >
+                                                Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <div className="outline-note-header">
+                                            <h3 className="note-title">{note.title}</h3>
+                                            <div className="outline-note-actions">
+                                                <button 
+                                                    className="outline-note-edit-button"
+                                                    onClick={() => handleEditNote(note)}
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button 
+                                                    className="outline-note-delete-button"
+                                                    onClick={() => handleDeleteNote(note.id)}
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div 
+                                            className="note-content"
+                                            dangerouslySetInnerHTML={{ __html: note.content || '<p>No content</p>' }}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        ))
+                    ) : (
+                        <div className="empty-notes">
+                            No notes yet. Click "Add Note" to create your first character note.
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

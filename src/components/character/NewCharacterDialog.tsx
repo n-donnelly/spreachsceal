@@ -1,64 +1,119 @@
 import React, { useState } from 'react';
+import { Character } from '../../types/character';
 import { getProject, saveProject } from '../../data/storage';
-import { Character } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
+import './Character.css';
 
 interface Props {
-    projectId: string;
-    onClose: () => void;
-    onCreated: () => void;
+  projectId: string;
+  onClose: () => void;
+  onCreated: () => void;
 }
 
 export const NewCharacterDialog: React.FC<Props> = ({ projectId, onClose, onCreated }) => {
-    const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
 
-    const handleCreate = ()=> {
-        const project = getProject(projectId);
-        if (!project) {
-            console.error('Project not found');
-            alert('Project not found');
-            return;
-        }
-
-        const newCharacter: Character = {
-            id: uuidv4(),
-            name,
-            aliases: [],
-            notes: [],
-            description,
-            relationships: new Map<string, string>()
-        };
-
-        project.characters.push(newCharacter);
-        saveProject(project);
-        onCreated();
-        onClose();
+  const handleCreate = async () => {
+    if (!name.trim()) {
+      alert('Please enter a character name');
+      return;
     }
 
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
-                <h2 className="text-xl font-bold mb-4">New Character</h2>
-                <input
-                className="w-full p-2 border rounded mb-3"
-                placeholder="Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                />
-                <textarea
-                className="w-full p-2 border rounded mb-4"
-                placeholder="Description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                />
-                <div className="flex justify-end space-x-2">
-                <button onClick={onClose} className="text-gray-600 hover:underline">Cancel</button>
-                <button onClick={handleCreate} className="bg-blue-600 text-white px-4 py-2 rounded">
-                    Create
-                </button>
-                </div>
-            </div>
-        </div>
-    );
+    setIsCreating(true);
+
+    try {
+      const project = getProject(projectId);
+      if (!project) {
+        console.error('Project not found');
+        alert('Project not found');
+        return;
+      }
+
+      const newCharacter: Character = {
+        id: uuidv4(),
+        name: name.trim(),
+        aliases: [],
+        notes: [],
+        description: description.trim(),
+        relationships: new Map<string, string>()
+      };
+
+      project.characters.push(newCharacter);
+      saveProject(project);
+      onCreated();
+      onClose();
+    } catch (error) {
+      console.error('Error creating character:', error);
+      alert('Failed to create character. Please try again.');
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      onClose();
+    }
+  };
+
+  return (
+    <div className="character-dialog-overlay">
+      <div className="character-dialog-content">
+        <h2 className="character-dialog-title">New Character</h2>
+        
+        <form className="character-dialog-form" onSubmit={(e) => { e.preventDefault(); handleCreate(); }}>
+          <div className="character-dialog-field">
+            <label htmlFor="character-name" className="character-dialog-label">
+              Name *
+            </label>
+            <input
+              id="character-name"
+              className="character-dialog-input"
+              placeholder="Character name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={isCreating}
+              autoFocus
+              required
+            />
+          </div>
+
+          <div className="character-dialog-field">
+            <label htmlFor="character-description" className="character-dialog-label">
+              Description
+            </label>
+            <textarea
+              id="character-description"
+              className="character-dialog-textarea"
+              placeholder="Character description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              disabled={isCreating}
+            />
+          </div>
+
+          <div className="character-dialog-footer">
+            <button
+              type="button"
+              onClick={onClose}
+              className="character-cancel-button"
+              disabled={isCreating}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="character-create-button"
+              disabled={isCreating || !name.trim()}
+            >
+              {isCreating ? 'Creating...' : 'Create'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 };

@@ -1,6 +1,10 @@
-import { Location, NoteFile, Project } from "../../types";
-import { useState, useEffect } from "react";
-import NoteCard from "../note/notecard";
+import React, { useState, useEffect } from 'react';
+import { Location } from '../../types/location';
+import { Project } from '../../types/project';
+import { NoteFile } from '../../types/notes';
+import { saveProject } from '../../data/storage';
+import RichTextEditor from '../editor/texteditor';
+import './Location.css';
 
 interface LocationPageProps {
     location: Location;
@@ -9,146 +13,303 @@ interface LocationPageProps {
     onDeselect: () => void;
 }
 
-export const LocationPage = ({ location, project, onLocationUpdate, onDeselect }: LocationPageProps) => {
-    const getNewNote = () => {
-        return {
-            id: crypto.randomUUID(),
-            title: "",
-            content: ""
-        };
-    }
-
-    const [name, setName] = useState(location.name);
-    const [description, setDescription] = useState(location.description);
-    const [notes, setNotes] = useState<NoteFile[]>(location.notes || []);
-    const [newNote, setNewNote] = useState(getNewNote());
-    const [isEdited, setIsEdited] = useState(false); 
+export const LocationPage: React.FC<LocationPageProps> = ({
+    location,
+    project,
+    onLocationUpdate,
+    onDeselect
+}) => {
+    const [editedLocation, setEditedLocation] = useState<Location>(location);
+    const [showAddNote, setShowAddNote] = useState(false);
+    const [newNoteTitle, setNewNoteTitle] = useState('');
+    const [newNoteContent, setNewNoteContent] = useState('');
+    const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+    const [editedNoteTitle, setEditedNoteTitle] = useState('');
+    const [editedNoteContent, setEditedNoteContent] = useState('');
 
     useEffect(() => {
-        // Update state when character prop changes
-        setName(location.name);
-        setDescription(location.description);
-        setNotes(location.notes || []);
+        setEditedLocation(location);
     }, [location]);
 
-    const handleSave = () => {
-        onLocationUpdate({
-            ...location,
-            name,
-            description,
-            notes
+    const handleSaveLocation = () => {
+        onLocationUpdate(editedLocation);
+        saveProject({
+            ...project,
+            locations: project.locations.map(loc => 
+                loc.id === editedLocation.id ? editedLocation : loc
+            )
         });
-        setIsEdited(false);
+    };
+
+    const handleNameChange = (name: string) => {
+        const updated = { ...editedLocation, name };
+        setEditedLocation(updated);
+        onLocationUpdate(updated);
+    };
+
+    const handleDescriptionChange = (description: string) => {
+        const updated = { ...editedLocation, description };
+        setEditedLocation(updated);
+        onLocationUpdate(updated);
     };
 
     const handleAddNote = () => {
-        if (newNote.title.trim()) {
-            setNotes([...notes, newNote]);
-            setNewNote(getNewNote());
-            setIsEdited(true);
+        if (!newNoteTitle.trim()) {
+            alert('Please enter a title for the note');
+            return;
         }
+
+        const newNote: NoteFile = {
+            id: crypto.randomUUID(),
+            title: newNoteTitle.trim(),
+            content: newNoteContent
+        };
+
+        const updated = {
+            ...editedLocation,
+            notes: [...editedLocation.notes, newNote]
+        };
+
+        setEditedLocation(updated);
+        onLocationUpdate(updated);
+
+        // Reset form
+        setNewNoteTitle('');
+        setNewNoteContent('');
+        setShowAddNote(false);
     };
 
-    const handleRemoveNote = (index: number) => {
-        const updatedNotes = [...notes];
-        updatedNotes.splice(index, 1);
-        setNotes(updatedNotes);
-        setIsEdited(true);
-    };
-
-    const handleEditNote = (updatedNode: NoteFile) => {
-        const updatedNotes = [...notes];
-        const index = updatedNotes.findIndex(note => note.id === updatedNode.id);
-        if (index !== -1) {
-            updatedNotes[index] = updatedNode;
-            setNotes(updatedNotes);
-            setIsEdited(true);
+    const handleDeleteNote = (noteId: string) => {
+        if (!window.confirm('Are you sure you want to delete this note?')) {
+            return;
         }
+
+        const updated = {
+            ...editedLocation,
+            notes: editedLocation.notes.filter(note => note.id !== noteId)
+        };
+
+        setEditedLocation(updated);
+        onLocationUpdate(updated);
     };
 
-    const handleDeselect = () => {
-        onDeselect();
+    const handleEditNote = (note: NoteFile) => {
+        setEditingNoteId(note.id);
+        setEditedNoteTitle(note.title);
+        setEditedNoteContent(note.content);
+    };
+
+    const handleSaveEditedNote = () => {
+        if (!editedNoteTitle.trim()) {
+            alert('Please enter a title for the note');
+            return;
+        }
+
+        const updated = {
+            ...editedLocation,
+            notes: editedLocation.notes.map(note => 
+                note.id === editingNoteId 
+                    ? { ...note, title: editedNoteTitle.trim(), content: editedNoteContent }
+                    : note
+            )
+        };
+
+        setEditedLocation(updated);
+        onLocationUpdate(updated);
+
+        // Reset editing state
+        setEditingNoteId(null);
+        setEditedNoteTitle('');
+        setEditedNoteContent('');
+    };
+
+    const handleCancelEdit = () => {
+        setEditingNoteId(null);
+        setEditedNoteTitle('');
+        setEditedNoteContent('');
+    };
+
+    const handleCancelAddNote = () => {
+        setShowAddNote(false);
+        setNewNoteTitle('');
+        setNewNoteContent('');
     };
 
     return (
-        <div className="p-6 max-w-4xl mx-auto">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">Location Details</h1>
-                <div className="space-x-2">
-                    <button 
-                        onClick={handleDeselect} 
-                        className="px-4 py-2 border rounded text-gray-600"
-                    >
-                        Back
-                    </button>
-                    <button 
-                        onClick={handleSave} 
-                        className={`px-4 py-2 rounded text-white ${isEdited ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'}`}
-                        disabled={!isEdited}
-                    >
-                        Save Changes
-                    </button>
+        <div className="location-page-container">
+            <div className="location-page-header">
+                <button onClick={onDeselect} className="back-button">
+                    ← Back to Locations
+                </button>
+                <h1 className="location-page-title">{editedLocation.name}</h1>
+            </div>
+
+            <div className="location-content">
+                <div className="location-info-section">
+                    <h2 className="location-section-title">Location Information</h2>
+                    
+                    <div className="location-field">
+                        <label htmlFor="location-name" className="location-field-label">
+                            Name
+                        </label>
+                        <input
+                            id="location-name"
+                            type="text"
+                            className="location-input"
+                            value={editedLocation.name}
+                            onChange={(e) => handleNameChange(e.target.value)}
+                            placeholder="Location name"
+                        />
+                    </div>
+
+                    <div className="location-field">
+                        <label htmlFor="location-description" className="location-field-label">
+                            Description
+                        </label>
+                        <textarea
+                            id="location-description"
+                            className="location-textarea"
+                            value={editedLocation.description}
+                            onChange={(e) => handleDescriptionChange(e.target.value)}
+                            placeholder="Location description"
+                        />
+                    </div>
                 </div>
             </div>
 
-            <div className="space-y-6">
-                {/* Location Name */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                    <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => {
-                            setName(e.target.value);
-                            setIsEdited(true);
-                        }}
-                        className="w-full p-2 border rounded"
-                    />
+            <div className="notes-section">
+                <div className="notes-header">
+                    <h2 className="location-section-title">Location Notes</h2>
+                    <button 
+                        className="add-note-button"
+                        onClick={() => setShowAddNote(true)}
+                    >
+                        Add Note
+                    </button>
                 </div>
 
-                {/* Character Description */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                    <textarea
-                        value={description}
-                        onChange={(e) => {
-                            setDescription(e.target.value);
-                            setIsEdited(true);
-                        }}
-                        rows={4}
-                        className="w-full p-2 border rounded"
-                    />
-                </div>
+                {showAddNote && (
+                    <div className="add-note-form">
+                        <h3 className="add-note-form-title">Add New Note</h3>
+                        
+                        <div className="add-note-field">
+                            <label htmlFor="note-title" className="add-note-label">
+                                Title *
+                            </label>
+                            <input
+                                id="note-title"
+                                type="text"
+                                className="add-note-input"
+                                placeholder="Note title"
+                                value={newNoteTitle}
+                                onChange={(e) => setNewNoteTitle(e.target.value)}
+                            />
+                        </div>
 
-                {/* Location Notes */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-                    <div className="flex mb-2">
-                        <input
-                            type="text"
-                            value={newNote.content}
-                            onChange={(e) => setNewNote({ ...newNote, content: e.target.value })}
-                            className="flex-grow p-2 border rounded-l"
-                            placeholder="Add a new note"
-                        />
-                        <button
-                            onClick={handleAddNote}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-r"
-                        >
-                            Add
-                        </button>
+                        <div className="add-note-field">
+                            <label htmlFor="note-content" className="add-note-label">
+                                Content
+                            </label>
+                            <RichTextEditor
+                                content={newNoteContent}
+                                onChange={setNewNoteContent}
+                                placeholder="Note content..."
+                                className="note-editor"
+                            />
+                        </div>
+
+                        <div className="add-note-actions">
+                            <button 
+                                className="add-note-cancel-button"
+                                onClick={handleCancelAddNote}
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                className="add-note-save-button"
+                                onClick={handleAddNote}
+                                disabled={!newNoteTitle.trim()}
+                            >
+                                Add Note
+                            </button>
+                        </div>
                     </div>
-                    <div className="space-y-2">
-                        {notes.length === 0 ? (
-                            <p className="text-gray-500 italic">No notes added</p>
-                        ) : (
-                            notes.map((note, index) => (
-                                <NoteCard key={index} note={note} onDelete={() => handleRemoveNote(index)} onEdit={handleEditNote} />
-                            ))
-                        )}
-                    </div>
+                )}
+
+                <div className="notes-list">
+                    {editedLocation.notes.length > 0 ? (
+                        editedLocation.notes.map((note) => (
+                            <div key={note.id} className="note-item">
+                                {editingNoteId === note.id ? (
+                                    <div>
+                                        <div className="add-note-field">
+                                            <label className="add-note-label">Title *</label>
+                                            <input
+                                                type="text"
+                                                className="add-note-input"
+                                                value={editedNoteTitle}
+                                                onChange={(e) => setEditedNoteTitle(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="add-note-field">
+                                            <label className="add-note-label">Content</label>
+                                            <RichTextEditor
+                                                content={editedNoteContent}
+                                                onChange={setEditedNoteContent}
+                                                placeholder="Note content..."
+                                                className="note-editor"
+                                            />
+                                        </div>
+                                        <div className="add-note-actions">
+                                            <button 
+                                                className="add-note-cancel-button"
+                                                onClick={handleCancelEdit}
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button 
+                                                className="add-note-save-button"
+                                                onClick={handleSaveEditedNote}
+                                                disabled={!editedNoteTitle.trim()}
+                                            >
+                                                Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <div className="outline-note-header">
+                                            <h3 className="note-title">{note.title}</h3>
+                                            <div className="outline-note-actions">
+                                                <button 
+                                                    className="outline-note-edit-button"
+                                                    onClick={() => handleEditNote(note)}
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button 
+                                                    className="outline-note-delete-button"
+                                                    onClick={() => handleDeleteNote(note.id)}
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div 
+                                            className="note-content"
+                                            dangerouslySetInnerHTML={{ __html: note.content || '<p>No content</p>' }}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        ))
+                    ) : (
+                        <div className="empty-notes">
+                            No notes yet. Click "Add Note" to create your first location note.
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
     );
-}
+};

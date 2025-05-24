@@ -1,13 +1,13 @@
 import { ChaptersList } from "../components/chapter/ChapterListView";
-import CharacterListView from "../components/character/CharacterListView";
 import { EncyclopediaPage } from "../components/encylcopedia/EncyclopediaPage";
-import LocationListView from "../components/location/LocationListView";
 import NotesList from "../components/note/noteslist";
 import { OutlinePage } from "../components/outline/OutlinePage";
 import { RevisionListView } from "../components/revision/RevisionListView";
 import { saveProject } from "../data/storage";
 import { Project } from "../types";
 import { ProjectView } from "../components/project/ProjectView";
+import { CharacterListView } from "../components/character/CharacterListView";
+import { LocationListView } from "../components/location/LocationListView";
 
 interface MainContentProps {
     activeSection: string;

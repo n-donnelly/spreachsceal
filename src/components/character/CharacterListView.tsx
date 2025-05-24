@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Character, Project } from '../../types';
+import { Character } from '../../types/character';
+import { Project } from '../../types/project';
 import { CharacterPage } from './CharacterPage';
+import { NewCharacterDialog } from './NewCharacterDialog';
+import { saveProject } from '../../data/storage';
+import './Character.css';
 
 interface CharacterListViewProps {
   project: Project | null;
   onProjectUpdate: (project: Project) => void;
 }
 
-const CharacterListView: React.FC<CharacterListViewProps> = ({ project, onProjectUpdate }) => {
-  const [showNewCharacterForm, setShowNewCharacterForm] = useState(false);
-  const [newCharacterName, setNewCharacterName] = useState('');
-  const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
+export const CharacterListView: React.FC<CharacterListViewProps> = ({ project, onProjectUpdate }) => {
   const [characters, setCharacters] = useState<Character[]>([]);
+  const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
+  const [showNewCharacterDialog, setShowNewCharacterDialog] = useState(false);
 
-  // Update characters whenever project changes
   useEffect(() => {
     if (project) {
       setCharacters(project.characters || []);
@@ -23,150 +25,129 @@ const CharacterListView: React.FC<CharacterListViewProps> = ({ project, onProjec
   }, [project]);
 
   if (!project) {
-    return <div>No project selected</div>;
+    return <div className="no-project-selected">No project selected</div>;
   }
 
-  const onCharacterSelect = (characterId: string) => {
-    const character = characters.find(character => character.id === characterId);
+  const handleCharacterSelect = (characterId: string) => {
+    const character = characters.find(char => char.id === characterId);
     if (character) {
       setSelectedCharacter(character);
-      console.log("Selected Character: " + character.name);
     }
-  }
+  };
 
-  const onCharacterDeselect = () => {
+  const handleCharacterDeselect = () => {
     setSelectedCharacter(null);
-    // Ensure we have the latest characters from the project
+    // Refresh characters from project
     if (project) {
       setCharacters(project.characters || []);
     }
-    console.log("Deselected Character");
-  }
-
-  const handleAddCharacter = () => {
-    if (!newCharacterName.trim()) {
-      alert('Please enter a name for the character');
-      return;
-    }
-
-    const newCharacter: Character = {
-      id: crypto.randomUUID(),
-      name: newCharacterName,
-      aliases: [],
-      notes: [],
-      description: '',
-      relationships: new Map<string, string>()
-    };
-
-    const updatedCharacters = [...characters, newCharacter];
-    const updatedProject = {
-      ...project,
-      characters: updatedCharacters
-    };
-
-    onProjectUpdate(updatedProject);
-    setCharacters(updatedCharacters);
-    setNewCharacterName('');
-    setShowNewCharacterForm(false);
-    onCharacterSelect(newCharacter.id);
   };
 
   const handleCharacterUpdate = (updatedCharacter: Character) => {
-    const updatedCharacters = characters.map(character => {
-      if (character.id === updatedCharacter.id) {
-        return updatedCharacter;
-      }
-      return character;
-    });
+    const updatedProject = {
+      ...project,
+      characters: project.characters.map(char => 
+        char.id === updatedCharacter.id ? updatedCharacter : char
+      )
+    };
     
-    const updatedProject = { ...project, characters: updatedCharacters };
     onProjectUpdate(updatedProject);
-    setCharacters(updatedCharacters);
-  }
+    saveProject(updatedProject);
+    setCharacters(updatedProject.characters);
+  };
 
-  const handleCharacterDelete = (characterId: string) => {
-    const updatedCharacters = characters.filter(character => character.id !== characterId);
-    const updatedProject = { ...project, characters: updatedCharacters };
-    onProjectUpdate(updatedProject);
-    setCharacters(updatedCharacters);
-  }
+  const handleNewCharacterCreated = () => {
+    // Refresh characters from project
+    if (project) {
+      setCharacters(project.characters || []);
+    }
+  };
 
+  // If a character is selected, show the character page
   if (selectedCharacter) {
     return (
       <CharacterPage
         character={selectedCharacter}
         project={project}
-        onDeselect={onCharacterDeselect} 
-        onCharacterUpdate={handleCharacterUpdate} 
+        onCharacterUpdate={handleCharacterUpdate}
+        onDeselect={handleCharacterDeselect}
       />
     );
   }
 
+  // Otherwise, show the characters list
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Characters</h2>
+    <div className="characters-container">
+      <div className="characters-header">
+        <h1 className="characters-title">Characters</h1>
         <button 
-          onClick={() => setShowNewCharacterForm(!showNewCharacterForm)}
-          className="bg-blue-600 text-white px-3 py-1 rounded"
+          onClick={() => setShowNewCharacterDialog(true)}
+          className="add-character-button"
         >
-          {showNewCharacterForm ? 'Cancel' : 'Add Character'}
+          Add Character
         </button>
       </div>
-  
-      {showNewCharacterForm && (
-        <div className="mb-4 p-4 border rounded bg-gray-50">
-          <h3 className="text-lg font-semibold mb-2">New Character</h3>
-          <input
-            className="w-full p-2 border rounded mb-3"
-            placeholder="Character Name"
-            value={newCharacterName}
-            onChange={(e) => setNewCharacterName(e.target.value)}
-          />
-          <div className="flex justify-end">
-            <button 
-              onClick={handleAddCharacter}
-              className="bg-green-600 text-white px-3 py-1 rounded"
-            >
-              Add
-            </button>
-          </div>
-        </div>
-      )}
-  
+
       {characters.length === 0 ? (
-        <div className="text-gray-500 text-center py-4">
-          No characters added yet. Click "Add Character" to create one.
+        <div className="empty-characters-message">
+          No characters yet. Click "Add Character" to create your first character.
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {characters.map((character) => (
-            <div 
-              key={character.id} 
-              className="p-4 border rounded bg-white shadow hover:shadow-lg transition-shadow duration-200 cursor-pointer" 
-              onClick={() => onCharacterSelect(character.id)}
-            >
-              <div className="flex justify-between items-start">
-                <h3 className="text-lg font-semibold">{character.name}</h3>
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCharacterDelete(character.id);
-                  }}
-                  className="text-red-600 hover:underline text-sm"
-                >
-                  Delete
-                </button>
+        <div className="characters-grid">
+          {characters
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((character) => (
+              <div 
+                key={character.id}
+                onClick={() => handleCharacterSelect(character.id)}
+                className="character-card"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleCharacterSelect(character.id);
+                  }
+                }}
+              >
+                <div className="character-card-header">
+                  <h3 className="character-card-name">{character.name}</h3>
+                  
+                  {character.aliases.length > 0 && (
+                    <div className="character-card-aliases">
+                      {character.aliases.slice(0, 3).map((alias, index) => (
+                        <span key={index} className="character-card-alias">
+                          {alias}
+                        </span>
+                      ))}
+                      {character.aliases.length > 3 && (
+                        <span className="character-card-alias">
+                          +{character.aliases.length - 3} more
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+                
+                <p className="character-card-description">
+                  {character.description || 'No description yet.'}
+                </p>
+                
+                <div className="character-card-stats">
+                  <span>{character.aliases.length} aliases</span>
+                  <span>{character.notes.length} notes</span>
+                </div>
               </div>
-              {character.description && (
-                <p className="text-gray-700 mt-2 line-clamp-3">{character.description}</p>
-              )}
-            </div>
-          ))}
+            ))}
         </div>
+      )}
+
+      {showNewCharacterDialog && (
+        <NewCharacterDialog
+          projectId={project.id}
+          onClose={() => setShowNewCharacterDialog(false)}
+          onCreated={handleNewCharacterCreated}
+        />
       )}
     </div>
   );
 };
-
-export default CharacterListView;

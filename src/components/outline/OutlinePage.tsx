@@ -1,12 +1,15 @@
-import { useCallback, useEffect, useState } from 'react';
-import { NoteFile, Outline } from '../../types';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Project } from '../../types/project';
+import { Outline } from '../../types/outline';
+import { NoteFile } from '../../types/notes';
+import { saveProject } from '../../data/storage';
 import RichTextEditor from '../editor/texteditor';
-import NoteCard from '../note/notecard';
+import './Outline.css';
 import { debounce } from '../../utils';
 
 interface OutlinePageProps {
-    project: any;
-    onProjectUpdate: (project: any) => void;
+    project: Project | null;
+    onProjectUpdate: (project: Project) => void;
 }
 
 export const OutlinePage: React.FC<OutlinePageProps> = ({ project, onProjectUpdate }) => {
@@ -14,6 +17,9 @@ export const OutlinePage: React.FC<OutlinePageProps> = ({ project, onProjectUpda
     const [showAddNote, setShowAddNote] = useState(false);
     const [newNoteTitle, setNewNoteTitle] = useState('');
     const [newNoteContent, setNewNoteContent] = useState('');
+    const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+    const [editedNoteTitle, setEditedNoteTitle] = useState('');
+    const [editedNoteContent, setEditedNoteContent] = useState('');
 
     useEffect(() => {
         if (project && project.outline) {
@@ -34,11 +40,16 @@ export const OutlinePage: React.FC<OutlinePageProps> = ({ project, onProjectUpda
                     outline: updatedOutline
                 };
                 onProjectUpdate(updatedProject);
+                saveProject(updatedProject);
                 console.log('Outline updated:', updatedProject);
             }
-        }, 1000), // Adjust the debounce delay as needed
+        }, 1000),
         [project, onProjectUpdate]
-    )
+    );
+
+    if (!project) {
+        return <div className="no-project-selected">No project selected</div>;
+    }
 
     const handleContentChange = (content: string) => {
         if (outline && project) {
@@ -47,7 +58,6 @@ export const OutlinePage: React.FC<OutlinePageProps> = ({ project, onProjectUpda
                 content
             };
             setOutline(updatedOutline);
-            
             debouncedUpdateOutline(updatedOutline);
         }
     };
@@ -61,7 +71,7 @@ export const OutlinePage: React.FC<OutlinePageProps> = ({ project, onProjectUpda
         if (outline && project) {
             const newNote: NoteFile = {
                 id: crypto.randomUUID(),
-                title: newNoteTitle,
+                title: newNoteTitle.trim(),
                 content: newNoteContent
             };
 
@@ -70,13 +80,15 @@ export const OutlinePage: React.FC<OutlinePageProps> = ({ project, onProjectUpda
                 notes: [...outline.notes, newNote]
             };
 
-            // Update project with new outline
             const updatedProject = {
                 ...project,
                 outline: updatedOutline
             };
+
+            setOutline(updatedOutline);
             onProjectUpdate(updatedProject);
-            
+            saveProject(updatedProject);
+
             // Reset form
             setNewNoteTitle('');
             setNewNoteContent('');
@@ -85,114 +97,235 @@ export const OutlinePage: React.FC<OutlinePageProps> = ({ project, onProjectUpda
     };
 
     const handleDeleteNote = (noteId: string) => {
-        if (outline && project) {
-            const updatedOutline = {
-                ...outline,
-                notes: outline.notes.filter(note => note.id !== noteId)
-            };
+        if (!outline || !project) return;
 
-            // Update project with new outline
-            const updatedProject = {
-                ...project,
-                outline: updatedOutline
-            };
-            onProjectUpdate(updatedProject);
-            setOutline(updatedOutline);
+        if (!window.confirm('Are you sure you want to delete this note?')) {
+            return;
         }
+
+        const updatedOutline = {
+            ...outline,
+            notes: outline.notes.filter(note => note.id !== noteId)
+        };
+
+        const updatedProject = {
+            ...project,
+            outline: updatedOutline
+        };
+
+        setOutline(updatedOutline);
+        onProjectUpdate(updatedProject);
+        saveProject(updatedProject);
     };
 
-    const handleEditNote = (updatedNote: NoteFile) => {
-        if (outline && project) {
-            const updatedOutline = {
-                ...outline,
-                notes: outline.notes.map(note => 
-                    note.id === updatedNote.id ? updatedNote : note
-                )
-            };
-
-            // Update project with new outline
-            const updatedProject = {
-                ...project,
-                outline: updatedOutline
-            };
-            onProjectUpdate(updatedProject);
-            setOutline(updatedOutline);
-        }
+    const handleEditNote = (note: NoteFile) => {
+        setEditingNoteId(note.id);
+        setEditedNoteTitle(note.title);
+        setEditedNoteContent(note.content);
     };
 
-    if (!outline) {
-        return <div className="p-6">Outline not found</div>;
-    }
+    const handleSaveEditedNote = () => {
+        if (!outline || !project || !editingNoteId) return;
+
+        if (!editedNoteTitle.trim()) {
+            alert('Please enter a title for the note');
+            return;
+        }
+
+        const updatedOutline = {
+            ...outline,
+            notes: outline.notes.map(note => 
+                note.id === editingNoteId 
+                    ? { ...note, title: editedNoteTitle.trim(), content: editedNoteContent }
+                    : note
+            )
+        };
+
+        const updatedProject = {
+            ...project,
+            outline: updatedOutline
+        };
+
+        setOutline(updatedOutline);
+        onProjectUpdate(updatedProject);
+        saveProject(updatedProject);
+
+        // Reset editing state
+        setEditingNoteId(null);
+        setEditedNoteTitle('');
+        setEditedNoteContent('');
+    };
+
+    const handleCancelEdit = () => {
+        setEditingNoteId(null);
+        setEditedNoteTitle('');
+        setEditedNoteContent('');
+    };
+
+    const handleCancelAddNote = () => {
+        setShowAddNote(false);
+        setNewNoteTitle('');
+        setNewNoteContent('');
+    };
 
     return (
-        <div className="p-6 max-w-4xl mx-auto space-y-6">
-            <div className="flex justify-between items-center">
-                <h2 className="text-3xl font-bold">Outline</h2>                
+        <div className="outline-page-container">
+            <div className="outline-page-header">
+                <h1 className="outline-page-title">Project Outline</h1>
             </div>
 
-            {/* Main outline content editor */}
-            <div className="bg-white p-4 rounded shadow">
-                <h3 className="text-lg font-semibold mb-3">Story Outline</h3>
-                <RichTextEditor 
-                    content={outline.content} 
-                    onChange={handleContentChange}
-                    placeholder="Start writing your outline here..."
-                    className="min-h-[300px]"
-                />
+            <div className="outline-info">
+                <p className="outline-description">
+                    Use this space to plan and organize your story structure. The outline helps you 
+                    keep track of plot points, character arcs, and story progression.
+                </p>
             </div>
 
-            <div className="flex space-x-2">
-                <button 
-                    onClick={() => setShowAddNote(!showAddNote)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded"
-                >
-                    {showAddNote ? 'Cancel' : 'Add Note'}
-                </button>
-            </div>
-
-            {/* Add note form */}
-            {showAddNote && (
-                <div className="bg-white p-4 rounded shadow">
-                    <h3 className="text-lg font-semibold mb-3">Add Note</h3>
-                    <input
-                        className="w-full p-2 border rounded mb-3"
-                        placeholder="Note Title"
-                        value={newNoteTitle}
-                        onChange={(e) => setNewNoteTitle(e.target.value)}
+            <div className="outline-content">
+                <div className="outline-editor-section">
+                    <h2 className="outline-section-title">Outline Content</h2>
+                    <RichTextEditor
+                        content={outline?.content || ''}
+                        onChange={handleContentChange}
+                        placeholder="Start writing your outline here..."
+                        className="outline-editor"
                     />
-                    <RichTextEditor 
-                        content={newNoteContent} 
-                        onChange={setNewNoteContent}
-                        placeholder="Note content..."
-                        className="min-h-[150px] mb-3"
-                    />
-                    <div className="flex justify-end">
+                </div>
+
+                <div className="outline-notes-section">
+                    <div className="outline-notes-header">
+                        <h2 className="outline-section-title">Outline Notes</h2>
                         <button 
-                            onClick={handleAddNote}
-                            className="bg-blue-600 text-white px-4 py-2 rounded"
+                            className="add-outline-note-button"
+                            onClick={() => setShowAddNote(true)}
                         >
-                            Save Note
+                            Add Note
                         </button>
                     </div>
-                </div>
-            )}
 
-            {/* Notes section */}
-            {outline.notes.length > 0 && (
-                <div className="space-y-4">
-                    <h3 className="text-xl font-semibold">Notes</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {outline.notes.map(note => (
-                            <NoteCard 
-                                key={note.id} 
-                                note={note} 
-                                onDelete={handleDeleteNote}
-                                onEdit={handleEditNote}
-                            />
-                        ))}
+                    {showAddNote && (
+                        <div className="add-note-form">
+                            <h3 className="add-note-form-title">Add New Note</h3>
+                            
+                            <div className="add-note-field">
+                                <label htmlFor="note-title" className="add-note-label">
+                                    Title *
+                                </label>
+                                <input
+                                    id="note-title"
+                                    type="text"
+                                    className="add-note-input"
+                                    placeholder="Note title"
+                                    value={newNoteTitle}
+                                    onChange={(e) => setNewNoteTitle(e.target.value)}
+                                />
+                            </div>
+
+                            <div className="add-note-field">
+                                <label htmlFor="note-content" className="add-note-label">
+                                    Content
+                                </label>
+                                <textarea
+                                    id="note-content"
+                                    className="add-note-textarea"
+                                    placeholder="Note content"
+                                    value={newNoteContent}
+                                    onChange={(e) => setNewNoteContent(e.target.value)}
+                                />
+                            </div>
+
+                            <div className="add-note-actions">
+                                <button 
+                                    className="add-note-cancel-button"
+                                    onClick={handleCancelAddNote}
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    className="add-note-save-button"
+                                    onClick={handleAddNote}
+                                    disabled={!newNoteTitle.trim()}
+                                >
+                                    Add Note
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="outline-notes-list">
+                        {outline && outline.notes.length > 0 ? (
+                            outline.notes.map((note) => (
+                                <div key={note.id} className="outline-note-card">
+                                    {editingNoteId === note.id ? (
+                                        <div>
+                                            <div className="add-note-field">
+                                                <label className="add-note-label">Title *</label>
+                                                <input
+                                                    type="text"
+                                                    className="add-note-input"
+                                                    value={editedNoteTitle}
+                                                    onChange={(e) => setEditedNoteTitle(e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="add-note-field">
+                                                <label className="add-note-label">Content</label>
+                                                <textarea
+                                                    className="add-note-textarea"
+                                                    value={editedNoteContent}
+                                                    onChange={(e) => setEditedNoteContent(e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="add-note-actions">
+                                                <button 
+                                                    className="add-note-cancel-button"
+                                                    onClick={handleCancelEdit}
+                                                >
+                                                    Cancel
+                                                </button>
+                                                <button 
+                                                    className="add-note-save-button"
+                                                    onClick={handleSaveEditedNote}
+                                                    disabled={!editedNoteTitle.trim()}
+                                                >
+                                                    Save
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <div className="outline-note-header">
+                                                <h3 className="outline-note-title">{note.title}</h3>
+                                                <div className="outline-note-actions">
+                                                    <button 
+                                                        className="outline-note-edit-button"
+                                                        onClick={() => handleEditNote(note)}
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                    <button 
+                                                        className="outline-note-delete-button"
+                                                        onClick={() => handleDeleteNote(note.id)}
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div 
+                                                className="outline-note-content"
+                                                dangerouslySetInnerHTML={{ __html: note.content || '<p>No content</p>' }}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            ))
+                        ) : (
+                            <div className="empty-outline-notes">
+                                No notes yet. Click "Add Note" to create your first outline note.
+                            </div>
+                        )}
                     </div>
                 </div>
-            )}
+            </div>
         </div>
     );
 };

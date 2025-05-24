@@ -1,173 +1,167 @@
-import React, { useEffect, useState } from 'react';
-import { Location, Project } from '../../types';
-import { LocationPage } from './LocationPage';
+import React, { useState } from 'react';
+import { Project } from '../../types/project';
+import { Location } from '../../types/location';
+import { saveProject } from '../../data/storage';
+import './Location.css';
 
 interface LocationListViewProps {
     project: Project | null;
     onProjectUpdate: (project: Project) => void;
 }
 
-const LocationListView: React.FC<LocationListViewProps> = ({ project, onProjectUpdate }) => {
-    const [locations, setLocations] = useState<Location[]>([]);
-    const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
-    const [showNewLocationForm, setShowNewLocationForm] = useState(false);
-    const [newLocationName, setNewLocationName] = useState('');
+interface NewLocationDialogProps {
+    onClose: () => void;
+    onCreated: (location: Location) => void;
+}
 
-    // Update locations whenever project changes
-    useEffect(() => {
-        if (project) {
-            setLocations(project.locations || []);
-        } else {
-            setLocations([]);
-        }
-    }, [project]);
+const NewLocationDialog: React.FC<NewLocationDialogProps> = ({ onClose, onCreated }) => {
+    const [name, setName] = useState('');
+    const [description, setDescription] = useState('');
 
-    if (!project) {
-        return <div>No project selected</div>;
-    }
-
-    const handleLocationSelect = (locationId: string) => {
-        const location = locations.find(location => location.id === locationId);
-        if (location) {
-            setSelectedLocation(location);
-            console.log("Selected Location: " + location.name);
-        }
-    }
-
-    const handleLocationDeselect = () => {
-        setSelectedLocation(null);
-        // Ensure we have the latest locations from the project
-        if (project) {
-            setLocations(project.locations || []);
-        }
-        console.log("Deselected Location");
-    }
-
-    const handleAddLocation = () => {
-        if (!newLocationName.trim()) {
-            alert('Please enter a name for the location');
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        if (!name.trim()) {
+            alert('Please enter a location name');
             return;
         }
 
         const newLocation: Location = {
             id: crypto.randomUUID(),
-            name: newLocationName,
-            description: '',
+            name: name.trim(),
+            description: description.trim(),
             notes: []
         };
 
+        onCreated(newLocation);
+        onClose();
+    };
+
+    return (
+        <div className="location-dialog-overlay" onClick={onClose}>
+            <div className="location-dialog-content" onClick={(e) => e.stopPropagation()}>
+                <h2 className="location-dialog-title">Create New Location</h2>
+                
+                <form onSubmit={handleSubmit} className="location-dialog-form">
+                    <div className="location-dialog-field">
+                        <label htmlFor="location-name" className="location-dialog-label">
+                            Name *
+                        </label>
+                        <input
+                            id="location-name"
+                            type="text"
+                            className="location-dialog-input"
+                            placeholder="Location name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            autoFocus
+                        />
+                    </div>
+
+                    <div className="location-dialog-field">
+                        <label htmlFor="location-description" className="location-dialog-label">
+                            Description
+                        </label>
+                        <textarea
+                            id="location-description"
+                            className="location-dialog-textarea"
+                            placeholder="Location description"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="location-dialog-footer">
+                        <button 
+                            type="button" 
+                            className="location-cancel-button"
+                            onClick={onClose}
+                        >
+                            Cancel
+                        </button>
+                        <button 
+                            type="submit" 
+                            className="location-create-button"
+                            disabled={!name.trim()}
+                        >
+                            Create Location
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
+export const LocationListView: React.FC<LocationListViewProps> = ({ project, onProjectUpdate }) => {
+    const [showNewLocationDialog, setShowNewLocationDialog] = useState(false);
+
+    if (!project) {
+        return <div className="locations-container">No project selected</div>;
+    }
+
+    const handleNewLocationCreated = (newLocation: Location) => {
         const updatedProject = {
             ...project,
             locations: [...project.locations, newLocation]
         };
-
+        
         onProjectUpdate(updatedProject);
-        setLocations([...locations, newLocation]);
-        setNewLocationName('');
+        saveProject(updatedProject);
     };
 
-    const handleDeleteLocation = (locationId: string) => {
-        const updatedProject = {
-            ...project,
-            locations: project.locations.filter(location => location.id !== locationId)
-        };
-        onProjectUpdate(updatedProject);
-        setLocations(project.locations.filter(location => location.id !== locationId));
-        setSelectedLocation(null);
-        console.log("Deleted Location: " + locationId);
+    const handleLocationClick = (locationId: string) => {
+        // This would typically navigate to the location detail page
+        // For now, we'll just log it
+        console.log('Navigate to location:', locationId);
     };
-
-    const handleUpdateLocation = (updatedLocation: Location) => {
-        const updatedProject = {
-            ...project,
-            locations: project.locations.map(location =>
-            location.id === updatedLocation.id ? updatedLocation : location
-            )
-        };
-        onProjectUpdate(updatedProject);
-        setLocations(project.locations.map(location =>
-            location.id === updatedLocation.id ? updatedLocation : location
-        ));
-        setSelectedLocation(updatedLocation);
-        console.log("Updated Location: " + updatedLocation.name);
-    };
-
-    if (selectedLocation) {
-        return (
-        <LocationPage
-            location={selectedLocation}
-            project={project} 
-            onLocationUpdate={handleUpdateLocation}
-            onDeselect={handleLocationDeselect}
-            />
-        );
-    }
 
     return (
-        <div className="p-4">
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">Locations</h2>
+        <div className="locations-container">
+            <div className="locations-header">
+                <h1 className="locations-title">Locations</h1>
                 <button 
-                    onClick={() => setShowNewLocationForm(!showNewLocationForm)}
-                    className="bg-blue-600 text-white px-3 py-1 rounded"
+                    className="add-location-button"
+                    onClick={() => setShowNewLocationDialog(true)}
                 >
-                {showNewLocationForm ? 'Cancel' : 'Add Location'}
+                    Add Location
                 </button>
             </div>
-        
-            {showNewLocationForm && (
-                <div className="mb-4 p-4 border rounded bg-gray-50">
-                <h3 className="text-lg font-semibold mb-2">New Location</h3>
-                <input
-                    className="w-full p-2 border rounded mb-3"
-                    placeholder="Location Name"
-                    value={newLocationName}
-                    onChange={(e) => setNewLocationName(e.target.value)}
-                />
-                <div className="flex justify-end">
-                    <button 
-                    onClick={handleAddLocation}
-                    className="bg-green-600 text-white px-3 py-1 rounded"
-                    >
-                    Add
-                    </button>
-                </div>
-                </div>
-            )}
-        
-            {locations.length === 0 ? (
-                <div className="text-gray-500 text-center py-4">
-                No Locations added yet. Click "Add Location" to create one.
+
+            {project.locations.length === 0 ? (
+                <div className="empty-locations-message">
+                    No locations yet. Click "Add Location" to create your first location.
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {locations.map((location) => (
-                    <div 
-                    key={location.id} 
-                    className="p-4 border rounded bg-white shadow hover:shadow-lg transition-shadow duration-200 cursor-pointer" 
-                    onClick={() => handleLocationSelect(location.id)}
-                    >
-                    <div className="flex justify-between items-start">
-                        <h3 className="text-lg font-semibold">{location.name}</h3>
-                        <button 
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteLocation(location.id);
-                        }}
-                        className="text-red-600 hover:underline text-sm"
+                <div className="locations-grid">
+                    {project.locations.map((location) => (
+                        <div 
+                            key={location.id} 
+                            className="location-card"
+                            onClick={() => handleLocationClick(location.id)}
                         >
-                        Delete
-                        </button>
-                    </div>
-                    {location.description && (
-                        <p className="text-gray-700 mt-2 line-clamp-3">{location.description}</p>
-                    )}
-                    </div>
-                ))}
+                            <div className="location-card-header">
+                                <h3 className="location-card-name">{location.name}</h3>
+                                <p className="location-card-description">
+                                    {location.description || 'No description provided'}
+                                </p>
+                            </div>
+                            
+                            <div className="location-card-stats">
+                                <span>{location.notes.length} notes</span>
+                                <span>Location</span>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             )}
-            </div>
-    );
-}
 
-export default LocationListView;
+            {showNewLocationDialog && (
+                <NewLocationDialog
+                    onClose={() => setShowNewLocationDialog(false)}
+                    onCreated={handleNewLocationCreated}
+                />
+            )}
+        </div>
+    );
+};
