@@ -3,6 +3,7 @@ import { Project } from '../../types/project';
 import { Chapter } from '../../types/chapter';
 import { saveProject } from '../../data/storage';
 import { NewSceneDialog } from './scene/NewSceneDialog';
+import { SceneWritingModal } from './scene/SceneWritingModal';
 import './Chapter.css';
 import RichTextEditor from '../editor/texteditor';
 
@@ -23,6 +24,7 @@ export const ChapterViewPage: React.FC<ChapterViewPageProps> = ({
   const [expandedScenes, setExpandedScenes] = useState<Set<string>>(new Set());
   const [showNewSceneDialog, setShowNewSceneDialog] = useState(false);
   const [draggedSceneId, setDraggedSceneId] = useState<string | null>(null);
+  const [writingModalSceneId, setWritingModalSceneId] = useState<string | null>(null);
 
   useEffect(() => {
     const foundChapter = project.chapters.find(ch => ch.id === chapterId);
@@ -156,6 +158,7 @@ export const ChapterViewPage: React.FC<ChapterViewPageProps> = ({
   const handleDragStart = (e: React.DragEvent, sceneId: string) => {
     setDraggedSceneId(sceneId);
     e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', sceneId);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -195,6 +198,22 @@ export const ChapterViewPage: React.FC<ChapterViewPageProps> = ({
     updateChapter(updatedChapter);
     setDraggedSceneId(null);
   };
+
+  const handleDragEnd = () => {
+    setDraggedSceneId(null);
+  };
+
+  const handleOpenWritingModal = (sceneId: string) => {
+    setWritingModalSceneId(sceneId);
+  };
+
+  const handleCloseWritingModal = () => {
+    setWritingModalSceneId(null);
+  };
+
+  const writingModalScene = writingModalSceneId 
+    ? chapter.scenes.find(scene => scene.id === writingModalSceneId)
+    : null;
 
   return (
     <div className="chapter-view-container">
@@ -237,19 +256,33 @@ export const ChapterViewPage: React.FC<ChapterViewPageProps> = ({
               <div 
                 key={scene.id} 
                 className={`scene-card ${draggedSceneId === scene.id ? 'dragging' : ''}`}
-                draggable
-                onDragStart={(e) => handleDragStart(e, scene.id)}
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, scene.id)}
               >
                 <div 
                   className="scene-header"
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, scene.id)}
+                  onDragEnd={handleDragEnd}
                   onClick={() => toggleSceneExpand(scene.id)}
                 >
+                  <div className="scene-drag-handle">
+                    <span className="drag-icon">⋮⋮</span>
+                  </div>
                   <h3 className="scene-title">
                     Scene {scene.number}
                   </h3>
                   <div className="scene-actions">
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenWritingModal(scene.id);
+                      }}
+                      className="focus-write-button"
+                      title="Open in full-screen editor"
+                    >
+                      ✏️
+                    </button>
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();
@@ -298,7 +331,15 @@ export const ChapterViewPage: React.FC<ChapterViewPageProps> = ({
                 {expandedScenes.has(scene.id) && (
                   <div className="scene-content">
                     <div className="scene-editor">
-                      <h4>Content:</h4>
+                      <div className="scene-editor-header">
+                        <span>Scene Content:</span>
+                        <button 
+                          onClick={() => handleOpenWritingModal(scene.id)}
+                          className="focus-write-button-small"
+                        >
+                          Open Full Editor
+                        </button>
+                      </div>
                       <RichTextEditor
                         content={scene.content}
                         onChange={(content) => handleSceneContentChange(scene.id, content)}
@@ -320,6 +361,17 @@ export const ChapterViewPage: React.FC<ChapterViewPageProps> = ({
           nextSceneNumber={chapter.scenes.length + 1}
           onClose={() => setShowNewSceneDialog(false)}
           onCreated={handleNewSceneCreated}
+        />
+      )}
+
+      {writingModalScene && (
+        <SceneWritingModal
+          sceneNumber={writingModalScene.number}
+          content={writingModalScene.content}
+          overview={writingModalScene.overview}
+          onContentChange={(content) => handleSceneContentChange(writingModalScene.id, content)}
+          onOverviewChange={(overview) => handleSceneOverviewChange(writingModalScene.id, overview)}
+          onClose={handleCloseWritingModal}
         />
       )}
     </div>

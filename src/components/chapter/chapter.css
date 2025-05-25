@@ -185,6 +185,7 @@
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
+  overflow-y: auto;
 }
 
 .chapter-view-header {
@@ -287,16 +288,76 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
+/* Add these styles to your existing Chapter.css file */
+
 .scene-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.5rem;
-  background-color: #f9fafb;
+  gap: 8px;
   cursor: pointer;
+  padding: 12px;
   border-bottom: 1px solid #e5e7eb;
-  transition: background-color 0.2s;
 }
+
+.scene-header[draggable="true"] {
+  cursor: grab;
+}
+
+.scene-header[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+.scene-drag-handle {
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  color: #9ca3af;
+  cursor: grab;
+}
+
+.scene-drag-handle:hover {
+  color: #6b7280;
+}
+
+.scene-drag-handle:active {
+  cursor: grabbing;
+}
+
+.drag-icon {
+  font-size: 16px;
+  line-height: 1;
+  user-select: none;
+}
+
+.scene-title {
+  flex: 1;
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.scene-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.scene-card.dragging {
+  opacity: 0.5;
+  transform: rotate(2deg);
+}
+
+/* Ensure the overview and content areas don't interfere with dragging */
+.scene-overview-editor,
+.scene-content {
+  pointer-events: auto;
+}
+
+.scene-card {
+  pointer-events: auto;
+}
+
+
 
 .scene-header:hover {
   background-color: #f3f4f6;
@@ -367,7 +428,7 @@
 }
 
 .overview-textarea {
-  width: 100%;
+  width: 94%;
   min-height: 80px;
   padding: 0.75rem;
   border: 1px solid #d1d5db;
@@ -521,3 +582,55 @@
     padding: 1rem;
   }
 }
+
+/* Add these styles to your existing Chapter.css file */
+
+.focus-write-button {
+  background: none;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.focus-write-button:hover {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.scene-editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 0 4px;
+}
+
+.scene-editor-header span {
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+}
+
+.focus-write-button-small {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.focus-write-button-small:hover {
+  background-color: #2563eb;
+}
+

@@ -32,11 +32,11 @@
 /* Editor content area */
 .editor-content-area {
   padding: 0.75rem;
-  min-height: 200px;
+  height: 100%;
   border: 2px solid black;
   margin: 0.5rem;
   border-radius: 4px;
-  max-height: 200px;
+  max-height: 600px;
   overflow-y: auto;
 }
 

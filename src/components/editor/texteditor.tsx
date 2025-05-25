@@ -30,6 +30,42 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     },
   });
 
+  // Add this to your RichTextEditor component's event handlers
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      
+      // Insert tab or spaces
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        
+        // You can insert either a tab character or spaces
+        const tabNode = document.createTextNode('    '); // 4 spaces
+        // OR use: const tabNode = document.createTextNode('\t'); // actual tab
+        
+        range.deleteContents();
+        range.insertNode(tabNode);
+        
+        // Move cursor after the inserted content
+        range.setStartAfter(tabNode);
+        range.setEndAfter(tabNode);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        
+        // Trigger the onChange callback
+        const editorElement = e.currentTarget;
+        if (onChange && editorElement instanceof HTMLElement) {
+          onChange(editorElement.innerHTML);
+        }
+      }
+    }
+  };
+
+  // Then add onKeyDown={handleKeyDown} to your contentEditable div
+
+
   return (
     <div className={`editor-container ${className}`}>
       <div className="editor-toolbar">
@@ -62,7 +98,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           • List
         </button>
       </div>
-      <EditorContent editor={editor} className="editor-content-area" />
+      <EditorContent editor={editor} onKeyDown={handleKeyDown} className="editor-content-area" />
     </div>
   );
 };
