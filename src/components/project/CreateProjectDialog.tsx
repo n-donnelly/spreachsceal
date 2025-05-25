@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Project } from "../../types";
 import { addProject } from "../../data/storage";
+import "./CreateProjectDialog.css";
 
 interface Props {
   onClose: () => void;
@@ -37,37 +38,53 @@ export const CreateProjectDialog: React.FC<Props> = ({ onClose, onCreated }) => 
     onClose();
   };
 
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4">Create New Project</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="create-project-overlay" onClick={handleOverlayClick}>
+      <div className="create-project-dialog">
+        <h2 className="create-project-title">Create New Project</h2>
+        <form onSubmit={handleSubmit} className="create-project-form">
           <input
-            className="w-full p-2 border rounded"
-            placeholder="Title"
+            className="create-project-input"
+            placeholder="Project Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
+            autoFocus
           />
           <input
-            className="w-full p-2 border rounded"
-            placeholder="Genre"
+            className="create-project-input"
+            placeholder="Genre (e.g., Fantasy, Mystery, Romance)"
             value={genre}
             onChange={(e) => setGenre(e.target.value)}
             required
           />
           <textarea
-            className="w-full p-2 border rounded"
-            placeholder="Description"
+            className="create-project-textarea"
+            placeholder="Project Description (optional)"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            rows={3}
           />
-          <div className="flex justify-end space-x-2">
-            <button type="button" onClick={onClose} className="text-gray-500">
+          <div className="create-project-actions">
+            <button 
+              type="button" 
+              onClick={onClose} 
+              className="create-project-cancel-button"
+            >
               Cancel
             </button>
-            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
-              Create
+            <button 
+              type="submit" 
+              className="create-project-submit-button"
+              disabled={!title.trim() || !genre.trim()}
+            >
+              Create Project
             </button>
           </div>
         </form>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { getProject, saveProject } from '../../data/storage';
-import { Scene } from '../../types';
+import { getProject, saveProject } from '../../../data/storage';
+import { Scene } from '../../../types';
 import { v4 as uuidv4 } from 'uuid';
 
 interface Props {

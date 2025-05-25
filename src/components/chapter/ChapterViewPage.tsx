@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Project } from '../../types/project';
 import { Chapter } from '../../types/chapter';
-import { Scene } from '../../types/scene';
 import { saveProject } from '../../data/storage';
-import { NewSceneDialog } from '../scene/NewSceneDialog';
+import { NewSceneDialog } from './scene/NewSceneDialog';
 import './Chapter.css';
 import RichTextEditor from '../editor/texteditor';
 

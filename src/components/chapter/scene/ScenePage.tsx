@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getProject, saveProject } from "../../data/storage";
-import { Scene } from "../../types";
+import { getProject, saveProject } from "../../../data/storage";
+import { Scene } from "../../../types";
 
 export const ScenePage = () => {
     const { id, chapterId, sceneId } = useParams();
