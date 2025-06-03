@@ -183,7 +183,6 @@ export const OutlinePage: React.FC<OutlinePageProps> = ({ project, onProjectUpda
 
             <div className="outline-content">
                 <div className="outline-editor-section">
-                    <h2 className="outline-section-title">Outline Content</h2>
                     <RichTextEditor
                         content={outline?.content || ''}
                         onChange={handleContentChange}

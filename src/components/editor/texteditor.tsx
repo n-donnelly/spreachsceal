@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import './texteditor.css';
@@ -26,13 +26,18 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none w-full max-w-none',
+        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none w-full max-w-none h-full flex-1',
         placeholder,
+        style: 'height: 100%; min-height: 100%;'
       },
     },
   });
 
-  // Add this to your RichTextEditor component's event handlers
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content);
+    }
+  }, [editor, content]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Tab') {
@@ -69,7 +74,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
 
   return (
-    <div className={`editor-container ${className}`}>
+    <div className={`editor-container ${className}`} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div className="editor-toolbar">
         <button
           onClick={() => editor?.chain().focus().toggleBold().run()}
@@ -100,7 +105,12 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           • List
         </button>
       </div>
-      <EditorContent editor={editor} onKeyDown={handleKeyDown} className="editor-content-area" />
+      <EditorContent 
+        editor={editor} 
+        onKeyDown={handleKeyDown} 
+        className="editor-content-area"
+        style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
+        />
     </div>
   );
 };
