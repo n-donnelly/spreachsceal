@@ -1,3 +1,5 @@
+import './Dashboard.css';
+
 interface SidebarProps {
     activeSection: string;
     setActiveSection: (section: string) => void;
@@ -22,7 +24,7 @@ const navSections: NavSection[] = [
 export const Sidebar = ({ activeSection, setActiveSection }: SidebarProps) => {
     return (
         <div className="sidebar">
-            <h2 className="text-xl font-bold mb-4">Novel Builder</h2>
+            <h2 className="sidebar-header" onClick={() => window.location.href = '/'}>Novel Builder</h2>
             <nav className="nav-menu">
                 {navSections.map((section) => (
                   <div

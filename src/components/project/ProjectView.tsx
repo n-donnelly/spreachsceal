@@ -17,6 +17,16 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, onProjectUpda
         return <div className="no-project-selected">No project selected</div>;
     }
 
+    const totalWordCount = project.chapters.reduce((total, chapter) => {
+        return total + chapter.scenes.reduce((sceneTotal, scene) => {
+            // Count words in the scene.content field
+            const words = scene.content
+                ? scene.content.replace(/<[^>]+>/g, '').trim().split(/\s+/).filter(Boolean).length
+                : 0;
+            return sceneTotal + words;
+        }, 0);
+    }, 0);
+
     const handleDescriptionChange = (newDescription: string) => {
         setDescription(newDescription);
         const updatedProject = { ...project, description: newDescription };
@@ -126,6 +136,7 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, onProjectUpda
                                     <li>Locations: {project.locations.length}</li>
                                     <li>Notes: {project.notes.length}</li>
                                     <li>Revisions: {project.revisions.length}</li>
+                                    <li>Total Words: {totalWordCount}</li>
                                 </ul>
                             </div>
                             <div className="overview-card">

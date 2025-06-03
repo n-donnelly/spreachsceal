@@ -14,10 +14,12 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   content,
   onChange,
   placeholder = 'Start writing...',
-  className = '',
+  className = ''
 }) => {
+  const myExtensions: any[] = [StarterKit];
+  
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: myExtensions,
     content,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());

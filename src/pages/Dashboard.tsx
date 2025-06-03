@@ -3,15 +3,11 @@ import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 import { MainContent } from "./MainContent";
 import { useProject } from "../components/project/ProjectContext";
-import './Dashboard.css'; // Assuming you have a CSS file for styling
+import './Dashboard.css';
 
 export const Dashboard = () => {
     const { currentProject, loading, error } = useProject(); 
     const [activeSection, setActiveSection] = useState<string>("overview");
-
-    console.log("Current Project:", currentProject);
-    console.log("Loading:", loading); 
-    console.log("Error:", error);
 
     const handleSectionChange = (section: string, optionalId?: string) => {
         setActiveSection(section);
@@ -27,7 +23,7 @@ export const Dashboard = () => {
                 <h2>Error</h2>
                 <p>{error}</p>
                 <button onClick={() => window.location.href = '/'}>
-                Back to Projects
+                    Back to Projects
                 </button>
             </div>
         );
