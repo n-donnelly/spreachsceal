@@ -1,70 +1,87 @@
 import { useState } from "react";
-import { getProject, saveProject } from "../../data/storage";
 import { Location } from "../../types";
-import { v4 as uuidv4 } from "uuid";
+import './Location.css';
 
-interface Props {
-    projectId: string;
+interface NewLocationDialogProps {
     onClose: () => void;
-    onCreated: () => void;
+    onCreated: (location: Location) => void;
 }
 
-export const NewLocationDialog: React.FC<Props> = ({ projectId, onClose, onCreated }) => {
-    const [name, setName] = useState("");
-    const [description, setDescription] = useState("");
-    const [notes, setNotes] = useState("");
+export const NewLocationDialog: React.FC<NewLocationDialogProps> = ({ onClose, onCreated }) => {
+    const [name, setName] = useState('');
+    const [description, setDescription] = useState('');
 
-    const handleCreate = () => {
-        const project = getProject(projectId);
-        if (!project) {
-            console.error("Project not found");
-            alert("Project not found");
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        if (!name.trim()) {
+            alert('Please enter a location name');
             return;
         }
 
         const newLocation: Location = {
-            id: uuidv4(),
-            name,
-            description,
-            notes: [],
+            id: crypto.randomUUID(),
+            name: name.trim(),
+            description: description.trim(),
+            notes: []
         };
 
-        project.locations.push(newLocation);
-        saveProject(project);
-        onCreated();
+        onCreated(newLocation);
         onClose();
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded shadow w-full max-w-md">
-                <h2 className="text-xl font-bold mb-4">New Location</h2>
-                <input
-                    className="w-full p-2 border rounded mb-3"
-                    placeholder="Location Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                />
-                <textarea
-                    className="w-full p-2 border rounded mb-3"
-                    placeholder="Description"
-                    rows={4}
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                />
+        <div className="location-dialog-overlay" onClick={onClose}>
+            <div className="location-dialog-content" onClick={(e) => e.stopPropagation()}>
+                <h2 className="location-dialog-title">Create New Location</h2>
                 
-                <textarea
-                    className="w-full p-2 border rounded mb-3"
-                    placeholder="Notes"
-                    rows={4}
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                />
-                <div className="flex justify-end gap-3">
-                    <button onClick={onClose} className="text-gray-600 underline">Cancel</button>
-                    <button onClick={handleCreate} className="bg-blue-600 text-white px-4 py-2 rounded">Create</button>
-                </div>
+                <form onSubmit={handleSubmit} className="location-dialog-form">
+                    <div className="location-dialog-field">
+                        <label htmlFor="location-name" className="location-dialog-label">
+                            Name *
+                        </label>
+                        <input
+                            id="location-name"
+                            type="text"
+                            className="location-dialog-input"
+                            placeholder="Location name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            autoFocus
+                        />
+                    </div>
+
+                    <div className="location-dialog-field">
+                        <label htmlFor="location-description" className="location-dialog-label">
+                            Description
+                        </label>
+                        <textarea
+                            id="location-description"
+                            className="location-dialog-textarea"
+                            placeholder="Location description"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="location-dialog-footer">
+                        <button 
+                            type="button" 
+                            className="location-cancel-button"
+                            onClick={onClose}
+                        >
+                            Cancel
+                        </button>
+                        <button 
+                            type="submit" 
+                            className="location-create-button"
+                            disabled={!name.trim()}
+                        >
+                            Create Location
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     );
-}
+};

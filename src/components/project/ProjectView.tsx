@@ -63,8 +63,9 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, onProjectUpda
 
     return (
         <div className="project-view-container">
-            <div className="project-view-header">
-                <h1 className="project-title">{project.title}</h1>
+            <div className="section-header">
+                <h1 className="section-title">{project.title}</h1>
+            </div>
                 <div className="project-meta">
                     <span>Genre: {project.genre}</span>
                     <span>Chapters: {project.chapters.length}</span>
@@ -78,7 +79,6 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, onProjectUpda
                         className="description-editor"
                     />
                 </div>
-            </div>
 
             {/* Tabs Navigation */}
             <div className="tabs-navigation">

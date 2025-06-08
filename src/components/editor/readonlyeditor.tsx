@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import './texteditor.css';
@@ -22,6 +22,12 @@ const ReadOnlyEditor: React.FC<ReadOnlyEditorProps> = ({
             },
         },
     });
+
+    useEffect(() => {
+        if (editor && content !== editor.getHTML()) {
+            editor.commands.setContent(content);
+        }
+    }, [editor, content]);
 
     return (
         <div className={`editor-container ${className}`}>

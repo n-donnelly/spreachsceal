@@ -5,18 +5,6 @@
   margin: 0 auto;
 }
 
-.encyclopedia-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.encyclopedia-title {
-  font-size: 24px;
-  font-weight: bold;
-}
-
 .add-entry-button {
   background-color: #3b82f6;
   color: white;

@@ -170,26 +170,17 @@ export const OutlinePage: React.FC<OutlinePageProps> = ({ project, onProjectUpda
 
     return (
         <div className="outline-page-container">
-            <div className="outline-page-header">
-                <h1 className="outline-page-title">Project Outline</h1>
-            </div>
-
-            <div className="outline-info">
-                <p className="outline-description">
-                    Use this space to plan and organize your story structure. The outline helps you 
-                    keep track of plot points, character arcs, and story progression.
-                </p>
+            <div className="section-header">
+                <h1 className="section-title">Project Outline</h1>
             </div>
 
             <div className="outline-content">
-                <div className="outline-editor-section">
-                    <RichTextEditor
-                        content={outline?.content || ''}
-                        onChange={handleContentChange}
-                        placeholder="Start writing your outline here..."
-                        className="outline-editor"
-                    />
-                </div>
+                <RichTextEditor
+                    content={outline?.content || ''}
+                    onChange={handleContentChange}
+                    placeholder="Start writing your outline here..."
+                    className="outline-editor"
+                />
 
                 <div className="outline-notes-section">
                     <div className="outline-notes-header">

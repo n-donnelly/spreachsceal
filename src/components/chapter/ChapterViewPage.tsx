@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Project } from '../../types/project';
 import { Chapter } from '../../types/chapter';
-import { saveProject } from '../../data/storage';
 import { NewSceneDialog } from './scene/NewSceneDialog';
 import { SceneWritingModal } from './scene/SceneWritingModal';
 import './Chapter.css';
 import RichTextEditor from '../editor/texteditor';
+import ReadOnlyEditor from '../editor/readonlyeditor';
 
 interface ChapterViewPageProps {
   project: Project;
@@ -77,10 +77,8 @@ export const ChapterViewPage: React.FC<ChapterViewPageProps> = ({
       chapters: project.chapters.map(ch => 
         ch.id === updatedChapter.id ? updatedChapter : ch
       )
-    };
-    
+    };    
     onProjectUpdate(updatedProject);
-    saveProject(updatedProject);
   };
 
   const handleNewSceneCreated = () => {
@@ -331,24 +329,21 @@ export const ChapterViewPage: React.FC<ChapterViewPageProps> = ({
                 {expandedScenes.has(scene.id) && (
                   <div className="scene-content">
                     <div className="scene-editor">
-                      <div className="scene-editor-header">
-                        <span>Scene Content:</span>
-                        <button 
-                          onClick={() => handleOpenWritingModal(scene.id)}
-                          className="focus-write-button-small"
-                        >
-                          Open Full Editor
-                        </button>
-                      </div>
-                      <RichTextEditor
-                        content={scene.content}
-                        onChange={(content) => handleSceneContentChange(scene.id, content)}
-                        placeholder="Write your scene content here..."
-                        className="scene-content-editor"
+                      
+                      <ReadOnlyEditor
+                        content={scene.content || '<p>No content yet. Click "Edit Content" to start writing.</p>'}
+                        className="scene-content-display"
                       />
                     </div>
+                    <button 
+                        onClick={() => handleOpenWritingModal(scene.id)}
+                        className="focus-write-button footer-button"
+                      >
+                        Edit Content
+                      </button>
                   </div>
                 )}
+
               </div>
             ))}
         </div>
@@ -364,16 +359,21 @@ export const ChapterViewPage: React.FC<ChapterViewPageProps> = ({
         />
       )}
 
-      {writingModalScene && (
-        <SceneWritingModal
-          sceneNumber={writingModalScene.number}
-          content={writingModalScene.content}
-          overview={writingModalScene.overview}
-          onContentChange={(content) => handleSceneContentChange(writingModalScene.id, content)}
-          onOverviewChange={(overview) => handleSceneOverviewChange(writingModalScene.id, overview)}
-          onClose={handleCloseWritingModal}
-        />
+      {writingModalSceneId && (
+        (() => {
+          const currentScene = chapter.scenes.find(scene => scene.id === writingModalSceneId);
+          return currentScene ? (
+            <SceneWritingModal
+              sceneNumber={currentScene.number}
+              content={currentScene.content}
+              overview={currentScene.overview}
+              onContentChange={(content) => handleSceneContentChange(currentScene.id, content)}
+              onClose={handleCloseWritingModal}
+            />
+          ) : null;
+        })()
       )}
+
     </div>
   );
 };

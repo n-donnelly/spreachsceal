@@ -66,8 +66,8 @@ const NotesList: React.FC<NotesListProps> = ({ project, onProjectUpdate }) => {
 
     return (
         <div className="notes-list-container">
-            <div className="notes-header">
-                <h2>Notes</h2>
+            <div className="section-header">
+                <h1 className="section-title">Notes</h1>
                 <button 
                     className="btn btn-primary"
                     onClick={() => setShowNewNoteForm(!showNewNoteForm)}

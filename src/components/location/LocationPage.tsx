@@ -5,6 +5,7 @@ import { NoteFile } from '../../types/notes';
 import { saveProject } from '../../data/storage';
 import RichTextEditor from '../editor/texteditor';
 import './Location.css';
+import '../../styles/shared.css';
 
 interface LocationPageProps {
     location: Location;

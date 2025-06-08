@@ -56,11 +56,13 @@ export const CharacterListView: React.FC<CharacterListViewProps> = ({ project, o
     setCharacters(updatedProject.characters);
   };
 
-  const handleNewCharacterCreated = () => {
-    // Refresh characters from project
-    if (project) {
-      setCharacters(project.characters || []);
-    }
+  const handleNewCharacterCreated = (newCharacter: Character) => {
+    onProjectUpdate({
+      ...project,
+      characters: [...(project.characters || []), newCharacter]
+    });
+    setCharacters((prev) => [...prev, newCharacter]);
+    setShowNewCharacterDialog(false);
   };
 
   // If a character is selected, show the character page
@@ -78,8 +80,8 @@ export const CharacterListView: React.FC<CharacterListViewProps> = ({ project, o
   // Otherwise, show the characters list
   return (
     <div className="characters-container">
-      <div className="characters-header">
-        <h1 className="characters-title">Characters</h1>
+      <div className="section-header">
+        <h1 className="section-title">Characters</h1>
         <button 
           onClick={() => setShowNewCharacterDialog(true)}
           className="add-character-button"
@@ -143,7 +145,7 @@ export const CharacterListView: React.FC<CharacterListViewProps> = ({ project, o
 
       {showNewCharacterDialog && (
         <NewCharacterDialog
-          projectId={project.id}
+          project={project}
           onClose={() => setShowNewCharacterDialog(false)}
           onCreated={handleNewCharacterCreated}
         />

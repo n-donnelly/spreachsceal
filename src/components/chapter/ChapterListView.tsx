@@ -51,8 +51,8 @@ export const ChaptersList: React.FC<ChaptersListProps> = ({
   // Otherwise, show the chapters list
   return (
     <div className="chapters-container">
-      <div className="chapters-header">
-        <h1 className="chapters-title">Chapters</h1>
+      <div className="section-header">
+        <h1 className="section-title">Chapters</h1>
         <button 
           onClick={() => setShowNewChapterDialog(true)}
           className="add-chapter-button"

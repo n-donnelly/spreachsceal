@@ -7,7 +7,6 @@ interface SceneWritingModalProps {
   content: string;
   overview: string;
   onContentChange: (content: string) => void;
-  onOverviewChange: (overview: string) => void;
   onClose: () => void;
 }
 
@@ -16,7 +15,6 @@ export const SceneWritingModal: React.FC<SceneWritingModalProps> = ({
   content,
   overview,
   onContentChange,
-  onOverviewChange,
   onClose
 }) => {
   const [localContent, setLocalContent] = useState(content);
@@ -34,16 +32,15 @@ export const SceneWritingModal: React.FC<SceneWritingModalProps> = ({
     setHasUnsavedChanges(true);
   };
 
-  const handleOverviewChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setLocalOverview(e.target.value);
-    setHasUnsavedChanges(true);
-  };
-
   const handleSave = () => {
     onContentChange(localContent);
-    onOverviewChange(localOverview);
     setHasUnsavedChanges(false);
   };
+
+  const handleSaveAndClose = () => {
+    handleSave();
+    onClose();
+  }
 
   const handleClose = () => {
     if (hasUnsavedChanges) {
@@ -119,11 +116,11 @@ export const SceneWritingModal: React.FC<SceneWritingModalProps> = ({
               Close
             </button>
             <button 
-              onClick={handleSave}
+              onClick={handleSaveAndClose}
               className="save-button primary"
               disabled={!hasUnsavedChanges}
             >
-              Save Changes
+              Save and Close
             </button>
           </div>
         </div>

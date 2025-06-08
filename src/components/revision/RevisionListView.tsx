@@ -82,8 +82,8 @@ export const RevisionListView: React.FC<RevisionListProps> = ({
 
   return (
     <div className="revisions-container">
-      <div className="revisions-header">
-        <h1 className="revisions-title">Revisions</h1>
+      <div className="section-header">
+        <h1 className="section-title">Revisions</h1>
         <button 
           onClick={() => setShowNewRevisionDialog(true)}
           className="add-revision-button"

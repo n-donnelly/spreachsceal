@@ -37,12 +37,6 @@
   background-color: #4b5563;
 }
 
-.location-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-}
-
 .location-info-section {
   background: white;
   border: 1px solid #e5e7eb;
@@ -71,7 +65,7 @@
 }
 
 .location-input {
-  width: 100%;
+  width: 94%;
   padding: 0.75rem;
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
@@ -86,7 +80,7 @@
 }
 
 .location-textarea {
-  width: 100%;
+  width: 94%;
   padding: 0.75rem;
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
@@ -290,22 +284,6 @@
   margin: 0 auto;
 }
 
-.locations-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid #e5e7eb;
-}
-
-.locations-title {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #1f2937;
-  margin: 0;
-}
-
 .add-location-button {
   background-color: #3b82f6;
   color: white;
@@ -413,7 +391,7 @@
 }
 
 .add-note-input {
-  width: 100%;
+  width: 94%;
   padding: 0.5rem;
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
@@ -428,7 +406,7 @@
 }
 
 .add-note-textarea {
-  width: 100%;
+  width: 94%;
   padding: 0.5rem;
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
@@ -534,23 +512,6 @@
     padding: 1rem;
   }
   
-  .location-page-header,
-  .locations-header {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: stretch;
-  }
-  
-  .location-page-title,
-  .locations-title {
-    font-size: 1.5rem;
-  }
-  
-  .location-content {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  
   .locations-grid {
     grid-template-columns: 1fr;
   }
@@ -581,11 +542,6 @@
   .location-info-section,
   .notes-section {
     padding: 1rem;
-  }
-  
-  .location-page-title,
-  .locations-title {
-    font-size: 1.25rem;
   }
   
   .location-section-title {
@@ -629,26 +585,4 @@
 .note-item,
 .add-note-form {
   transition: all 0.2s ease-in-out;
-}
-
-/* Print styles */
-@media print {
-  .location-page-header,
-  .locations-header,
-  .notes-header,
-  .outline-note-actions,
-  .add-note-button,
-  .back-button {
-    display: none;
-  }
-  
-  .location-content {
-    grid-template-columns: 1fr;
-  }
-  
-  .location-info-section,
-  .notes-section {
-    box-shadow: none;
-    border: 1px solid #000;
-  }
 }

@@ -116,8 +116,8 @@ export const EncyclopediaPage: React.FC<EncyclopediaPageProps> = ({ project, onP
 
     return (
         <div className="encyclopedia-container">
-            <div className="encyclopedia-header">
-                <h1 className="encyclopedia-title">Encyclopedia</h1>
+            <div className="section-header">
+                <h1 className="section-title">Encyclopedia</h1>
                 <button 
                     className="add-entry-button"
                     onClick={() => setShowAddEntry(!showAddEntry)}

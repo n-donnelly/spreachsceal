@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
 import { Character } from '../../types/character';
-import { getProject, saveProject } from '../../data/storage';
 import { v4 as uuidv4 } from 'uuid';
 import './Character.css';
+import { Project } from '../../types';
 
 interface Props {
-  projectId: string;
+  project: Project;
   onClose: () => void;
-  onCreated: () => void;
+  onCreated: (charater: Character) => void;
 }
 
-export const NewCharacterDialog: React.FC<Props> = ({ projectId, onClose, onCreated }) => {
+export const NewCharacterDialog: React.FC<Props> = ({ project, onClose, onCreated }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+
+  const otherCharacters = project.characters || [];
 
   const handleCreate = async () => {
     if (!name.trim()) {
@@ -24,13 +26,6 @@ export const NewCharacterDialog: React.FC<Props> = ({ projectId, onClose, onCrea
     setIsCreating(true);
 
     try {
-      const project = getProject(projectId);
-      if (!project) {
-        console.error('Project not found');
-        alert('Project not found');
-        return;
-      }
-
       const newCharacter: Character = {
         id: uuidv4(),
         name: name.trim(),
@@ -40,9 +35,7 @@ export const NewCharacterDialog: React.FC<Props> = ({ projectId, onClose, onCrea
         relationships: new Map<string, string>()
       };
 
-      project.characters.push(newCharacter);
-      saveProject(project);
-      onCreated();
+      onCreated(newCharacter);
       onClose();
     } catch (error) {
       console.error('Error creating character:', error);

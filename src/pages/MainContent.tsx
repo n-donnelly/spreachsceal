@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { ChaptersList } from "../components/chapter/ChapterListView";
 import { EncyclopediaPage } from "../components/encylcopedia/EncyclopediaPage";
 import NotesList from "../components/note/noteslist";
@@ -16,10 +17,21 @@ interface MainContentProps {
 }
 
 export const MainContent = ({ activeSection, project, onSectionChange }: MainContentProps) => {
+    // Maintain internal project state to ensure consistency across navigation
+    const [currentProject, setCurrentProject] = useState<Project | null>(project);
+
+    // Update internal state when project prop changes
+    useEffect(() => {
+        setCurrentProject(project);
+    }, [project]);
 
     const handleProjectUpdate = (updatedProject: Project) => {
-        // Handle project update logic here
+        // Update internal state first
+        setCurrentProject(updatedProject);
+        
+        // Save to storage
         saveProject(updatedProject);
+        
         console.log("Project updated:", updatedProject);
     }
 
@@ -32,48 +44,48 @@ export const MainContent = ({ activeSection, project, onSectionChange }: MainCon
         case "overview":
         case "project":
             return <ProjectView 
-                        project={project} 
+                        project={currentProject} 
                         onProjectUpdate={handleProjectUpdate} 
                         onSectionChange={handleSectionChange} 
                    />;  
         case "chapters":
             return <ChaptersList 
-                        project={project} 
+                        project={currentProject} 
                         onProjectUpdate={handleProjectUpdate}
                    />;
         case "characters":
             return <CharacterListView 
-                        project={project} 
+                        project={currentProject} 
                         onProjectUpdate={handleProjectUpdate}
                    />;
         case "locations":
             return <LocationListView 
-                        project={project} 
+                        project={currentProject} 
                         onProjectUpdate={handleProjectUpdate}
                     />;
         case "outline":
             return <OutlinePage
-                        project={project}
+                        project={currentProject}
                         onProjectUpdate={handleProjectUpdate}
                     />;
         case "encyclopedia":
             return <EncyclopediaPage
-                        project={project}
+                        project={currentProject}
                         onProjectUpdate={handleProjectUpdate}
                     />;
         case "notes":
             return <NotesList 
-                        project={project} 
+                        project={currentProject} 
                         onProjectUpdate={handleProjectUpdate}
                    />;
         case "revisions":
             return <RevisionListView
-                        project={project}
+                        project={currentProject}
                         onProjectUpdate={handleProjectUpdate}
                     />;
         default:
             return <ProjectView
-                        project={project}
+                        project={currentProject}
                         onProjectUpdate={handleProjectUpdate}
                         onSectionChange={handleSectionChange}
                    />;
