@@ -22,3 +22,9 @@ export function addProject(project: Project) {
     const projects = getProjects();
     localStorage.setItem(PROJECTS_KEY, JSON.stringify([...projects, project]));
 }
+
+export function deleteProject(id: string) {
+    const projects = getProjects();
+    const updatedProjects = projects.filter((project) => project.id !== id);
+    localStorage.setItem(PROJECTS_KEY, JSON.stringify(updatedProjects));
+}

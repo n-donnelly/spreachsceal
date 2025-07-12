@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Project, Revision } from '../../types';
-import NewRevisionDialog from './NewRevisionDialog';
 import { getProject } from '../../data/storage';
 
 const RevisionView = () => {
@@ -10,13 +9,11 @@ const RevisionView = () => {
   const navigate = useNavigate();
 
   const [revision, setRevision] = useState<Revision | null>(null);
-
-  console.log('Project ID:', projectId);
-  console.log('Revision ID:', revisionId);
+  const revisionIdNum = revisionId ? parseInt(revisionId, 10) : null;
 
   useEffect(() => {
     const project = getProject(projectId!);
-    const revision = project?.revisions.find((rev) => rev.id === revisionId);
+    const revision = project?.revisions.find((rev) => rev.id === revisionIdNum);
     setRevision(revision || null);
   }, [projectId, revisionId]);
 

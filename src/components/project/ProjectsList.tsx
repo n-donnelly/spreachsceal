@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Project } from "../../types";
 import { useNavigate } from "react-router-dom";
-import { getProjects } from "../../data/storage";
+import { getProjects, deleteProject } from "../../data/storage";
 import { CreateProjectDialog } from "./CreateProjectDialog";
 import './../../styles/ProjectsList.css';
 import ReadOnlyEditor from "../editor/readonlyeditor";
@@ -9,17 +9,31 @@ import ReadOnlyEditor from "../editor/readonlyeditor";
 interface ProjectListProps {
     project: Project;
     onSelect: (id: string) => void;
+    onDelete: (id: string) => void;
 }
 
-export const ProjectCard = ({ project, onSelect }: ProjectListProps) => {
+export const ProjectCard = ({ project, onSelect, onDelete }: ProjectListProps) => {
+    const handleDelete = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        
+        if (window.confirm(`Are you sure you want to delete the project "${project.title}"?`)) {
+            onDelete(project.id);
+        }
+    }
+
     return (
         <div className="project-card" onClick={() => onSelect(project.id)}>
-            <h3>{project.title}</h3>
+            <div className="project-card-header">
+                <h3>{project.title}</h3>
+                <button className="button delete" onClick={handleDelete} title="Delete Project" aria-label={`Delete project ${project.title}`}>
+                    X
+                </button>
+            </div>
             <p>Genre: <strong>{project.genre}</strong></p>
+            <p>Chapters: {project.chapters.length}</p>
             <div className="project-card-description">
                 <ReadOnlyEditor content={project.description?.substring(0, 100) || 'No description'} />
             </div>
-            <p>Chapters: {project.chapters.length}</p>
         </div>
     );
 }
@@ -39,7 +53,12 @@ export const ProjectsList = () => {
     };
 
     const handleSelectProject = (id: string) => {
-        navigate(`/project/${id}`);
+        navigate(`/projects/${id}`);
+    };
+
+    const handleDeleteProject = (id: string) => {
+        deleteProject(id);
+        loadProjects();
     };
 
     const handleProjectCreated = () => {
@@ -77,6 +96,7 @@ export const ProjectsList = () => {
                                 key={project.id}
                                 project={project}
                                 onSelect={handleSelectProject}
+                                onDelete={handleDeleteProject}
                             />
                         ))}
                     </div>

@@ -132,3 +132,61 @@
   background-color: #fff;
   transition: background-color 0.2s ease;
 }
+
+.project-navigation {
+  display: flex;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  padding: 0;
+}
+
+.nav-link {
+  padding: 1rem 1.5rem;
+  text-decoration: none;
+  color: #495057;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+  background-color: #e9ecef;
+  color: #212529;
+}
+
+.nav-link.active {
+  color: #007bff;
+  border-bottom-color: #007bff;
+  background-color: #fff;
+}
+
+.project-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.project-header {
+  background-color: #343a40;
+  color: white;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.project-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: white;
+  text-align: center;
+}
+
+.project-header:hover {
+  background-color: #495057;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.project-content {
+  flex: 1;
+  overflow: auto;
+  padding: 2rem;
+}

@@ -1,28 +1,22 @@
 import React, { useState } from 'react';
-import { Project } from '../../types/project';
 import { Revision } from '../../types/revision';
-import { saveProject } from '../../data/storage';
 import './Revision.css';
 import { NewRevisionDialog } from './NewRevisionDialog';
+import { useNavigate } from 'react-router-dom';
+import { useProject } from '../project/ProjectContext';
 
-interface RevisionListProps {
-  project: Project | null;
-  onProjectUpdate: (project: Project) => void;
-}
-
-export const RevisionListView: React.FC<RevisionListProps> = ({ 
-  project, 
-  onProjectUpdate 
-}) => {
+export const RevisionListView: React.FC = () => {
+  const navigate = useNavigate();
+  const { project, updateProject } = useProject();
+  const [ revisions, setRevisions ] = useState<Revision[]>([]);
   const [showNewRevisionDialog, setShowNewRevisionDialog] = useState(false);
-  const [selectedRevisionId, setSelectedRevisionId] = useState<string | null>(null);
 
   if (!project) {
     return <div className="no-project-message">No project selected</div>;
   }
 
-  const handleRevisionClick = (revisionId: string) => {
-    setSelectedRevisionId(revisionId);
+  const handleRevisionClick = (revisionId: number) => {
+    navigate(`/projects/${project.id}/revisions/${revisionId}`);
   };
 
   const handleCreateRevision = (versionName: string) => {
@@ -31,7 +25,7 @@ export const RevisionListView: React.FC<RevisionListProps> = ({
     setShowNewRevisionDialog(false);
   };
 
-  const handleDeleteRevision = (revisionId: string) => {
+  const handleDeleteRevision = (revisionId: number) => {
     if (!project) return;
     
     if (!window.confirm('Are you sure you want to delete this revision? This action cannot be undone.')) {
@@ -44,11 +38,11 @@ export const RevisionListView: React.FC<RevisionListProps> = ({
       revisions: updatedRevisions
     };
     
-    onProjectUpdate(updatedProject);
-    saveProject(updatedProject);
+    updateProject(updatedProject);
+    setRevisions(updatedRevisions);
   };
 
-  const handleRestoreRevision = (revisionId: string) => {
+  const handleRestoreRevision = (revisionId: number) => {
     if (!project) return;
     
     if (!window.confirm('Are you sure you want to restore this revision? This will replace your current chapters with the chapters from this revision.')) {
@@ -62,9 +56,8 @@ export const RevisionListView: React.FC<RevisionListProps> = ({
       ...project,
       chapters: revision.chapters
     };
-    
-    onProjectUpdate(updatedProject);
-    saveProject(updatedProject);
+
+    updateProject(updatedProject);
   };
 
   const formatDate = (dateString: string) => {
@@ -99,13 +92,13 @@ export const RevisionListView: React.FC<RevisionListProps> = ({
         </p>
       </div>
 
-      {project.revisions.length === 0 ? (
+      {revisions.length === 0 ? (
         <div className="empty-revisions-message">
           No revisions yet. Click "Create Revision" to save a snapshot of your current project state.
         </div>
       ) : (
         <div className="revisions-list">
-          {project.revisions
+          {revisions
             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
             .map((revision) => (
               <div 

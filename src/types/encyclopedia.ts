@@ -5,7 +5,7 @@ export interface Encyclopedia {
 }
 
 export interface EncyclopediaEntry {
-    id: string;
+    id: number;
     key: string;
     content: string;
     notes: NoteFile[];

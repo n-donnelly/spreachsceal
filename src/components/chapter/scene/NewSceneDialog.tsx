@@ -1,18 +1,17 @@
 import { useState } from 'react';
 import { getProject, saveProject } from '../../../data/storage';
 import { Scene } from '../../../types';
-import { v4 as uuidv4 } from 'uuid';
 import './Scene.css';
 
 interface Props {
     projectId: string;
-    chapterId: string;
+    chapterId: number;
     nextSceneNumber: number;
     onClose: () => void;
     onCreated: () => void;
 }
 
-export const NewSceneDialog: React.FC<Props> = ({ 
+export const  NewSceneDialog: React.FC<Props> = ({ 
     projectId, 
     chapterId, 
     nextSceneNumber, 
@@ -53,7 +52,7 @@ export const NewSceneDialog: React.FC<Props> = ({
         }
 
         const newScene: Scene = {
-            id: uuidv4(),
+            id: project.nextIds.scene++,
             number,
             overview: overview.trim(),
             locationId: "",

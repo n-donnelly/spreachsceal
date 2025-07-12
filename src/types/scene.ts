@@ -1,7 +1,7 @@
 import { NoteFile } from "./notes";
 
 export interface Scene {
-    id: string;
+    id: number;
     number: number;
     overview: string;
     locationId: string;

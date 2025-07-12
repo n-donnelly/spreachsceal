@@ -1,58 +1,80 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Character } from '../../types/character';
-import { Project } from '../../types/project';
-import { NoteFile } from '../../types/notes';
+import { useProject } from '../project/ProjectContext';
 import { saveProject } from '../../data/storage';
+import { NoteFile } from '../../types';
 import RichTextEditor from '../editor/texteditor';
-import './Character.css';
+import './character.css';
 
-interface CharacterPageProps {
-    character: Character;
-    project: Project;
-    onCharacterUpdate: (character: Character) => void;
-    onDeselect: () => void;
-}
+export const CharacterPage: React.FC = () => {
+  const { characterId } = useParams<{ characterId: string }>();
+  const navigate = useNavigate();
+  const { project, updateProject } = useProject();
+  
+  const [character, setCharacter] = useState<Character | null>(null);
+  const [newAlias, setNewAlias] = useState('');
+  const [showAddNote, setShowAddNote] = useState(false);
+  const [newNoteTitle, setNewNoteTitle] = useState('');
+  const [newNoteContent, setNewNoteContent] = useState('');
+  const [editingNoteId, setEditingNoteId] = useState<number | null>(null);
+  const [editedNoteTitle, setEditedNoteTitle] = useState('');
+  const [editedNoteContent, setEditedNoteContent] = useState('');
 
-export const CharacterPage: React.FC<CharacterPageProps> = ({
-    character,
-    project,
-    onCharacterUpdate,
-    onDeselect
-}) => {
-    const [editedCharacter, setEditedCharacter] = useState<Character>(character);
-    const [newAlias, setNewAlias] = useState('');
-    const [showAddNote, setShowAddNote] = useState(false);
-    const [newNoteTitle, setNewNoteTitle] = useState('');
-    const [newNoteContent, setNewNoteContent] = useState('');
-    const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
-    const [editedNoteTitle, setEditedNoteTitle] = useState('');
-    const [editedNoteContent, setEditedNoteContent] = useState('');
+  // Find the character when project or characterId changes
+  useEffect(() => {
+        const characterIdNum = parseInt(characterId || '', 10);
+        if (isNaN(characterIdNum)) {
+            return;
+        }
+        if (project && characterId) {
+            const foundCharacter = project.characters.find(char => char.id === characterIdNum);
+            if (foundCharacter) {
+            setCharacter(foundCharacter);
+            }
+        }
+    }, [project, characterId]);
 
-    useEffect(() => {
-        setEditedCharacter(character);
-    }, [character]);
+    if (!project) {
+        return <div className="no-project-selected">No project selected</div>;
+    }
 
-    const handleSaveCharacter = () => {
-        onCharacterUpdate(editedCharacter);
-        saveProject({
-            ...project,
-            characters: project.characters.map(char => 
-                char.id === editedCharacter.id ? editedCharacter : char
-            )
-        });
+    if (!character) {
+        return <div>Character not found</div>;
+    }
+
+  const handleBack = () => {
+    navigate(`/projects/${project.id}/characters`);
+  };
+
+  const handleSaveCharacter = () => {
+    if (!character) return;
+
+    const updatedProject = {
+      ...project,
+      characters: project.characters.map(char => 
+        char.id === character.id ? character : char
+      )
     };
+    
+    updateProject(updatedProject);
+    saveProject(updatedProject);
+    setCharacter(character);
+  };
 
-    const handleNameChange = (name: string) => {
-        const updated = { ...editedCharacter, name };
-        setEditedCharacter(updated);
-        handleSaveCharacter();
-    };
+  const handleNameChange = (name: string) => {
+    if (!character) return;
+    const updated = { ...character, name };
+    setCharacter(updated);
+    handleSaveCharacter();
+  };
 
-    const handleDescriptionChange = (description: string) => {
-        const updated = { ...editedCharacter, description };
-        setEditedCharacter(updated);
-        handleSaveCharacter();
-    };
+  const handleDescriptionChange = (description: string) => {
+    if (!character) return;
+    const updated = { ...character, description };
+    setCharacter(updated);
+    handleSaveCharacter();
+  };
 
     const handleAddAlias = () => {
         if (!newAlias.trim()) {
@@ -60,27 +82,25 @@ export const CharacterPage: React.FC<CharacterPageProps> = ({
             return;
         }
 
-        if (editedCharacter.aliases.includes(newAlias.trim())) {
+        if (character.aliases.includes(newAlias.trim())) {
             alert('This alias already exists');
             return;
         }
 
         const updated = {
-            ...editedCharacter,
-            aliases: [...editedCharacter.aliases, newAlias.trim()]
+            ...character,
+            aliases: [...character.aliases, newAlias.trim()]
         };
-        setEditedCharacter(updated);
-        onCharacterUpdate(updated);
+        setCharacter(updated);
         setNewAlias('');
     };
 
     const handleRemoveAlias = (aliasToRemove: string) => {
         const updated = {
-            ...editedCharacter,
-            aliases: editedCharacter.aliases.filter(alias => alias !== aliasToRemove)
+            ...character,
+            aliases: character.aliases.filter(alias => alias !== aliasToRemove)
         };
-        setEditedCharacter(updated);
-        onCharacterUpdate(updated);
+        setCharacter(updated);
     };
 
     const handleAddNote = () => {
@@ -90,18 +110,17 @@ export const CharacterPage: React.FC<CharacterPageProps> = ({
         }
 
         const newNote: NoteFile = {
-            id: crypto.randomUUID(),
+            id: project?.nextIds.note,
             title: newNoteTitle.trim(),
             content: newNoteContent
         };
 
         const updated = {
-            ...editedCharacter,
-            notes: [...editedCharacter.notes, newNote]
+            ...character,
+            notes: [...character.notes, newNote]
         };
 
-        setEditedCharacter(updated);
-        onCharacterUpdate(updated);
+        setCharacter(updated);
 
         // Reset form
         setNewNoteTitle('');
@@ -109,18 +128,17 @@ export const CharacterPage: React.FC<CharacterPageProps> = ({
         setShowAddNote(false);
     };
 
-    const handleDeleteNote = (noteId: string) => {
+    const handleDeleteNote = (noteId: number) => {
         if (!window.confirm('Are you sure you want to delete this note?')) {
             return;
         }
 
         const updated = {
-            ...editedCharacter,
-            notes: editedCharacter.notes.filter(note => note.id !== noteId)
+            ...character,
+            notes: character.notes.filter(note => note.id !== noteId)
         };
 
-        setEditedCharacter(updated);
-        onCharacterUpdate(updated);
+        setCharacter(updated);
     };
 
     const handleEditNote = (note: NoteFile) => {
@@ -136,16 +154,15 @@ export const CharacterPage: React.FC<CharacterPageProps> = ({
         }
 
         const updated = {
-            ...editedCharacter,
-            notes: editedCharacter.notes.map(note => 
+            ...character,
+            notes: character.notes.map(note => 
                 note.id === editingNoteId 
                     ? { ...note, title: editedNoteTitle.trim(), content: editedNoteContent }
                     : note
             )
         };
 
-        setEditedCharacter(updated);
-        onCharacterUpdate(updated);
+        setCharacter(updated);
 
         // Reset editing state
         setEditingNoteId(null);
@@ -170,11 +187,11 @@ export const CharacterPage: React.FC<CharacterPageProps> = ({
 
     return (
         <div className="character-page-container">
-            <div className="character-page-header">
-                <button onClick={onDeselect} className="back-button">
-                    ← Back to Characters
+            <div className="character-header">
+                <button onClick={handleBack} className="back-button">
+                ← Back to Characters
                 </button>
-                <h1 className="character-page-title">{editedCharacter.name}</h1>
+                <h1>{character.name}</h1>
             </div>
 
             <div className="character-content">
@@ -189,7 +206,7 @@ export const CharacterPage: React.FC<CharacterPageProps> = ({
                             id="character-name"
                             type="text"
                             className="character-input"
-                            value={editedCharacter.name}
+                            value={character.name}
                             onChange={(e) => handleNameChange(e.target.value)}
                             placeholder="Character name"
                         />
@@ -202,7 +219,7 @@ export const CharacterPage: React.FC<CharacterPageProps> = ({
                         <textarea
                             id="character-description"
                             className="character-textarea"
-                            value={editedCharacter.description}
+                            value={character.description}
                             onChange={(e) => handleDescriptionChange(e.target.value)}
                             placeholder="Character description"
                         />
@@ -211,9 +228,9 @@ export const CharacterPage: React.FC<CharacterPageProps> = ({
                     <div className="aliases-section">
                         <label className="character-field-label">Aliases</label>
                         
-                        {editedCharacter.aliases.length > 0 && (
+                        {character.aliases.length > 0 && (
                             <div className="aliases-list">
-                                {editedCharacter.aliases.map((alias, index) => (
+                                {character.aliases.map((alias, index) => (
                                     <span key={index} className="alias-tag">
                                         {alias}
                                         <button
@@ -259,7 +276,7 @@ export const CharacterPage: React.FC<CharacterPageProps> = ({
                     {otherCharacters.length > 0 ? (
                         <div className="relationships-list">
                             {otherCharacters.map((otherChar) => {
-                                const relationship = editedCharacter.relationships?.get?.(otherChar.id) || '';
+                                const relationship = character.relationships?.get?.(otherChar.id) || '';
                                 return (
                                     <div key={otherChar.id} className="relationship-item">
                                         <div className="relationship-character">{otherChar.name}</div>
@@ -269,18 +286,17 @@ export const CharacterPage: React.FC<CharacterPageProps> = ({
                                             placeholder="Describe relationship..."
                                             value={relationship}
                                             onChange={(e) => {
-                                                const newRelationships = new Map(editedCharacter.relationships);
+                                                const newRelationships = new Map(character.relationships);
                                                 if (e.target.value.trim()) {
                                                     newRelationships.set(otherChar.id, e.target.value);
                                                 } else {
                                                     newRelationships.delete(otherChar.id);
                                                 }
                                                 const updated = {
-                                                    ...editedCharacter,
+                                                    ...character,
                                                     relationships: newRelationships
                                                 };
-                                                setEditedCharacter(updated);
-                                                onCharacterUpdate(updated);
+                                                setCharacter(updated);
                                             }}
                                         />
                                     </div>
@@ -355,8 +371,8 @@ export const CharacterPage: React.FC<CharacterPageProps> = ({
                 )}
 
                 <div className="notes-list">
-                    {editedCharacter.notes.length > 0 ? (
-                        editedCharacter.notes.map((note) => (
+                    {character.notes.length > 0 ? (
+                        character.notes.map((note) => (
                             <div key={note.id} className="note-item">
                                 {editingNoteId === note.id ? (
                                     <div>

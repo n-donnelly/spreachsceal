@@ -1,17 +1,15 @@
-import { ProjectProvider} from "../components/project/ProjectContext";
-import './Dashboard.css';
-import { ProjectNavigation } from "../components/project/ProjectNavigation";
-import { Link, Outlet } from "react-router-dom";
+import React from 'react';
+import { Outlet } from 'react-router-dom';
+import { ProjectProvider } from '../project/ProjectContext';
+import { ProjectNavigation } from './ProjectNavigation';
 
-export const Dashboard = () => {
-    return (
+export const ProjectLayout: React.FC = () => {
+  return (
     <ProjectProvider>
       <div className="project-layout">
         {/* Project Header */}
         <header className="project-header">
-          <Link to="/projects" className="project-header-link">
-            <h1>Spreachsceal</h1>
-          </Link>
+          <h1>Spreachsceal</h1>
         </header>
 
         {/* Navigation Bar */}

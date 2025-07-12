@@ -1,23 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Project } from '../../types/project';
 import { Outline } from '../../types/outline';
 import { NoteFile } from '../../types/notes';
 import { saveProject } from '../../data/storage';
 import RichTextEditor from '../editor/texteditor';
 import './Outline.css';
 import { debounce } from '../../utils';
+import { useProject } from '../project/ProjectContext';
 
-interface OutlinePageProps {
-    project: Project | null;
-    onProjectUpdate: (project: Project) => void;
-}
-
-export const OutlinePage: React.FC<OutlinePageProps> = ({ project, onProjectUpdate }) => {
+export const OutlinePage: React.FC = () => {
+    const { project, updateProject } = useProject();
     const [outline, setOutline] = useState<Outline | null>(null);
     const [showAddNote, setShowAddNote] = useState(false);
     const [newNoteTitle, setNewNoteTitle] = useState('');
     const [newNoteContent, setNewNoteContent] = useState('');
-    const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+    const [editingNoteId, setEditingNoteId] = useState<number | null>(null);
     const [editedNoteTitle, setEditedNoteTitle] = useState('');
     const [editedNoteContent, setEditedNoteContent] = useState('');
 
@@ -39,12 +35,12 @@ export const OutlinePage: React.FC<OutlinePageProps> = ({ project, onProjectUpda
                     ...project,
                     outline: updatedOutline
                 };
-                onProjectUpdate(updatedProject);
+                updateProject(updatedProject);
                 saveProject(updatedProject);
                 console.log('Outline updated:', updatedProject);
             }
         }, 1000),
-        [project, onProjectUpdate]
+        [project, updateProject]
     );
 
     if (!project) {
@@ -70,7 +66,7 @@ export const OutlinePage: React.FC<OutlinePageProps> = ({ project, onProjectUpda
 
         if (outline && project) {
             const newNote: NoteFile = {
-                id: crypto.randomUUID(),
+                id: project.nextIds.note++,
                 title: newNoteTitle.trim(),
                 content: newNoteContent
             };
@@ -86,8 +82,7 @@ export const OutlinePage: React.FC<OutlinePageProps> = ({ project, onProjectUpda
             };
 
             setOutline(updatedOutline);
-            onProjectUpdate(updatedProject);
-            saveProject(updatedProject);
+            updateProject(updatedProject);
 
             // Reset form
             setNewNoteTitle('');
@@ -96,7 +91,7 @@ export const OutlinePage: React.FC<OutlinePageProps> = ({ project, onProjectUpda
         }
     };
 
-    const handleDeleteNote = (noteId: string) => {
+    const handleDeleteNote = (noteId: number) => {
         if (!outline || !project) return;
 
         if (!window.confirm('Are you sure you want to delete this note?')) {
@@ -114,8 +109,7 @@ export const OutlinePage: React.FC<OutlinePageProps> = ({ project, onProjectUpda
         };
 
         setOutline(updatedOutline);
-        onProjectUpdate(updatedProject);
-        saveProject(updatedProject);
+        updateProject(updatedProject);
     };
 
     const handleEditNote = (note: NoteFile) => {
@@ -147,8 +141,7 @@ export const OutlinePage: React.FC<OutlinePageProps> = ({ project, onProjectUpda
         };
 
         setOutline(updatedOutline);
-        onProjectUpdate(updatedProject);
-        saveProject(updatedProject);
+        updateProject(updatedProject);
 
         // Reset editing state
         setEditingNoteId(null);

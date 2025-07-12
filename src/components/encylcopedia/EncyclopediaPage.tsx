@@ -1,19 +1,16 @@
 import { useEffect, useState } from 'react';
-import { Encyclopedia, EncyclopediaEntry, Project } from '../../types';
+import { Encyclopedia, EncyclopediaEntry } from '../../types';
 import './EncyclopediaPage.css';
 import RichTextEditor from '../editor/texteditor';
+import { useProject } from '../project/ProjectContext';
 
-interface EncyclopediaPageProps {
-    project: Project | null;
-    onProjectUpdate: (project: Project) => void;
-}
-
-export const EncyclopediaPage: React.FC<EncyclopediaPageProps> = ({ project, onProjectUpdate }) => {
+export const EncyclopediaPage: React.FC = () => {
+    const { project, updateProject } = useProject();
     const [encyclopedia, setEncyclopedia] = useState<Encyclopedia | null>(null);
     const [showAddEntry, setShowAddEntry] = useState(false);
     const [newEntryKey, setNewEntryKey] = useState('');
     const [newEntryContent, setNewEntryContent] = useState('');
-    const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
+    const [editingEntryId, setEditingEntryId] = useState<number | null>(null);
     const [editedKey, setEditedKey] = useState('');
     const [editedContent, setEditedContent] = useState('');
 
@@ -33,8 +30,8 @@ export const EncyclopediaPage: React.FC<EncyclopediaPageProps> = ({ project, onP
                 ...project,
                 encyclopedia: updatedEncyclopedia
             };
-            onProjectUpdate(updatedProject);
-            console.log('Encyclopedia updated:', updatedProject);
+            updateProject(updatedProject);
+            setEncyclopedia(updatedEncyclopedia);
         }
     }
 
@@ -45,7 +42,7 @@ export const EncyclopediaPage: React.FC<EncyclopediaPageProps> = ({ project, onP
         }
 
         const newEntry: EncyclopediaEntry = {
-            id: crypto.randomUUID(),
+            id: project!.nextIds.encyclopediaEntry++,
             key: newEntryKey.trim(),
             content: newEntryContent,
             notes: []
@@ -97,7 +94,7 @@ export const EncyclopediaPage: React.FC<EncyclopediaPageProps> = ({ project, onP
         setEditingEntryId(null);
     };
 
-    const deleteEntry = (entryId: string) => {
+    const deleteEntry = (entryId: number) => {
         if (window.confirm('Are you sure you want to delete this entry?')) {
             const updatedEntries = encyclopedia!.entries.filter(entry => entry.id !== entryId);
             const updatedEncyclopedia = {

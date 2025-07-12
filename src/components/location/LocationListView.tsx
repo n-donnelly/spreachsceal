@@ -1,19 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Project } from '../../types/project';
 import { Location } from '../../types/location';
-import { saveProject } from '../../data/storage';
 import './Location.css';
-import { LocationPage } from './LocationPage';
 import { NewLocationDialog } from './NewLocationDialog';
+import { useNavigate } from 'react-router-dom';
+import { useProject } from '../project/ProjectContext';
 
-interface LocationListViewProps {
-    project: Project | null;
-    onProjectUpdate: (project: Project) => void;
-}
-
-export const LocationListView: React.FC<LocationListViewProps> = ({ project, onProjectUpdate }) => {
+export const LocationListView: React.FC = () => {
+    const navigate = useNavigate();
+    const { project, updateProject } = useProject();
     const [locations, setLocations] = useState<Location[]>([]);
-    const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
     const [showNewLocationDialog, setShowNewLocationDialog] = useState(false);
 
     useEffect(() => {
@@ -24,65 +19,40 @@ export const LocationListView: React.FC<LocationListViewProps> = ({ project, onP
         }
     }, [project]);
 
-    // Reset selected location if it no longer exists in the project
-    useEffect(() => {
-        if (selectedLocation && project) {
-            const stillExists = project.locations.find(loc => loc.id === selectedLocation.id);
-            if (!stillExists) {
-                setSelectedLocation(null);
-            }
-        }
-    }, [project, selectedLocation]);
-
     if (!project) {
         return <div className="no-project-selected">No project selected</div>;
     }
 
-    const handleLocationSelect = (locationId: string) => {
-        const location = locations.find(loc => loc.id === locationId);
-        if (location) {
-            setSelectedLocation(location);
-        }
+    const handleLocationSelect = (locationId: number) => {
+        navigate(`/projects/${project.id}/locations/${locationId}`);
     };
 
-    const handleLocationDeselect = () => {
-        setSelectedLocation(null);
-    };
-
-    const handleLocationUpdate = (updatedLocation: Location) => {
-        const updatedProject = {
-            ...project,
-            locations: project.locations.map(loc => 
-                loc.id === updatedLocation.id ? updatedLocation : loc
-            )
-        };
-        
-        onProjectUpdate(updatedProject);
-        saveProject(updatedProject);
-    };
 
     const handleNewLocationCreated = (newLocation: Location) => {
-        onProjectUpdate({
+        const updatedProject = {
             ...project,
             locations: [...(project.locations || []), newLocation]
-        });
+        };
+        updateProject(updatedProject);
         setLocations((prev) => [...prev, newLocation]);
         setShowNewLocationDialog(false);
     };
 
-    // If a location is selected, show the location page
-    if (selectedLocation) {
-        return (
-            <LocationPage
-                location={selectedLocation}
-                project={project}
-                onLocationUpdate={handleLocationUpdate}
-                onDeselect={handleLocationDeselect}
-            />
-        );
-    }
 
-    // Otherwise, show the locations list
+
+    const handleDeleteLocation = (event: React.MouseEvent, locationId: number) => {
+        event.stopPropagation();
+
+        if (window.confirm("Are you sure you want to delete this location? This action cannot be undone.")) {
+            const updatedProject = {
+                ...project,
+                locations: project.locations.filter((loc) => loc.id !== locationId)
+            };
+            updateProject(updatedProject);
+            setLocations((prev) => prev.filter((loc) => loc.id !== locationId));
+        }
+    };
+
     return (
         <div className="locations-container">
             <div className="section-header">
@@ -123,9 +93,8 @@ export const LocationListView: React.FC<LocationListViewProps> = ({ project, onP
                                     </p>
                                 </div>
                                 
-                                <div className="location-card-stats">
-                                    <span>{location.notes.length} notes</span>
-                                    <span>Location</span>
+                                <div className="location-actions">
+                                    <button onClick={(e) => handleDeleteLocation(e, location.id)} className="button delete">Delete</button>
                                 </div>
                             </div>
                         ))}

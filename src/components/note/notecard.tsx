@@ -5,7 +5,7 @@ import './notes.css';
 
 interface NoteCardProps {
   note: NoteFile;
-  onDelete: (noteId: string) => void;
+  onDelete: (noteId: number) => void;
   onEdit: (note: NoteFile) => void;
 }
 

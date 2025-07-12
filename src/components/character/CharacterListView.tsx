@@ -1,19 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Character } from '../../types/character';
-import { Project } from '../../types/project';
-import { CharacterPage } from './CharacterPage';
 import { NewCharacterDialog } from './NewCharacterDialog';
-import { saveProject } from '../../data/storage';
-import './Character.css';
+import { useProject } from '../project/ProjectContext';
 
-interface CharacterListViewProps {
-  project: Project | null;
-  onProjectUpdate: (project: Project) => void;
-}
-
-export const CharacterListView: React.FC<CharacterListViewProps> = ({ project, onProjectUpdate }) => {
+export const CharacterListView: React.FC = () => {
+  const navigate = useNavigate();
+  const { project, updateProject } = useProject();
   const [characters, setCharacters] = useState<Character[]>([]);
-  const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
   const [showNewCharacterDialog, setShowNewCharacterDialog] = useState(false);
 
   useEffect(() => {
@@ -28,60 +22,37 @@ export const CharacterListView: React.FC<CharacterListViewProps> = ({ project, o
     return <div className="no-project-selected">No project selected</div>;
   }
 
-  const handleCharacterSelect = (characterId: string) => {
-    const character = characters.find(char => char.id === characterId);
-    if (character) {
-      setSelectedCharacter(character);
-    }
-  };
-
-  const handleCharacterDeselect = () => {
-    setSelectedCharacter(null);
-    // Refresh characters from project
-    if (project) {
-      setCharacters(project.characters || []);
-    }
-  };
-
-  const handleCharacterUpdate = (updatedCharacter: Character) => {
-    const updatedProject = {
-      ...project,
-      characters: project.characters.map(char => 
-        char.id === updatedCharacter.id ? updatedCharacter : char
-      )
-    };
-    
-    onProjectUpdate(updatedProject);
-    saveProject(updatedProject);
-    setCharacters(updatedProject.characters);
+  const handleCharacterSelect = (characterId: number) => {
+    navigate(`/projects/${project.id}/characters/${characterId}`);
   };
 
   const handleNewCharacterCreated = (newCharacter: Character) => {
-    onProjectUpdate({
+    const updatedProject = {
       ...project,
       characters: [...(project.characters || []), newCharacter]
-    });
+    };
+    updateProject(updatedProject);
     setCharacters((prev) => [...prev, newCharacter]);
     setShowNewCharacterDialog(false);
   };
 
-  // If a character is selected, show the character page
-  if (selectedCharacter) {
-    return (
-      <CharacterPage
-        character={selectedCharacter}
-        project={project}
-        onCharacterUpdate={handleCharacterUpdate}
-        onDeselect={handleCharacterDeselect}
-      />
-    );
-  }
+  const handleDeleteCharacter = (event: React.MouseEvent, characterId: number) => {
+    event.stopPropagation();
 
-  // Otherwise, show the characters list
+    if (window.confirm("Are you sure you want to delete this character? This action cannot be undone.")) {
+      const updatedProject = {
+        ...project,
+        characters: project.characters.filter((char) => char.id !== characterId)
+      };
+      updateProject(updatedProject);
+      setCharacters((prev) => prev.filter((char) => char.id !== characterId));
+    }    
+  };
+
   return (
     <div className="characters-container">
-      <div className="section-header">
-        <h1 className="section-title">Characters</h1>
+      <div className="characters-header">
+        <h2>Characters</h2>
         <button 
           onClick={() => setShowNewCharacterDialog(true)}
           className="add-character-button"
@@ -113,30 +84,15 @@ export const CharacterListView: React.FC<CharacterListViewProps> = ({ project, o
               >
                 <div className="character-card-header">
                   <h3 className="character-card-name">{character.name}</h3>
-                  
-                  {character.aliases.length > 0 && (
-                    <div className="character-card-aliases">
-                      {character.aliases.slice(0, 3).map((alias, index) => (
-                        <span key={index} className="character-card-alias">
-                          {alias}
-                        </span>
-                      ))}
-                      {character.aliases.length > 3 && (
-                        <span className="character-card-alias">
-                          +{character.aliases.length - 3} more
-                        </span>
-                      )}
-                    </div>
-                  )}
+                  <p className="character-card-description">
+                    {character.description || 'No description provided'}
+                  </p>
                 </div>
                 
-                <p className="character-card-description">
-                  {character.description || 'No description yet.'}
-                </p>
-                
-                <div className="character-card-stats">
-                  <span>{character.aliases.length} aliases</span>
-                  <span>{character.notes.length} notes</span>
+                <div className="character-actions">
+                  <button onClick={(e) => handleDeleteCharacter(e, character.id)} className="button delete">
+                    Delete
+                  </button>
                 </div>
               </div>
             ))}

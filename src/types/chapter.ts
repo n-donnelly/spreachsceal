@@ -4,7 +4,7 @@ import { NoteFile } from "./notes";
 import { Scene } from "./scene";
 
 export interface Chapter {
-    id: string;
+    id: number;
     title: string;
     index: number;
     scenes: Scene[];

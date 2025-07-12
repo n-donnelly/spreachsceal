@@ -1,29 +1,29 @@
 import React, { useState } from 'react';
-import { Project } from '../../types/project';
+import { useNavigate } from 'react-router-dom';
 import { Chapter } from '../../types/chapter';
-import { saveProject } from '../../data/storage';
 import { NewChapterDialog } from './NewChapterDialog';
-import { ChapterViewPage } from './ChapterViewPage';
 import './Chapter.css';
+import { useProject } from '../project/ProjectContext';
 
-interface ChaptersListProps {
-  project: Project | null;
-  onProjectUpdate: (project: Project) => void;
-}
-
-export const ChaptersList: React.FC<ChaptersListProps> = ({ 
-  project, 
-  onProjectUpdate
-}) => {
+export const ChapterListView: React.FC = () => {
+  const navigate = useNavigate();
+  const { project, updateProject, loading, error } = useProject();
   const [showNewChapterDialog, setShowNewChapterDialog] = useState(false);
-  const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null);
 
-  if (!project) {
-    return <div>No project selected</div>;
+  if (loading) {
+    return <div className="chapters-loading">Loading project...</div>;
   }
 
-  const handleChapterClick = (chapterId: string) => {
-    setSelectedChapterId(chapterId);
+  if (error) {
+    return <div className="chapters-error">Error: {error}</div>;
+  }
+
+  if (!project) {
+    return <div className="no-project-selected">Project not found</div>;
+  }
+
+  const handleChapterClick = (chapterId: number) => {
+    navigate(`/projects/${project.id}/chapters/${chapterId}`);
   };
 
   const handleCreateChapter = (newChapter: Chapter) => {
@@ -32,23 +32,24 @@ export const ChaptersList: React.FC<ChaptersListProps> = ({
       chapters: [...project.chapters, newChapter]
     };
     
-    onProjectUpdate(updatedProject);
-    saveProject(updatedProject);
+    updateProject(updatedProject);
+    setShowNewChapterDialog(false);
+    
+    // Optionally navigate to the new chapter
+    // navigate(`/projects/${project.id}/chapters/${newChapter.id}`);
   };
 
-  // If a chapter is selected, show the chapter view page
-  if (selectedChapterId) {
-    return (
-      <ChapterViewPage
-        project={project}
-        chapterId={selectedChapterId}
-        onProjectUpdate={onProjectUpdate}
-        onBack={() => setSelectedChapterId(null)}
-      />
-    );
-  }
+  const handleDeleteChapter = (event: React.MouseEvent, chapterId: number) => {
+    event.stopPropagation();
 
-  // Otherwise, show the chapters list
+    const updatedChapters = project.chapters.filter(ch => ch.id !== chapterId);
+    const updatedProject = {
+      ...project,
+      chapters: updatedChapters
+    };
+    updateProject(updatedProject);
+  };
+
   return (
     <div className="chapters-container">
       <div className="section-header">
@@ -79,15 +80,21 @@ export const ChaptersList: React.FC<ChaptersListProps> = ({
                   <h3 className="chapter-title">
                     Chapter {chapter.index}: {chapter.title}
                   </h3>
-                  <span className="scenes-count">
-                    {chapter.scenes.length} {chapter.scenes.length === 1 ? 'scene' : 'scenes'}
-                  </span>
+                  
                 </div>
-                {chapter.scenes.length > 0 && (
-                  <div className="scenes-list">
-                    Scenes: {chapter.scenes.map(scene => scene.number).join(', ')}
+                <div className="chapter-description">
+                  <div className="scenes-count">
+                    {chapter.scenes.length} {chapter.scenes.length === 1 ? 'scene' : 'scenes'}
                   </div>
-                )}
+                  <div className="characters-count">
+                    {chapter.characters.length} {chapter.characters.length === 1 ? 'character' : 'characters'}
+                  </div>
+                </div>
+                <div className="chapter-actions">
+                  <button onClick={($event) => handleDeleteChapter($event, chapter.id)} className="button delete">
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
         </div>
@@ -103,3 +110,5 @@ export const ChaptersList: React.FC<ChaptersListProps> = ({
     </div>
   );
 };
+
+export { ChapterListView as ChaptersList }; // Keep the old export name for backward compatibility

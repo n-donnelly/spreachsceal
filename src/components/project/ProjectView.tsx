@@ -1,20 +1,32 @@
 import React, { useState } from 'react';
-import { Project } from '../../types';
 import RichTextEditor from '../editor/texteditor';
 import './ProjectsPage.css';
+import { useProject } from './ProjectContext';
+import { useNavigate } from 'react-router-dom';
 
-interface ProjectViewProps {
-    project: Project | null;
-    onProjectUpdate: (project: Project) => void;
-    onSectionChange: (section: string, optionalId?: string) => void;
-}
-
-export const ProjectView: React.FC<ProjectViewProps> = ({ project, onProjectUpdate, onSectionChange }) => {
+export const ProjectView: React.FC = () => {
+    const navigate = useNavigate();
+    const { project, updateProject, loading, error } = useProject();
     const [activeTab, setActiveTab] = useState<string>('overview');
     const [description, setDescription] = useState(project?.description || '');
 
+    // Update description state when project changes
+    React.useEffect(() => {
+        if (project) {
+            setDescription(project.description || '');
+        }
+    }, [project]);
+
+    if (loading) {
+        return <div className="project-loading">Loading project...</div>;
+    }
+
+    if (error) {
+        return <div className="project-error">Error: {error}</div>;
+    }
+
     if (!project) {
-        return <div className="no-project-selected">No project selected</div>;
+        return <div className="no-project-selected">Project not found</div>;
     }
 
     const totalWordCount = project.chapters.reduce((total, chapter) => {
@@ -30,35 +42,23 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, onProjectUpda
     const handleDescriptionChange = (newDescription: string) => {
         setDescription(newDescription);
         const updatedProject = { ...project, description: newDescription };
-        onProjectUpdate(updatedProject);
+        updateProject(updatedProject);
     };
 
-    const navigateToNewChapter = () => {
-        onSectionChange('chapters', 'new');
+    const navigateToSection = (section: string) => {
+        navigate(`/projects/${project.id}/${section}`);
     };
 
-    const navigateToNewCharacter = () => {
-        onSectionChange('characters', 'new');
+    const navigateToChapter = (chapterId: number) => {
+        navigate(`/projects/${project.id}/chapters/${chapterId}`);
     };
 
-    const navigateToNewLocation = () => {
-        onSectionChange('locations', 'new');
+    const navigateToCharacter = (characterId: number) => {
+        navigate(`/projects/${project.id}/characters/${characterId}`);
     };
 
-    const navigateToNewRevision = () => {
-        onSectionChange('revisions', 'new');
-    };
-
-    const navigateToChapter = (chapterId: string) => {
-        onSectionChange('chapters', chapterId);
-    };
-
-    const navigateToCharacter = (characterId: string) => {
-        onSectionChange('characters', characterId);
-    };
-
-    const navigateToLocation = (locationId: string) => {
-        onSectionChange('locations', locationId);
+    const navigateToLocation = (locationId: number) => {
+        navigate(`/projects/${project.id}/locations/${locationId}`);
     };
 
     return (
@@ -66,19 +66,19 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, onProjectUpda
             <div className="section-header">
                 <h1 className="section-title">{project.title}</h1>
             </div>
-                <div className="project-meta">
-                    <span>Genre: {project.genre}</span>
-                    <span>Chapters: {project.chapters.length}</span>
-                </div>
-                
-                <div className="project-description-section">
-                    <h2 className="section-title">Description</h2>
-                    <RichTextEditor 
-                        content={description} 
-                        onChange={handleDescriptionChange}
-                        className="description-editor"
-                    />
-                </div>
+            <div className="project-meta">
+                <span>Genre: {project.genre}</span>
+                <span>Chapters: {project.chapters.length}</span>
+            </div>
+            
+            <div className="project-description-section">
+                <h2 className="section-title">Description</h2>
+                <RichTextEditor 
+                    content={description} 
+                    onChange={handleDescriptionChange}
+                    className="description-editor"
+                />
+            </div>
 
             {/* Tabs Navigation */}
             <div className="tabs-navigation">
@@ -152,6 +152,35 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, onProjectUpda
                                     )}
                                 </div>
                             </div>
+                            <div className="overview-card">
+                                <h3 className="overview-card-title">Quick Actions</h3>
+                                <div className="quick-actions">
+                                    <button 
+                                        className="quick-action-button"
+                                        onClick={() => navigateToSection('chapters')}
+                                    >
+                                        📚 View Chapters
+                                    </button>
+                                    <button 
+                                        className="quick-action-button"
+                                        onClick={() => navigateToSection('characters')}
+                                    >
+                                        👥 Manage Characters
+                                    </button>
+                                    <button 
+                                        className="quick-action-button"
+                                        onClick={() => navigateToSection('locations')}
+                                    >
+                                        📍 View Locations
+                                    </button>
+                                    <button 
+                                        className="quick-action-button"
+                                        onClick={() => navigateToSection('notes')}
+                                    >
+                                        📝 View Notes
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 )}
@@ -160,11 +189,17 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, onProjectUpda
                     <div>
                         <div className="tab-section-header">
                             <h2 className="tab-section-title">Chapters</h2>
+                            <button 
+                                className="view-all-button"
+                                onClick={() => navigateToSection('chapters')}
+                            >
+                                View All Chapters
+                            </button>
                         </div>
                         
                         {project.chapters.length > 0 ? (
                             <div className="items-grid">
-                                {project.chapters.map(chapter => (
+                                {project.chapters.slice(0, 6).map(chapter => (
                                     <div 
                                         key={chapter.id} 
                                         className="item-card"
@@ -174,10 +209,22 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, onProjectUpda
                                         <p className="item-card-meta">{chapter.scenes.length} scenes</p>
                                     </div>
                                 ))}
+                                {project.chapters.length > 6 && (
+                                    <div className="show-more-card" onClick={() => navigateToSection('chapters')}>
+                                        <p>+{project.chapters.length - 6} more chapters</p>
+                                        <p>Click to view all</p>
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className="empty-state">
-                                No chapters yet.
+                                <p>No chapters yet.</p>
+                                <button 
+                                    className="create-button"
+                                    onClick={() => navigateToSection('chapters')}
+                                >
+                                    Create First Chapter
+                                </button>
                             </div>
                         )}
                     </div>
@@ -187,11 +234,17 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, onProjectUpda
                     <div>
                         <div className="tab-section-header">
                             <h2 className="tab-section-title">Characters</h2>
+                            <button 
+                                className="view-all-button"
+                                onClick={() => navigateToSection('characters')}
+                            >
+                                View All Characters
+                            </button>
                         </div>
                         
                         {project.characters.length > 0 ? (
                             <div className="items-grid">
-                                {project.characters.map(character => (
+                                {project.characters.slice(0, 6).map(character => (
                                     <div 
                                         key={character.id} 
                                         className="item-card"
@@ -201,10 +254,22 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, onProjectUpda
                                         <p className="item-card-meta">{character.description}</p>
                                     </div>
                                 ))}
+                                {project.characters.length > 6 && (
+                                    <div className="show-more-card" onClick={() => navigateToSection('characters')}>
+                                        <p>+{project.characters.length - 6} more characters</p>
+                                        <p>Click to view all</p>
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className="empty-state">
-                                No characters yet.
+                                <p>No characters yet.</p>
+                                <button 
+                                    className="create-button"
+                                    onClick={() => navigateToSection('characters')}
+                                >
+                                    Create First Character
+                                </button>
                             </div>
                         )}
                     </div>
@@ -214,11 +279,17 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, onProjectUpda
                     <div>
                         <div className="tab-section-header">
                             <h2 className="tab-section-title">Locations</h2>
+                            <button 
+                                className="view-all-button"
+                                onClick={() => navigateToSection('locations')}
+                            >
+                                View All Locations
+                            </button>
                         </div>
                         
                         {project.locations.length > 0 ? (
                             <div className="items-grid">
-                                {project.locations.map(location => (
+                                {project.locations.slice(0, 6).map(location => (
                                     <div 
                                         key={location.id} 
                                         className="item-card"
@@ -228,10 +299,22 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, onProjectUpda
                                         <p className="item-card-meta">{location.description}</p>
                                     </div>
                                 ))}
+                                {project.locations.length > 6 && (
+                                    <div className="show-more-card" onClick={() => navigateToSection('locations')}>
+                                        <p>+{project.locations.length - 6} more locations</p>
+                                        <p>Click to view all</p>
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className="empty-state">
-                                No locations yet.
+                                <p>No locations yet.</p>
+                                <button 
+                                    className="create-button"
+                                    onClick={() => navigateToSection('locations')}
+                                >
+                                    Create First Location
+                                </button>
                             </div>
                         )}
                     </div>
@@ -241,11 +324,17 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, onProjectUpda
                     <div>
                         <div className="tab-section-header">
                             <h2 className="tab-section-title">Notes</h2>
+                            <button 
+                                className="view-all-button"
+                                onClick={() => navigateToSection('notes')}
+                            >
+                                View All Notes
+                            </button>
                         </div>
                         
                         {project.notes.length > 0 ? (
                             <div className="items-grid">
-                                {project.notes.map(note => (
+                                {project.notes.slice(0, 6).map(note => (
                                     <div 
                                         key={note.id} 
                                         className="item-card"
@@ -257,10 +346,22 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, onProjectUpda
                                         />
                                     </div>
                                 ))}
+                                {project.notes.length > 6 && (
+                                    <div className="show-more-card" onClick={() => navigateToSection('notes')}>
+                                        <p>+{project.notes.length - 6} more notes</p>
+                                        <p>Click to view all</p>
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className="empty-state">
-                                No notes yet.
+                                <p>No notes yet.</p>
+                                <button 
+                                    className="create-button"
+                                    onClick={() => navigateToSection('notes')}
+                                >
+                                    Create First Note
+                                </button>
                             </div>
                         )}
                     </div>
@@ -270,12 +371,19 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, onProjectUpda
                     <div>
                         <div className="tab-section-header">
                             <h2 className="tab-section-title">Revisions</h2>
+                            <button 
+                                className="view-all-button"
+                                onClick={() => navigateToSection('revisions')}
+                            >
+                                View All Revisions
+                            </button>
                         </div>
                         
                         {project.revisions.length > 0 ? (
                             <div className="items-grid">
                                 {project.revisions
                                     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                                    .slice(0, 6)
                                     .map(revision => (
                                     <div 
                                         key={revision.id} 
@@ -287,10 +395,22 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, onProjectUpda
                                         </p>
                                     </div>
                                 ))}
+                                {project.revisions.length > 6 && (
+                                    <div className="show-more-card" onClick={() => navigateToSection('revisions')}>
+                                        <p>+{project.revisions.length - 6} more revisions</p>
+                                        <p>Click to view all</p>
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className="empty-state">
-                                No revisions yet.
+                                <p>No revisions yet.</p>
+                                <button 
+                                    className="create-button"
+                                    onClick={() => navigateToSection('revisions')}
+                                >
+                                    Create First Revision
+                                </button>
                             </div>
                         )}
                     </div>
@@ -298,6 +418,7 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, onProjectUpda
             </div>
         </div>
     );
+
 };
 
 export default ProjectView;

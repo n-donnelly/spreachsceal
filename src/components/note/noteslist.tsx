@@ -1,31 +1,37 @@
 
-import React, { useState } from 'react';
-import { NoteFile, Project } from '../../types';
+import React, { useEffect, useState } from 'react';
+import { NoteFile } from '../../types';
 import NoteCard from './notecard';
 import './notes.css';
+import { useNavigate } from 'react-router-dom';
+import { useProject } from '../project/ProjectContext';
 
-interface NotesListProps {
-  project: Project | null;
-  onProjectUpdate: (project: Project) => void;
-}
-
-const NotesList: React.FC<NotesListProps> = ({ project, onProjectUpdate }) => {
+const NotesList: React.FC = () => {
+    const navigate = useNavigate();
+    const { project, updateProject } = useProject();
+    const [notes, setNotes] = useState<NoteFile[]>( []);
     const [showNewNoteForm, setShowNewNoteForm] = useState(false);
     const [newNoteTitle, setNewNoteTitle] = useState('');
     const [newNoteContent, setNewNoteContent] = useState('');
 
-    if (!project) {
-        return <div>No project selected</div>;
-    }
+    useEffect(() => {
+        if (project) {
+            setNotes(project.notes || []);
+        } else {
+            setNotes([]);
+        }
+    }, [project]);
 
-    var notes = project?.notes || [];
-    console.log("Notes: " + notes);
-    
-    const onNoteDelete = (noteId: string) => {
-        const updatedProject = { 
-            ...project, 
-            notes: project.notes.filter((note) => note.id !== noteId) };
-        onProjectUpdate(updatedProject);
+    if (!project) {
+        return <div className="no-project-selected">No project selected</div>;
+    }
+    const onNoteDelete = (noteId: number) => {
+        const updatedProject = {
+            ...project,
+            notes: project.notes.filter((note) => note.id !== noteId)
+        };
+        updateProject(updatedProject);
+        setNotes(updatedProject.notes);
     };
 
     const onNoteEdit = (updatedNote: NoteFile) => {
@@ -35,7 +41,8 @@ const NotesList: React.FC<NotesListProps> = ({ project, onProjectUpdate }) => {
                 note.id === updatedNote.id ? updatedNote : note
             )
         };
-        onProjectUpdate(updatedProject);
+        updateProject(updatedProject);
+        setNotes(updatedProject.notes);
     };
 
     const handleAddNote = () => {
@@ -45,7 +52,7 @@ const NotesList: React.FC<NotesListProps> = ({ project, onProjectUpdate }) => {
         }
 
         const newNote: NoteFile = {
-            id: crypto.randomUUID(),
+            id: project.nextIds.note++,
             title: newNoteTitle,
             content: newNoteContent
         };
@@ -55,9 +62,9 @@ const NotesList: React.FC<NotesListProps> = ({ project, onProjectUpdate }) => {
             notes: [...project.notes, newNote]
         };
 
-        onProjectUpdate(updatedProject);
-        notes.push(newNote);
-        
+        updateProject(updatedProject);
+        setNotes(updatedProject.notes);
+
         // Reset form
         setNewNoteTitle('');
         setNewNoteContent('');

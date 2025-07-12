@@ -1,57 +1,80 @@
 import React, { useState, useEffect } from 'react';
 import { Location } from '../../types/location';
-import { Project } from '../../types/project';
 import { NoteFile } from '../../types/notes';
 import { saveProject } from '../../data/storage';
 import RichTextEditor from '../editor/texteditor';
 import './Location.css';
 import '../../styles/shared.css';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useProject } from '../project/ProjectContext';
 
-interface LocationPageProps {
-    location: Location;
-    project: Project;
-    onLocationUpdate: (location: Location) => void;
-    onDeselect: () => void;
-}
+export const LocationPage: React.FC = () => {
+    const { locationId } = useParams<{ locationId: string }>();
+    const navigate = useNavigate();
+    const { project, updateProject } = useProject();
 
-export const LocationPage: React.FC<LocationPageProps> = ({
-    location,
-    project,
-    onLocationUpdate,
-    onDeselect
-}) => {
-    const [editedLocation, setEditedLocation] = useState<Location>(location);
+    const [location, setLocation] = useState<Location | null>(null);
     const [showAddNote, setShowAddNote] = useState(false);
     const [newNoteTitle, setNewNoteTitle] = useState('');
     const [newNoteContent, setNewNoteContent] = useState('');
-    const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+    const [editingNoteId, setEditingNoteId] = useState<number | null>(null);
     const [editedNoteTitle, setEditedNoteTitle] = useState('');
     const [editedNoteContent, setEditedNoteContent] = useState('');
 
     useEffect(() => {
-        setEditedLocation(location);
+        const locationIdNum = parseInt(locationId || '0', 10);
+        if (isNaN(locationIdNum)) {
+            return;
+        }
+        if (project && locationId) {
+            const foundLocation = project.locations.find(loc => loc.id === locationIdNum);
+            if (foundLocation) {
+                setLocation(foundLocation);
+            }
+        }
     }, [location]);
 
+    if (!project) {
+        return <div className="no-project-selected">No project selected</div>;
+    }
+
+    if (!location) {
+        return <div>Location not found</div>;
+    }
+
+    const handleBack = () => {
+        navigate(`/projects/${project.id}/locations`);
+    };
+
     const handleSaveLocation = () => {
-        onLocationUpdate(editedLocation);
-        saveProject({
+        if (!location) {
+            return;
+        }
+
+        const updatedProject = {
             ...project,
             locations: project.locations.map(loc => 
-                loc.id === editedLocation.id ? editedLocation : loc
+                loc.id === location.id ? location : loc
             )
-        });
+        };
+
+        updateProject(updatedProject);
+        saveProject(updatedProject);
+        setLocation(location);
     };
 
     const handleNameChange = (name: string) => {
-        const updated = { ...editedLocation, name };
-        setEditedLocation(updated);
-        onLocationUpdate(updated);
+        if (!location) return;
+        const updated = { ...location, name };
+        setLocation(updated);
+        handleSaveLocation();
     };
 
     const handleDescriptionChange = (description: string) => {
-        const updated = { ...editedLocation, description };
-        setEditedLocation(updated);
-        onLocationUpdate(updated);
+        if (!location) return;
+        const updated = { ...location, description };
+        setLocation(updated);
+        handleSaveLocation();
     };
 
     const handleAddNote = () => {
@@ -61,18 +84,17 @@ export const LocationPage: React.FC<LocationPageProps> = ({
         }
 
         const newNote: NoteFile = {
-            id: crypto.randomUUID(),
+            id: project?.nextIds.note,
             title: newNoteTitle.trim(),
             content: newNoteContent
         };
 
         const updated = {
-            ...editedLocation,
-            notes: [...editedLocation.notes, newNote]
+            ...location,
+            notes: [...location.notes, newNote]
         };
 
-        setEditedLocation(updated);
-        onLocationUpdate(updated);
+        setLocation(updated);
 
         // Reset form
         setNewNoteTitle('');
@@ -80,18 +102,17 @@ export const LocationPage: React.FC<LocationPageProps> = ({
         setShowAddNote(false);
     };
 
-    const handleDeleteNote = (noteId: string) => {
+    const handleDeleteNote = (noteId: number) => {
         if (!window.confirm('Are you sure you want to delete this note?')) {
             return;
         }
 
         const updated = {
-            ...editedLocation,
-            notes: editedLocation.notes.filter(note => note.id !== noteId)
+            ...location,
+            notes: location.notes.filter(note => note.id !== noteId)
         };
 
-        setEditedLocation(updated);
-        onLocationUpdate(updated);
+        setLocation(updated);
     };
 
     const handleEditNote = (note: NoteFile) => {
@@ -107,16 +128,15 @@ export const LocationPage: React.FC<LocationPageProps> = ({
         }
 
         const updated = {
-            ...editedLocation,
-            notes: editedLocation.notes.map(note => 
+            ...location,
+            notes: location.notes.map(note => 
                 note.id === editingNoteId 
                     ? { ...note, title: editedNoteTitle.trim(), content: editedNoteContent }
                     : note
             )
         };
 
-        setEditedLocation(updated);
-        onLocationUpdate(updated);
+        setLocation(updated);
 
         // Reset editing state
         setEditingNoteId(null);
@@ -139,10 +159,10 @@ export const LocationPage: React.FC<LocationPageProps> = ({
     return (
         <div className="location-page-container">
             <div className="location-page-header">
-                <button onClick={onDeselect} className="back-button">
+                <button onClick={handleBack} className="back-button">
                     ← Back to Locations
                 </button>
-                <h1 className="location-page-title">{editedLocation.name}</h1>
+                <h1 className="location-page-title">{location.name}</h1>
             </div>
 
             <div className="location-content">
@@ -157,7 +177,7 @@ export const LocationPage: React.FC<LocationPageProps> = ({
                             id="location-name"
                             type="text"
                             className="location-input"
-                            value={editedLocation.name}
+                            value={location.name}
                             onChange={(e) => handleNameChange(e.target.value)}
                             placeholder="Location name"
                         />
@@ -170,7 +190,7 @@ export const LocationPage: React.FC<LocationPageProps> = ({
                         <textarea
                             id="location-description"
                             className="location-textarea"
-                            value={editedLocation.description}
+                            value={location.description}
                             onChange={(e) => handleDescriptionChange(e.target.value)}
                             placeholder="Location description"
                         />
@@ -238,8 +258,8 @@ export const LocationPage: React.FC<LocationPageProps> = ({
                 )}
 
                 <div className="notes-list">
-                    {editedLocation.notes.length > 0 ? (
-                        editedLocation.notes.map((note) => (
+                    {location.notes.length > 0 ? (
+                        location.notes.map((note) => (
                             <div key={note.id} className="note-item">
                                 {editingNoteId === note.id ? (
                                     <div>

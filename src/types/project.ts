@@ -19,4 +19,13 @@ export interface Project {
   characters: Character[];
   locations: Location[];
   outline: Outline;
+
+  nextIds: {
+    chapter: number;
+    character: number;
+    scene: number;
+    note: number;
+    location: number;
+    encyclopediaEntry: number;
+  }
 }

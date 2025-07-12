@@ -1,5 +1,5 @@
 export interface NoteFile {
-    id: string;
+    id: number;
     title: string;
     content: string;
 }
