@@ -7,12 +7,6 @@ export const Dashboard = () => {
     return (
     <ProjectProvider>
       <div className="project-layout">
-        {/* Project Header */}
-        <header className="project-header">
-          <Link to="/projects" className="project-header-link">
-            <h1>Spreachsceal</h1>
-          </Link>
-        </header>
 
         {/* Navigation Bar */}
         <ProjectNavigation />

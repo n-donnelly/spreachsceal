@@ -13,28 +13,35 @@ import { OutlinePage } from './components/outline/OutlinePage';
 import { EncyclopediaPage } from './components/encylcopedia/EncyclopediaPage';
 import { RevisionListView } from './components/revision/RevisionListView';
 import RevisionView from './components/revision/RevisionView';
+import { ToDoListView } from './components/todo/ToDoListView';
+import MorningPages from './pages/MorningPages';
+import { AppLayout } from './AppLayout';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/projects" replace />} />
-        <Route path="/projects" element={<ProjectsList />} />
-        
-        <Route path="/projects/:projectId" element={<Dashboard />}>
-          <Route index element={<ProjectView />} /> {/* Default/overview */}
-          <Route path="chapters" element={<ChapterListView />} />
-          <Route path="chapters/:chapterId" element={<ChapterViewPage />} />
-          <Route path="characters" element={<CharacterListView />} />
-          <Route path="characters/:characterId" element={<CharacterPage />} />
-          <Route path="locations" element={<LocationListView />} />
-          <Route path="locations/:locationId" element={<LocationPage />} />
-          <Route path="notes" element={<NotesList />} />
-          <Route path="outline" element={<OutlinePage />} />
-          <Route path="encyclopedia" element={<EncyclopediaPage />} />
-          <Route path="revisions" element={<RevisionListView />} />
-          <Route path="revisions/:revisionId" element={<RevisionView />} />
-          {/* Add other routes as you convert them */}
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<Navigate to="/projects" replace />} />
+          <Route path="/morning-pages" element={<MorningPages />} />
+          <Route path="/projects" element={<ProjectsList />} />
+          
+          <Route path="/projects/:projectId" element={<Dashboard />}>
+            <Route index element={<ProjectView />} /> {/* Default/overview */}
+            <Route path="todo" element={<ToDoListView />} />
+            <Route path="chapters" element={<ChapterListView />} />
+            <Route path="chapters/:chapterId" element={<ChapterViewPage />} />
+            <Route path="characters" element={<CharacterListView />} />
+            <Route path="characters/:characterId" element={<CharacterPage />} />
+            <Route path="locations" element={<LocationListView />} />
+            <Route path="locations/:locationId" element={<LocationPage />} />
+            <Route path="notes" element={<NotesList />} />
+            <Route path="outline" element={<OutlinePage />} />
+            <Route path="encyclopedia" element={<EncyclopediaPage />} />
+            <Route path="revisions" element={<RevisionListView />} />
+            <Route path="revisions/:revisionId" element={<RevisionView />} />
+            {/* Add other routes as you convert them */}
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>

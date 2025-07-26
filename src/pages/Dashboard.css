@@ -165,26 +165,6 @@
   height: 100vh;
 }
 
-.project-header {
-  background-color: #343a40;
-  color: white;
-  padding: 1rem 2rem;
-  border-bottom: 1px solid #dee2e6;
-}
-
-.project-header h1 {
-  margin: 0;
-  font-size: 1.5rem;
-  color: white;
-  text-align: center;
-}
-
-.project-header:hover {
-  background-color: #495057;
-  transition: background-color 0.2s ease;
-  cursor: pointer;
-}
-
 .project-content {
   flex: 1;
   overflow: auto;

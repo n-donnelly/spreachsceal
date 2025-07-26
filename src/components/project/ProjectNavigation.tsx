@@ -12,6 +12,25 @@ export const ProjectNavigation: React.FC = () => {
   return (
     <nav className="project-navigation">
       <NavLink 
+        to={`/projects/${projectId}`}
+        className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
+        end
+      >
+        Overview
+      </NavLink>
+      <NavLink 
+        to={`/projects/${projectId}/todo`}
+        className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
+      >
+        To Do List
+      </NavLink>
+      <NavLink 
+        to={`/projects/${projectId}/outline`}
+        className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
+      >
+        Outline
+      </NavLink>
+      <NavLink 
         to={`/projects/${projectId}/chapters`}
         className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
       >
@@ -35,12 +54,7 @@ export const ProjectNavigation: React.FC = () => {
       >
         Notes
       </NavLink>
-      <NavLink 
-        to={`/projects/${projectId}/outline`}
-        className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
-      >
-        Outline
-      </NavLink>
+      
       <NavLink 
         to={`/projects/${projectId}/encyclopedia`}
         className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}

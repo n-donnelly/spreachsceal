@@ -5,10 +5,11 @@ import { saveProject } from '../../data/storage';
 import RichTextEditor from '../editor/texteditor';
 import './Outline.css';
 import { debounce } from '../../utils';
-import { useProject } from '../project/ProjectContext';
+import { useProject, useProjectContext } from '../project/ProjectContext';
 
 export const OutlinePage: React.FC = () => {
     const { project, updateProject } = useProject();
+    const { getNextId } = useProjectContext();
     const [outline, setOutline] = useState<Outline | null>(null);
     const [showAddNote, setShowAddNote] = useState(false);
     const [newNoteTitle, setNewNoteTitle] = useState('');
@@ -66,7 +67,7 @@ export const OutlinePage: React.FC = () => {
 
         if (outline && project) {
             const newNote: NoteFile = {
-                id: project.nextIds.note++,
+                id: getNextId('note'),
                 title: newNoteTitle.trim(),
                 content: newNoteContent
             };

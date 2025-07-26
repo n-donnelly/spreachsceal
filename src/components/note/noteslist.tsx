@@ -4,11 +4,12 @@ import { NoteFile } from '../../types';
 import NoteCard from './notecard';
 import './notes.css';
 import { useNavigate } from 'react-router-dom';
-import { useProject } from '../project/ProjectContext';
+import { useProject, useProjectContext } from '../project/ProjectContext';
 
 const NotesList: React.FC = () => {
     const navigate = useNavigate();
     const { project, updateProject } = useProject();
+    const { getNextId } = useProjectContext();
     const [notes, setNotes] = useState<NoteFile[]>( []);
     const [showNewNoteForm, setShowNewNoteForm] = useState(false);
     const [newNoteTitle, setNewNoteTitle] = useState('');
@@ -52,7 +53,7 @@ const NotesList: React.FC = () => {
         }
 
         const newNote: NoteFile = {
-            id: project.nextIds.note++,
+            id: getNextId('note'),
             title: newNoteTitle,
             content: newNoteContent
         };

@@ -9,7 +9,7 @@ export const ProjectLayout: React.FC = () => {
       <div className="project-layout">
         {/* Project Header */}
         <header className="project-header">
-          <h1>Spreachsceal</h1>
+          <h1>Spréachscéal</h1>
         </header>
 
         {/* Navigation Bar */}

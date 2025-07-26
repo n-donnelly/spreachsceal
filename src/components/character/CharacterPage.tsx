@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Character } from '../../types/character';
-import { useProject } from '../project/ProjectContext';
+import { useProject, useProjectContext } from '../project/ProjectContext';
 import { saveProject } from '../../data/storage';
 import { NoteFile } from '../../types';
 import RichTextEditor from '../editor/texteditor';
@@ -11,7 +11,8 @@ export const CharacterPage: React.FC = () => {
   const { characterId } = useParams<{ characterId: string }>();
   const navigate = useNavigate();
   const { project, updateProject } = useProject();
-  
+  const { getNextId } = useProjectContext(); // Use the context to get the next ID function
+
   const [character, setCharacter] = useState<Character | null>(null);
   const [newAlias, setNewAlias] = useState('');
   const [showAddNote, setShowAddNote] = useState(false);
@@ -30,7 +31,7 @@ export const CharacterPage: React.FC = () => {
         if (project && characterId) {
             const foundCharacter = project.characters.find(char => char.id === characterIdNum);
             if (foundCharacter) {
-            setCharacter(foundCharacter);
+                setCharacter(foundCharacter);
             }
         }
     }, [project, characterId]);
@@ -110,7 +111,7 @@ export const CharacterPage: React.FC = () => {
         }
 
         const newNote: NoteFile = {
-            id: project?.nextIds.note,
+            id: getNextId('note'),
             title: newNoteTitle.trim(),
             content: newNoteContent
         };

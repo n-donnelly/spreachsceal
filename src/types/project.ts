@@ -6,6 +6,7 @@ import { Character } from './character';
 import { Location } from './location';
 import { Outline } from './outline';
 import { Encyclopedia } from './encyclopedia';
+import { TodoItem } from './todo-items';
 
 export interface Project {
   id: string;
@@ -18,6 +19,7 @@ export interface Project {
   notes: NoteFile[];
   characters: Character[];
   locations: Location[];
+  todoItems: TodoItem[];
   outline: Outline;
 
   nextIds: {
@@ -27,5 +29,6 @@ export interface Project {
     note: number;
     location: number;
     encyclopediaEntry: number;
+    todoItem: number;
   }
 }

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { Project } from '../../types/project';
 import { getProject, saveProject } from '../../data/storage';
@@ -8,9 +8,10 @@ interface ProjectContextType {
   loading: boolean;
   error: string | null;
   updateProject: (project: Project) => void;
+  getNextId: (type: 'character' | 'location' | 'todoItem' | 'encyclopediaEntry' | 'scene' | 'chapter' | 'note') => number;
 }
 
-const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
+export const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
 export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -46,6 +47,21 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setError("Failed to save project");
       console.error(err);
     }
+  };  
+
+  const getNextId = (type: 'character' | 'location' | 'todoItem' | 'encyclopediaEntry' | 'scene' | 'chapter' | 'note') => {
+    if (!currentProject) {
+      console.warn("No project loaded, cannot get next ID");
+      return 1; // Default to 1 if no project is loaded
+    }
+
+    const currentId = currentProject.nextIds[type] || 1;
+    const updatedIds = {
+      ...currentProject.nextIds,
+      [type]: currentId + 1
+    };
+    setCurrentProject((prev) => prev ? { ...prev, nextIds: updatedIds } : null);
+    return currentId;  
   };
 
   return (
@@ -54,7 +70,8 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
         currentProject, 
         loading, 
         error, 
-        updateProject
+        updateProject,
+        getNextId,
       }}
     >
       {children}
@@ -154,4 +171,12 @@ export const useProject = () => {
     error,
     projectId 
   };
+};
+
+export const useProjectContext = () => {
+  const context = useContext(ProjectContext);
+  if (context === undefined) {
+    throw new Error('useProjectContext must be used within a ProjectProvider');
+  }
+  return context;
 };

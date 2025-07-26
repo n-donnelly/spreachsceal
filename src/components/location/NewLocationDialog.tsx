@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Location } from "../../types";
 import './Location.css';
+import { useProjectContext } from "../project/ProjectContext";
 
 interface NewLocationDialogProps {
     onClose: () => void;
@@ -10,6 +11,7 @@ interface NewLocationDialogProps {
 export const NewLocationDialog: React.FC<NewLocationDialogProps> = ({ onClose, onCreated }) => {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
+    const { getNextId } = useProjectContext();
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -20,7 +22,7 @@ export const NewLocationDialog: React.FC<NewLocationDialogProps> = ({ onClose, o
         }
 
         const newLocation: Location = {
-            id: crypto.randomUUID(),
+            id: getNextId('location'),
             name: name.trim(),
             description: description.trim(),
             notes: []

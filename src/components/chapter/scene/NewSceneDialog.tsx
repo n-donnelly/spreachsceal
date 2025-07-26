@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { getProject, saveProject } from '../../../data/storage';
 import { Scene } from '../../../types';
 import './Scene.css';
+import { useProjectContext } from '../../project/ProjectContext';
 
 interface Props {
     projectId: string;
@@ -21,6 +22,7 @@ export const  NewSceneDialog: React.FC<Props> = ({
     const [number, setNumber] = useState(nextSceneNumber);
     const [overview, setOverview] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const { getNextId } = useProjectContext();
 
     const handleCreate = () => {
         // Clear any previous errors
@@ -52,7 +54,7 @@ export const  NewSceneDialog: React.FC<Props> = ({
         }
 
         const newScene: Scene = {
-            id: project.nextIds.scene++,
+            id: getNextId('scene'),
             number,
             overview: overview.trim(),
             locationId: "",

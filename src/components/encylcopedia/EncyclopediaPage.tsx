@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { Encyclopedia, EncyclopediaEntry } from '../../types';
 import './EncyclopediaPage.css';
 import RichTextEditor from '../editor/texteditor';
-import { useProject } from '../project/ProjectContext';
+import { useProject, useProjectContext } from '../project/ProjectContext';
 
 export const EncyclopediaPage: React.FC = () => {
     const { project, updateProject } = useProject();
+    const { getNextId } = useProjectContext();
+
     const [encyclopedia, setEncyclopedia] = useState<Encyclopedia | null>(null);
     const [showAddEntry, setShowAddEntry] = useState(false);
     const [newEntryKey, setNewEntryKey] = useState('');
@@ -42,7 +44,7 @@ export const EncyclopediaPage: React.FC = () => {
         }
 
         const newEntry: EncyclopediaEntry = {
-            id: project!.nextIds.encyclopediaEntry++,
+            id: getNextId('encyclopediaEntry'), // Assuming getNextId is available in context
             key: newEntryKey.trim(),
             content: newEntryContent,
             notes: []

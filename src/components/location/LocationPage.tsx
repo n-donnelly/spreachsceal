@@ -6,12 +6,13 @@ import RichTextEditor from '../editor/texteditor';
 import './Location.css';
 import '../../styles/shared.css';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useProject } from '../project/ProjectContext';
+import { useProject, useProjectContext } from '../project/ProjectContext';
 
 export const LocationPage: React.FC = () => {
     const { locationId } = useParams<{ locationId: string }>();
     const navigate = useNavigate();
     const { project, updateProject } = useProject();
+    const { getNextId } = useProjectContext();
 
     const [location, setLocation] = useState<Location | null>(null);
     const [showAddNote, setShowAddNote] = useState(false);
@@ -84,7 +85,7 @@ export const LocationPage: React.FC = () => {
         }
 
         const newNote: NoteFile = {
-            id: project?.nextIds.note,
+            id: getNextId('note'),
             title: newNoteTitle.trim(),
             content: newNoteContent
         };
