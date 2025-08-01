@@ -31,6 +31,17 @@ export const CreateProjectDialog: React.FC<Props> = ({ onClose, onCreated }) => 
         outline: {
           content: "",
           notes: [],
+        },
+        todoItems: [],
+        nextIds: {
+          chapter: 1,
+          character: 1,
+          scene: 1,
+          note: 1,
+          location: 1,
+          encyclopediaEntry: 1,
+          todoItem: 1,
+          revision: 1,
         }
     };
     addProject(newProject);

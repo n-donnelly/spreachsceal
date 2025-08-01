@@ -8,7 +8,7 @@ interface ProjectContextType {
   loading: boolean;
   error: string | null;
   updateProject: (project: Project) => void;
-  getNextId: (type: 'character' | 'location' | 'todoItem' | 'encyclopediaEntry' | 'scene' | 'chapter' | 'note') => number;
+  getNextId: (type: 'character' | 'location' | 'todoItem' | 'encyclopediaEntry' | 'scene' | 'chapter' | 'note' | 'revision') => number;
 }
 
 export const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
@@ -49,7 +49,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };  
 
-  const getNextId = (type: 'character' | 'location' | 'todoItem' | 'encyclopediaEntry' | 'scene' | 'chapter' | 'note') => {
+  const getNextId = (type: 'character' | 'location' | 'todoItem' | 'encyclopediaEntry' | 'scene' | 'chapter' | 'note' | 'revision') => {
     if (!currentProject) {
       console.warn("No project loaded, cannot get next ID");
       return 1; // Default to 1 if no project is loaded

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Revision } from '../../types/revision';
 import { getProject, saveProject } from '../../data/storage';
 import './Revision.css';
+import { useProjectContext } from '../project/ProjectContext';
 
 interface Props {
   projectId: string;
@@ -16,6 +17,7 @@ export const NewRevisionDialog: React.FC<Props> = ({
 }) => {
   const [name, setName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const { getNextId } = useProjectContext();
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +52,7 @@ export const NewRevisionDialog: React.FC<Props> = ({
       const chaptersCopy = JSON.parse(JSON.stringify(project.chapters));
 
       const newRevision: Revision = {
-        id: crypto.randomUUID(),
+        id: getNextId('revision'),
         versionName: name.trim(),
         chapters: chaptersCopy,
         date: new Date().toISOString()

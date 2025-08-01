@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Character } from '../../types/character';
-import { v4 as uuidv4 } from 'uuid';
 import './Character.css';
 import { Project } from '../../types';
+import { useProjectContext } from '../project/ProjectContext';
 
 interface Props {
   project: Project;
@@ -14,6 +14,7 @@ export const NewCharacterDialog: React.FC<Props> = ({ project, onClose, onCreate
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const { getNextId } = useProjectContext();
 
   const otherCharacters = project.characters || [];
 
@@ -27,12 +28,12 @@ export const NewCharacterDialog: React.FC<Props> = ({ project, onClose, onCreate
 
     try {
       const newCharacter: Character = {
-        id: uuidv4(),
+        id: getNextId('character'),
         name: name.trim(),
         aliases: [],
         notes: [],
         description: description.trim(),
-        relationships: new Map<string, string>()
+        relationships: new Map<number, string>()
       };
 
       onCreated(newCharacter);

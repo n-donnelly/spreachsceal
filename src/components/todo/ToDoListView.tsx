@@ -111,10 +111,12 @@ export const ToDoListView: React.FC = () => {
     };
 
     return (
-        <div className="todo-list-container">
+        <div className="todo-container">
             <div className="todo-header">
-                <h2>Todo List</h2>
-                <button 
+                <h1 className="section-title">ToDo List</h1>
+            </div>
+            <div className="todo-body">
+                <button
                     className="add-todo-button"
                     onClick={() => setShowNewToDoDialog(true)}
                 >

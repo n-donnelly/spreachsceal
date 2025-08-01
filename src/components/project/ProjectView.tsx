@@ -61,6 +61,12 @@ export const ProjectView: React.FC = () => {
         navigate(`/projects/${project.id}/locations/${locationId}`);
     };
 
+    const navigateToTodo = () => {
+        navigate(`/projects/${project.id}/todo`);
+    };
+
+
+
     return (
         <div className="project-view-container">
             <div className="section-header">
@@ -94,6 +100,12 @@ export const ProjectView: React.FC = () => {
                         onClick={() => setActiveTab('chapters')}
                     >
                         Chapters
+                    </button>
+                    <button 
+                        className={`tab-button ${activeTab === 'todo' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('todo')}
+                    >
+                        Todo
                     </button>
                     <button 
                         className={`tab-button ${activeTab === 'characters' ? 'active' : ''}`}
@@ -132,6 +144,7 @@ export const ProjectView: React.FC = () => {
                                 <h3 className="overview-card-title">Statistics</h3>
                                 <ul className="stats-list">
                                     <li>Chapters: {project.chapters.length}</li>
+                                    <li>Todo Items: {project.todoItems.length}</li>
                                     <li>Characters: {project.characters.length}</li>
                                     <li>Locations: {project.locations.length}</li>
                                     <li>Notes: {project.notes.length}</li>
@@ -410,6 +423,53 @@ export const ProjectView: React.FC = () => {
                                     onClick={() => navigateToSection('revisions')}
                                 >
                                     Create First Revision
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {activeTab === 'todo' && (
+                    <div>
+                        <div className="tab-section-header">
+                            <h2 className="tab-section-title">Todo List</h2>
+                            <button 
+                                className="view-all-button"
+                                onClick={() => navigateToSection('todo')}
+                            >
+                                View All Tasks
+                            </button>
+                        </div>
+                        
+                        {project.todoItems.length > 0 ? (
+                            <div className="items-grid">
+                                {project.todoItems
+                                    .slice(0, 6)
+                                    .map(todo => (
+                                    <div 
+                                        key={todo.id} 
+                                        className="item-card"
+                                    >
+                                        <h3 className="item-card-title">{todo.title}</h3>
+                                        <p className="item-card-description">{todo.description}</p>
+                                        
+                                    </div>
+                                ))}
+                                {project.todoItems.length > 6 && (
+                                    <div className="show-more-card" onClick={() => navigateToSection('todo')}>
+                                        <p>+{project.todoItems.length - 6} more tasks</p>
+                                        <p>Click to view all</p>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="empty-state">
+                                <p>No tasks yet.</p>
+                                <button 
+                                    className="create-button"
+                                    onClick={() => navigateToSection('todo')}
+                                >
+                                    Create First Task
                                 </button>
                             </div>
                         )}

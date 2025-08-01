@@ -30,5 +30,6 @@ export interface Project {
     location: number;
     encyclopediaEntry: number;
     todoItem: number;
+    revision: number;
   }
 }

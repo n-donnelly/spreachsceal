@@ -6,6 +6,7 @@ import { SceneWritingModal } from './scene/SceneWritingModal';
 import './Chapter.css';
 import ReadOnlyEditor from '../editor/readonlyeditor';
 import { useProject } from '../project/ProjectContext';
+import { Character, Location, Scene } from '../../types';
 
 export const ChapterViewPage: React.FC = () => {
   const { chapterId } = useParams<{ chapterId: string }>();
@@ -13,6 +14,9 @@ export const ChapterViewPage: React.FC = () => {
   const { project, updateProject, loading, error } = useProject();
   
   const [chapter, setChapter] = useState<Chapter | null>(null);
+  const [characters, setCharacters] = useState<Character[]>([]);
+  const [locations, setLocations] = useState<Location[]>([]);
+
   const [expandedScenes, setExpandedScenes] = useState<Set<number>>(new Set());
   const [showNewSceneDialog, setShowNewSceneDialog] = useState(false);
   const [draggedSceneId, setDraggedSceneId] = useState<number | null>(null);
@@ -27,6 +31,8 @@ export const ChapterViewPage: React.FC = () => {
       const foundChapter = project.chapters.find(ch => ch.id === chapterIdNumber);
       if (foundChapter) {
         setChapter(foundChapter);
+        setCharacters(project.characters.filter(char => foundChapter.characters.includes(char.id)));
+        setLocations(project.locations.filter(loc => foundChapter.locations.includes(loc.id)));
       } else {
         console.error(`Chapter with ID ${chapterId} not found`);
       }
@@ -104,14 +110,26 @@ export const ChapterViewPage: React.FC = () => {
     updateChapter(updatedChapter);
   };
 
-  const handleNewSceneCreated = () => {
-    // Refresh chapter data from project
-    if (project && chapterId) {
-      const refreshedChapter = project.chapters.find(ch => ch.id === chapterIdNumber);
-      if (refreshedChapter) {
-        setChapter(refreshedChapter);
-      }
-    }
+  const handleNewSceneCreated = (newScene: Scene) => {
+    setShowNewSceneDialog(false);
+    
+    if (!chapter) return;
+
+    // Add the new scene to the current chapter
+    const updatedChapter = {
+      ...chapter,
+      scenes: [...chapter.scenes, newScene]
+    };
+
+    // Update both local and project state
+    setChapter(updatedChapter);
+    const updatedProject = {
+      ...project,
+      chapters: project.chapters.map(ch => 
+        ch.id === chapter.id ? updatedChapter : ch
+      )
+    };
+    updateProject(updatedProject);
   };
 
   const handleDeleteScene = (sceneId: number) => {
@@ -124,6 +142,52 @@ export const ChapterViewPage: React.FC = () => {
     const updatedScenes = chapter.scenes.filter(scene => scene.id !== sceneId);
     const updatedChapter = { ...chapter, scenes: updatedScenes };
     updateChapter(updatedChapter);
+  };
+
+  const handleAddCharacter = (characterId: number) => {
+    if (!chapter) return;
+    if (chapter.characters.includes(characterId)) {
+      return; // Character already added
+    }
+    const updatedChapter = {
+      ...chapter,
+      characters: [...chapter.characters, characterId]
+    };
+    updateChapter(updatedChapter);
+    setCharacters([...characters, project.characters.find(char => char.id === characterId)!]);
+  };
+
+  const handleRemoveCharacter = (characterId: number) => {
+    if (!chapter) return;
+    const updatedChapter = {
+      ...chapter,
+      characters: chapter.characters.filter(id => id !== characterId)
+    };
+    updateChapter(updatedChapter);
+    setCharacters(characters.filter(char => char.id !== characterId));
+  };
+
+  const handleAddLocation = (locationId: number) => {
+    if (!chapter) return;
+    if (chapter.locations.includes(locationId)) {
+      return; // Location already added
+    }
+    const updatedChapter = {
+      ...chapter,
+      locations: [...chapter.locations, locationId]
+    };
+    updateChapter(updatedChapter);
+    setLocations([...locations, project.locations.find(loc => loc.id === locationId)!]);
+  };
+
+  const handleRemoveLocation = (locationId: number) => {
+    if (!chapter) return;
+    const updatedChapter = {
+      ...chapter,
+      locations: chapter.locations.filter(id => id !== locationId)
+    };
+    updateChapter(updatedChapter);
+    setLocations(locations.filter(loc => loc.id !== locationId));
   };
 
   const moveSceneUp = (sceneId: number) => {
@@ -264,6 +328,78 @@ export const ChapterViewPage: React.FC = () => {
           {chapter.characters && chapter.characters.length > 0 && (
             <span>{chapter.characters.length} characters</span>
           )}
+        </div>
+
+        <div className="chapter-metadata">
+          <div className="chapter-characters">
+            <h3>Characters</h3>
+            <div className="characters-list">
+              {characters.length > 0 ? (
+                characters.map(character => (
+                  <div key={character.id} className="character-tag">
+                    <span>{character.name}</span>
+                    <button
+                      onClick={() => handleRemoveCharacter(character.id)}
+                      className="remove-tag"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <p className="empty-message">No characters added</p>
+              )}
+            </div>
+            <select
+              onChange={(e) => handleAddCharacter(Number(e.target.value))}
+              value=""
+              className="add-select"
+            >
+              <option value="">Add character...</option>
+              {project.characters
+                .filter(char => !chapter.characters.includes(char.id))
+                .map(char => (
+                  <option key={char.id} value={char.id}>
+                    {char.name}
+                  </option>
+                ))}
+            </select>
+          </div>
+
+          <div className="chapter-locations">
+            <h3>Locations</h3>
+            <div className="locations-list">
+              {locations.length > 0 ? (
+                locations.map(location => (
+                  <div key={location.id} className="location-tag">
+                    <span>{location.name}</span>
+                    <button
+                      onClick={() => handleRemoveLocation(location.id)}
+                      className="remove-tag"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <p className="empty-message">No locations added</p>
+              )}
+            </div>
+            <select
+              onChange={(e) => handleAddLocation(Number(e.target.value))}
+              value=""
+              className="add-select"
+            >
+              <option value="">Add location...</option>
+              {project.locations
+                .filter(loc => !chapter.locations.includes(loc.id))
+                .map(loc => (
+                  <option key={loc.id} value={loc.id}>
+                    {loc.name}
+                  </option>
+                ))}
+            </select>
+          </div>
         </div>
       </div>
 

@@ -4,7 +4,7 @@ export interface Scene {
     id: number;
     number: number;
     overview: string;
-    locationId: string;
+    locationId: number;
     characters: number[];
     content: string;
     notes: NoteFile[];

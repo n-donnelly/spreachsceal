@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Chapter } from '../../types/chapter';
 import { getProject } from '../../data/storage';
-import { v4 as uuidv4 } from 'uuid';
+import { useProjectContext } from '../project/ProjectContext';
 import './Chapter.css';
 
 interface Props {
@@ -13,6 +13,7 @@ interface Props {
 export const NewChapterDialog: React.FC<Props> = ({ projectId, onClose, onCreated }) => {
   const [title, setTitle] = useState('');
   const [index, setIndex] = useState(1);
+    const { getNextId } = useProjectContext(); // Use the context to get the next ID function
 
   const handleCreate = () => {
     const project = getProject(projectId);
@@ -29,7 +30,7 @@ export const NewChapterDialog: React.FC<Props> = ({ projectId, onClose, onCreate
     }
 
     const newChapter: Chapter = {
-      id: uuidv4(),
+      id: getNextId('chapter'),
       title: title.trim() || `Chapter ${index}`,
       index,
       scenes: [],

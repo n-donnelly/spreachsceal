@@ -9,7 +9,7 @@ interface Props {
     chapterId: number;
     nextSceneNumber: number;
     onClose: () => void;
-    onCreated: () => void;
+    onCreated: (scene: Scene) => void;
 }
 
 export const  NewSceneDialog: React.FC<Props> = ({ 
@@ -17,7 +17,7 @@ export const  NewSceneDialog: React.FC<Props> = ({
     chapterId, 
     nextSceneNumber, 
     onClose, 
-    onCreated 
+    onCreated
 }) => {
     const [number, setNumber] = useState(nextSceneNumber);
     const [overview, setOverview] = useState('');
@@ -57,7 +57,7 @@ export const  NewSceneDialog: React.FC<Props> = ({
             id: getNextId('scene'),
             number,
             overview: overview.trim(),
-            locationId: "",
+            locationId: 0,
             characters: [],
             content: "",
             notes: []
@@ -69,7 +69,7 @@ export const  NewSceneDialog: React.FC<Props> = ({
         chapter.scenes.sort((a, b) => a.number - b.number);
         
         saveProject(project);
-        onCreated();
+        onCreated(newScene);
         onClose();
     };
 

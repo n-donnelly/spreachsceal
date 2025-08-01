@@ -1,3 +1,28 @@
+.todo-header {
+  text-align: center;
+  padding-bottom: 1.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.todo-header h1 {
+  font-size: 1.875rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.todo-header p {
+  color: #6b7280;
+  font-size: 1.1rem;
+}
+
+.todo-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
 .todo-dialog-overlay {
   position: fixed;
   inset: 0;
