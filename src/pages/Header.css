@@ -19,3 +19,96 @@
   transition: background-color 0.2s ease;
   cursor: pointer;
 }
+
+.burger-menu {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 2rem;
+    height: 2rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 10;
+}
+
+.burger-menu span {
+    width: 2rem;
+    height: 0.25rem;
+    background: white;
+    border-radius: 10px;
+    transition: all 0.3s linear;
+    position: relative;
+    transform-origin: 1px;
+}
+
+.burger-menu.open span {
+    background: black;
+    margin-left: 2px;
+}
+
+.burger-menu.open span:first-child {
+    transform: rotate(45deg);
+}
+
+.burger-menu.open span:nth-child(2) {
+    opacity: 0;
+}
+
+.burger-menu.open span:nth-child(3) {
+    transform: rotate(-45deg);
+}
+
+.menu-overlay {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 300px;
+    height: 100vh;
+    background-color: white;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    transition: right 0.3s ease-in-out;
+    z-index: 9;
+}
+
+.menu-overlay.open {
+    right: 0;
+}
+
+.menu-items {
+    display: flex;
+    flex-direction: column;
+    padding: 5rem 2rem;
+    gap: 1rem;
+}
+
+.menu-item {
+    padding: 0.5rem;
+    text-decoration: none;
+    color: #374151;
+    font-size: 1.1rem;
+    transition: color 0.2s;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+}
+
+.menu-item:hover {
+    color: #3b82f6;
+}
+
+.user-email {
+    color: #6b7280;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .menu-overlay {
+        width: 100%;
+    }
+}

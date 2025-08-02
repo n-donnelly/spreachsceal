@@ -16,35 +16,66 @@ import RevisionView from './components/revision/RevisionView';
 import { ToDoListView } from './components/todo/ToDoListView';
 import MorningPages from './pages/MorningPages';
 import { AppLayout } from './AppLayout';
+import { AuthProvider } from './authentication/AuthContext';
+import { PrivateRoute } from './authentication/PrivateRoute';
+import { LoginPage } from './authentication/LoginPage';
+import { RegisterPage } from './authentication/RegisterPage';
+import { ScratchPadView } from './pages/ScratchPadView';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route element={<AppLayout />}>
-          <Route path="/" element={<Navigate to="/projects" replace />} />
-          <Route path="/morning-pages" element={<MorningPages />} />
-          <Route path="/projects" element={<ProjectsList />} />
-          
-          <Route path="/projects/:projectId" element={<Dashboard />}>
-            <Route index element={<ProjectView />} /> {/* Default/overview */}
-            <Route path="todo" element={<ToDoListView />} />
-            <Route path="chapters" element={<ChapterListView />} />
-            <Route path="chapters/:chapterId" element={<ChapterViewPage />} />
-            <Route path="characters" element={<CharacterListView />} />
-            <Route path="characters/:characterId" element={<CharacterPage />} />
-            <Route path="locations" element={<LocationListView />} />
-            <Route path="locations/:locationId" element={<LocationPage />} />
-            <Route path="notes" element={<NotesList />} />
-            <Route path="outline" element={<OutlinePage />} />
-            <Route path="encyclopedia" element={<EncyclopediaPage />} />
-            <Route path="revisions" element={<RevisionListView />} />
-            <Route path="revisions/:revisionId" element={<RevisionView />} />
-            {/* Add other routes as you convert them */}
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<Navigate to="/projects" replace />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/morning-pages" element={<MorningPages />} />
+            
+            {/* Protected Routes */}
+            <Route
+              path="/projects"
+              element={
+                <PrivateRoute>
+                  <ProjectsList />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/projects/:projectId"
+              element={
+                <PrivateRoute>
+                  <Dashboard />
+                </PrivateRoute>
+              }
+            >
+              <Route index element={<ProjectView />} />
+              <Route path="todo" element={<ToDoListView />} />
+              <Route path="chapters" element={<ChapterListView />} />
+              <Route path="chapters/:chapterId" element={<ChapterViewPage />} />
+              <Route path="characters" element={<CharacterListView />} />
+              <Route path="characters/:characterId" element={<CharacterPage />} />
+              <Route path="locations" element={<LocationListView />} />
+              <Route path="locations/:locationId" element={<LocationPage />} />
+              <Route path="notes" element={<NotesList />} />
+              <Route path="outline" element={<OutlinePage />} />
+              <Route path="encyclopedia" element={<EncyclopediaPage />} />
+              <Route path="revisions" element={<RevisionListView />} />
+              <Route path="revisions/:revisionId" element={<RevisionView />} />
+            </Route>
+            <Route
+              path="/scratchpad"
+              element={
+                <PrivateRoute>
+                  <ScratchPadView />
+                </PrivateRoute>
+              }
+            />
           </Route>
-        </Route>
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
