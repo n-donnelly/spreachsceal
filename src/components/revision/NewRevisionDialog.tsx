@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Revision } from '../../types/revision';
-import { getProject, saveProject } from '../../data/storage';
 import './Revision.css';
 import { useProjectContext } from '../project/ProjectContext';
 
@@ -17,7 +16,7 @@ export const NewRevisionDialog: React.FC<Props> = ({
 }) => {
   const [name, setName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
-  const { getNextId } = useProjectContext();
+  const { getNextId, currentProject, updateProject } = useProjectContext();
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,16 +29,14 @@ export const NewRevisionDialog: React.FC<Props> = ({
     setIsCreating(true);
 
     try {
-      const project = getProject(projectId);
-      
-      if (!project) {
+      if (!currentProject) {
         console.error('Project not found');
         alert('Project not found');
         return;
       }
 
       // Check if revision name already exists
-      const existingRevision = project.revisions.find(
+      const existingRevision = currentProject.revisions.find(
         revision => revision.versionName.toLowerCase() === name.trim().toLowerCase()
       );
 
@@ -49,7 +46,7 @@ export const NewRevisionDialog: React.FC<Props> = ({
       }
 
       // Create a deep copy of the current chapters to avoid reference issues
-      const chaptersCopy = JSON.parse(JSON.stringify(project.chapters));
+      const chaptersCopy = JSON.parse(JSON.stringify(currentProject.chapters));
 
       const newRevision: Revision = {
         id: getNextId('revision'),
@@ -60,12 +57,12 @@ export const NewRevisionDialog: React.FC<Props> = ({
 
       // Add the new revision to the project
       const updatedProject = {
-        ...project,
-        revisions: [...project.revisions, newRevision]
+        ...currentProject,
+        revisions: [...currentProject.revisions, newRevision]
       };
 
       // Save the updated project
-      saveProject(updatedProject);
+      updateProject(updatedProject);
 
       // Call the success callback
       onCreated(newRevision.versionName);

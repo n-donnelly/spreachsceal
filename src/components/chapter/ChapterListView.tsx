@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Chapter } from '../../types/chapter';
 import { NewChapterDialog } from './NewChapterDialog';
 import './Chapter.css';
-import { useProject } from '../project/ProjectContext';
+import { useProjectContext } from '../project/ProjectContext';
 
 export const ChapterListView: React.FC = () => {
   const navigate = useNavigate();
-  const { project, updateProject, loading, error } = useProject();
+  const { currentProject, updateProject, loading, error } = useProjectContext();
   const [showNewChapterDialog, setShowNewChapterDialog] = useState(false);
 
   if (loading) {
@@ -18,18 +18,18 @@ export const ChapterListView: React.FC = () => {
     return <div className="chapters-error">Error: {error}</div>;
   }
 
-  if (!project) {
+  if (!currentProject) {
     return <div className="no-project-selected">Project not found</div>;
   }
 
   const handleChapterClick = (chapterId: number) => {
-    navigate(`/projects/${project.id}/chapters/${chapterId}`);
+    navigate(`/projects/${currentProject.id}/chapters/${chapterId}`);
   };
 
   const handleCreateChapter = (newChapter: Chapter) => {
     const updatedProject = {
-      ...project,
-      chapters: [...project.chapters, newChapter]
+      ...currentProject,
+      chapters: [...currentProject.chapters, newChapter]
     };
     
     updateProject(updatedProject);
@@ -42,9 +42,9 @@ export const ChapterListView: React.FC = () => {
   const handleDeleteChapter = (event: React.MouseEvent, chapterId: number) => {
     event.stopPropagation();
 
-    const updatedChapters = project.chapters.filter(ch => ch.id !== chapterId);
+    const updatedChapters = currentProject.chapters.filter(ch => ch.id !== chapterId);
     const updatedProject = {
-      ...project,
+      ...currentProject,
       chapters: updatedChapters
     };
     updateProject(updatedProject);
@@ -62,15 +62,15 @@ export const ChapterListView: React.FC = () => {
         </button>
       </div>
 
-      {project.chapters.length === 0 ? (
+      {currentProject.chapters.length === 0 ? (
         <div className="empty-chapters-message">
           No chapters yet. Click "Add Chapter" to create your first chapter.
         </div>
       ) : (
         <div className="chapters-grid">
-          {project.chapters
+          {currentProject.chapters
             .sort((a, b) => a.index - b.index)
-            .map((chapter) => (
+            .map((chapter: Chapter) => (
               <div 
                 key={chapter.id}
                 onClick={() => handleChapterClick(chapter.id)}
@@ -102,7 +102,6 @@ export const ChapterListView: React.FC = () => {
 
       {showNewChapterDialog && (
         <NewChapterDialog
-          projectId={project.id}
           onClose={() => setShowNewChapterDialog(false)}
           onCreated={handleCreateChapter}
         />

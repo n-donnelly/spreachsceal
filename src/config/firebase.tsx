@@ -1,18 +1,24 @@
+// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import { getFirestore } from "firebase/firestore";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyA3Jtb1WspgJJfSthsgb3ltwH8ZPW9cl9c",
-  authDomain: "novel-writing-ba5ac.firebaseapp.com",
-  projectId: "novel-writing-ba5ac",
-  storageBucket: "novel-writing-ba5ac.firebasestorage.app",
-  messagingSenderId: "907178830396",
-  appId: "1:907178830396:web:5327b061f18bf3cc71b139",
-  measurementId: "G-64SLGDRT19"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
+
+// Add error checking
+if (!import.meta.env.VITE_FIREBASE_API_KEY) {
+  console.error('Firebase configuration is missing. Check your environment variables.');
+}
 
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
 export const analytics = getAnalytics(app);
+export const db = getFirestore(app);

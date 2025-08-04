@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Project } from "../../types";
-import { addProject } from "../../data/storage";
+import { createNewProject, Project } from "../../types";
 import "./CreateProjectDialog.css";
+import { useAuth } from "../../authentication/AuthContext";
+import { LocalProjectService } from "../../data/LocalProjectService";
 
 interface Props {
   onClose: () => void;
@@ -12,39 +13,15 @@ export const CreateProjectDialog: React.FC<Props> = ({ onClose, onCreated }) => 
   const [title, setTitle] = useState("");
   const [genre, setGenre] = useState("");
   const [description, setDescription] = useState("");
+  const { user } = useAuth();
+  const projectService = new LocalProjectService();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newProject: Project = {
-        id: crypto.randomUUID(),
-        title,
-        genre,
-        description,
-        chapters: [],
-        revisions: [],
-        encyclopedia: {
-            entries: []
-        },
-        notes: [],
-        characters: [],
-        locations: [],
-        outline: {
-          content: "",
-          notes: [],
-        },
-        todoItems: [],
-        nextIds: {
-          chapter: 1,
-          character: 1,
-          scene: 1,
-          note: 1,
-          location: 1,
-          encyclopediaEntry: 1,
-          todoItem: 1,
-          revision: 1,
-        }
-    };
-    addProject(newProject);
+    if (!user) return;
+
+    const newProject = createNewProject(user.uid, title, genre);
+    projectService.saveProject(newProject);
     onCreated();
     onClose();
   };

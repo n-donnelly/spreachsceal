@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Project } from "../../types";
 import { useNavigate } from "react-router-dom";
-import { getProjects, deleteProject } from "../../data/storage";
 import { CreateProjectDialog } from "./CreateProjectDialog";
+import { useAuth } from "../../authentication/AuthContext";
 import './../../styles/ProjectsList.css';
 import ReadOnlyEditor from "../editor/readonlyeditor";
+import { useProjectContext } from "./ProjectContext";
 
 interface ProjectListProps {
     project: Project;
@@ -41,38 +42,64 @@ export const ProjectCard = ({ project, onSelect, onDelete }: ProjectListProps) =
 export const ProjectsList = () => {
     const [projects, setProjects] = useState<Project[]>([]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const { loading, error, getUserProjects, removeProject } = useProjectContext();
+    const { user } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
         loadProjects();
-    }, []);
+    }, [user]);
 
-    const loadProjects = () => {
-        const loadedProjects = getProjects();
-        setProjects(loadedProjects);
+    const loadProjects = async () => {
+        if (!user) return;
+        
+        try {
+            const loadedProjects = await getUserProjects(user.uid);
+            setProjects(loadedProjects);
+        } catch (err) {
+            console.error('Failed to load projects:', err);
+        }
     };
 
     const handleSelectProject = (id: string) => {
         navigate(`/projects/${id}`);
     };
 
-    const handleDeleteProject = (id: string) => {
-        deleteProject(id);
-        loadProjects();
+    const handleDeleteProject = async (id: string) => {
+        if (!user) return;
+
+        await removeProject(id);
+        await loadProjects();
     };
 
     const handleProjectCreated = () => {
-        // Reload projects from storage to get the newly created project
         loadProjects();
         setIsDialogOpen(false);
     };
 
-    const handleCloseDialog = () => {
-        setIsDialogOpen(false);
-    };
+    if (loading) {
+        return (
+            <div className="projects-page">
+                <div className="loading-state">Loading projects...</div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="projects-page">
+                <div className="error-state">
+                    <p>{error}</p>
+                    <button className="button primary" onClick={() => loadProjects()}>
+                        Try Again
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
-       <div className="projects-page">
+        <div className="projects-page">
             <header className="page-header">
                 <h1 className="page-title">Your Projects</h1>
                 <button className="button primary" onClick={() => setIsDialogOpen(true)}>
@@ -105,10 +132,10 @@ export const ProjectsList = () => {
 
             {isDialogOpen && (
                 <CreateProjectDialog
-                    onClose={handleCloseDialog}
+                    onClose={() => setIsDialogOpen(false)}
                     onCreated={handleProjectCreated}
                 />
             )}
-       </div>
+        </div>
     );
 };

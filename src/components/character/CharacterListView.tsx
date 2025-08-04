@@ -2,34 +2,34 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Character } from '../../types/character';
 import { NewCharacterDialog } from './NewCharacterDialog';
-import { useProject } from '../project/ProjectContext';
+import { useProjectContext } from '../project/ProjectContext';
 
 export const CharacterListView: React.FC = () => {
   const navigate = useNavigate();
-  const { project, updateProject } = useProject();
+  const { currentProject, updateProject } = useProjectContext();
   const [characters, setCharacters] = useState<Character[]>([]);
   const [showNewCharacterDialog, setShowNewCharacterDialog] = useState(false);
 
   useEffect(() => {
-    if (project) {
-      setCharacters(project.characters || []);
+    if (currentProject) {
+      setCharacters(currentProject.characters || []);
     } else {
       setCharacters([]);
     }
-  }, [project]);
+  }, [currentProject]);
 
-  if (!project) {
-    return <div className="no-project-selected">No project selected</div>;
+  if (!currentProject) {
+    return <div className="no-currentProject-selected">No currentProject selected</div>;
   }
 
   const handleCharacterSelect = (characterId: number) => {
-    navigate(`/projects/${project.id}/characters/${characterId}`);
+    navigate(`/projects/${currentProject.id}/characters/${characterId}`);
   };
 
   const handleNewCharacterCreated = (newCharacter: Character) => {
     const updatedProject = {
-      ...project,
-      characters: [...(project.characters || []), newCharacter]
+      ...currentProject,
+      characters: [...(currentProject.characters || []), newCharacter]
     };
     updateProject(updatedProject);
     setCharacters((prev) => [...prev, newCharacter]);
@@ -41,8 +41,8 @@ export const CharacterListView: React.FC = () => {
 
     if (window.confirm("Are you sure you want to delete this character? This action cannot be undone.")) {
       const updatedProject = {
-        ...project,
-        characters: project.characters.filter((char) => char.id !== characterId)
+        ...currentProject,
+        characters: currentProject.characters.filter((char) => char.id !== characterId)
       };
       updateProject(updatedProject);
       setCharacters((prev) => prev.filter((char) => char.id !== characterId));
@@ -101,7 +101,7 @@ export const CharacterListView: React.FC = () => {
 
       {showNewCharacterDialog && (
         <NewCharacterDialog
-          project={project}
+          project={currentProject}
           onClose={() => setShowNewCharacterDialog(false)}
           onCreated={handleNewCharacterCreated}
         />

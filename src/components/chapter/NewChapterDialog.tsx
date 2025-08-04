@@ -1,31 +1,28 @@
 import React, { useState } from 'react';
 import { Chapter } from '../../types/chapter';
-import { getProject } from '../../data/storage';
 import { useProjectContext } from '../project/ProjectContext';
 import './Chapter.css';
 
 interface Props {
-  projectId: string;
   onClose: () => void;
   onCreated: (chapter: Chapter) => void;
 }
 
-export const NewChapterDialog: React.FC<Props> = ({ projectId, onClose, onCreated }) => {
+export const NewChapterDialog: React.FC<Props> = ({ onClose, onCreated }) => {
   const [title, setTitle] = useState('');
   const [index, setIndex] = useState(1);
-    const { getNextId } = useProjectContext(); // Use the context to get the next ID function
+  const { currentProject, getNextId } = useProjectContext(); // Use the context to get the next ID function
 
   const handleCreate = () => {
-    const project = getProject(projectId);
-    if (!project) {
+    if (!currentProject) {
       console.error('Project not found');
       alert('Project not found');
       return;
     }
 
     // If there are existing chapters, set the index to be one more than the highest index
-    if (project.chapters.length > 0) {
-      const highestIndex = Math.max(...project.chapters.map(ch => ch.index));
+    if (currentProject.chapters.length > 0) {
+      const highestIndex = Math.max(...currentProject.chapters.map(ch => ch.index));
       setIndex(highestIndex + 1);
     }
 

@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
 import RichTextEditor from '../editor/texteditor';
 import './ProjectsPage.css';
-import { useProject } from './ProjectContext';
 import { useNavigate } from 'react-router-dom';
+import { useProjectContext } from './ProjectContext';
 
 export const ProjectView: React.FC = () => {
     const navigate = useNavigate();
-    const { project, updateProject, loading, error } = useProject();
+    const { currentProject, updateProject, loading, error } = useProjectContext();
     const [activeTab, setActiveTab] = useState<string>('overview');
-    const [description, setDescription] = useState(project?.description || '');
+    const [description, setDescription] = useState(currentProject?.description || '');
 
     // Update description state when project changes
     React.useEffect(() => {
-        if (project) {
-            setDescription(project.description || '');
+        if (currentProject) {
+            setDescription(currentProject.description || '');
         }
-    }, [project]);
+    }, [currentProject]);
 
     if (loading) {
         return <div className="project-loading">Loading project...</div>;
@@ -25,11 +25,11 @@ export const ProjectView: React.FC = () => {
         return <div className="project-error">Error: {error}</div>;
     }
 
-    if (!project) {
+    if (!currentProject) {
         return <div className="no-project-selected">Project not found</div>;
     }
 
-    const totalWordCount = project.chapters.reduce((total, chapter) => {
+    const totalWordCount = currentProject.chapters.reduce((total, chapter) => {
         return total + chapter.scenes.reduce((sceneTotal, scene) => {
             // Count words in the scene.content field
             const words = scene.content
@@ -41,28 +41,28 @@ export const ProjectView: React.FC = () => {
 
     const handleDescriptionChange = (newDescription: string) => {
         setDescription(newDescription);
-        const updatedProject = { ...project, description: newDescription };
+        const updatedProject = { ...currentProject, description: newDescription };
         updateProject(updatedProject);
     };
 
     const navigateToSection = (section: string) => {
-        navigate(`/projects/${project.id}/${section}`);
+        navigate(`/projects/${currentProject.id}/${section}`);
     };
 
     const navigateToChapter = (chapterId: number) => {
-        navigate(`/projects/${project.id}/chapters/${chapterId}`);
+        navigate(`/projects/${currentProject.id}/chapters/${chapterId}`);
     };
 
     const navigateToCharacter = (characterId: number) => {
-        navigate(`/projects/${project.id}/characters/${characterId}`);
+        navigate(`/projects/${currentProject.id}/characters/${characterId}`);
     };
 
     const navigateToLocation = (locationId: number) => {
-        navigate(`/projects/${project.id}/locations/${locationId}`);
+        navigate(`/projects/${currentProject.id}/locations/${locationId}`);
     };
 
     const navigateToTodo = () => {
-        navigate(`/projects/${project.id}/todo`);
+        navigate(`/projects/${currentProject.id}/todo`);
     };
 
 
@@ -70,11 +70,11 @@ export const ProjectView: React.FC = () => {
     return (
         <div className="project-view-container">
             <div className="section-header">
-                <h1 className="section-title">{project.title}</h1>
+                <h1 className="section-title">{currentProject.title}</h1>
             </div>
             <div className="project-meta">
-                <span>Genre: {project.genre}</span>
-                <span>Chapters: {project.chapters.length}</span>
+                <span>Genre: {currentProject.genre}</span>
+                <span>Chapters: {currentProject.chapters.length}</span>
             </div>
             
             <div className="project-description-section">
@@ -143,26 +143,45 @@ export const ProjectView: React.FC = () => {
                             <div className="overview-card">
                                 <h3 className="overview-card-title">Statistics</h3>
                                 <ul className="stats-list">
-                                    <li>Chapters: {project.chapters.length}</li>
-                                    <li>Todo Items: {project.todoItems.length}</li>
-                                    <li>Characters: {project.characters.length}</li>
-                                    <li>Locations: {project.locations.length}</li>
-                                    <li>Notes: {project.notes.length}</li>
-                                    <li>Revisions: {project.revisions.length}</li>
+                                    <li>Chapters: {currentProject.chapters.length}</li>
+                                    <li>Todo Items: {currentProject.todoItems.length}</li>
+                                    <li>Characters: {currentProject.characters.length}</li>
+                                    <li>Locations: {currentProject.locations.length}</li>
+                                    <li>Notes: {currentProject.notes.length}</li>
+                                    <li>Revisions: {currentProject.revisions.length}</li>
                                     <li>Total Words: {totalWordCount}</li>
                                 </ul>
                             </div>
                             <div className="overview-card">
-                                <h3 className="overview-card-title">Recent Activity</h3>
-                                <div className="recent-activity">
-                                    {project.revisions.length > 0 ? (
-                                        <div>
-                                            <p>Latest revision: {project.revisions[project.revisions.length - 1].versionName}</p>
-                                            <p>Date: {new Date(project.revisions[project.revisions.length - 1].date).toLocaleDateString()}</p>
-                                        </div>
+                                <h3 className="overview-card-title">Todo List</h3>
+                                <div className="todo-preview">
+                                    {currentProject.todoItems.length > 0 ? (
+                                        <ul className="todo-list">
+                                            {currentProject.todoItems
+                                                .slice(0, 3)
+                                                .map(todo => (
+                                                    <li key={todo.id} className="todo-item">
+                                                        <span className="todo-title">{todo.title}</span>
+                                                        {todo.description && (
+                                                            <p className="todo-description">{todo.description}</p>
+                                                        )}
+                                                    </li>
+                                                ))}
+                                            {currentProject.todoItems.length > 3 && (
+                                                <li className="todo-more" onClick={() => navigateToSection('todo')}>
+                                                    +{currentProject.todoItems.length - 3} more tasks
+                                                </li>
+                                            )}
+                                        </ul>
                                     ) : (
-                                        <p>No revisions yet</p>
+                                        <p className="empty-todo">No tasks yet</p>
                                     )}
+                                    <button 
+                                        className="add-todo-button"
+                                        onClick={() => navigateToSection('todo')}
+                                    >
+                                        {currentProject.todoItems.length > 0 ? 'View All Tasks' : 'Add Task'}
+                                    </button>
                                 </div>
                             </div>
                             <div className="overview-card">
@@ -210,9 +229,9 @@ export const ProjectView: React.FC = () => {
                             </button>
                         </div>
                         
-                        {project.chapters.length > 0 ? (
+                        {currentProject.chapters.length > 0 ? (
                             <div className="items-grid">
-                                {project.chapters.slice(0, 6).map(chapter => (
+                                {currentProject.chapters.slice(0, 6).map(chapter => (
                                     <div 
                                         key={chapter.id} 
                                         className="item-card"
@@ -222,9 +241,9 @@ export const ProjectView: React.FC = () => {
                                         <p className="item-card-meta">{chapter.scenes.length} scenes</p>
                                     </div>
                                 ))}
-                                {project.chapters.length > 6 && (
+                                {currentProject.chapters.length > 6 && (
                                     <div className="show-more-card" onClick={() => navigateToSection('chapters')}>
-                                        <p>+{project.chapters.length - 6} more chapters</p>
+                                        <p>+{currentProject.chapters.length - 6} more chapters</p>
                                         <p>Click to view all</p>
                                     </div>
                                 )}
@@ -255,9 +274,9 @@ export const ProjectView: React.FC = () => {
                             </button>
                         </div>
                         
-                        {project.characters.length > 0 ? (
+                        {currentProject.characters.length > 0 ? (
                             <div className="items-grid">
-                                {project.characters.slice(0, 6).map(character => (
+                                {currentProject.characters.slice(0, 6).map(character => (
                                     <div 
                                         key={character.id} 
                                         className="item-card"
@@ -267,9 +286,9 @@ export const ProjectView: React.FC = () => {
                                         <p className="item-card-meta">{character.description}</p>
                                     </div>
                                 ))}
-                                {project.characters.length > 6 && (
+                                {currentProject.characters.length > 6 && (
                                     <div className="show-more-card" onClick={() => navigateToSection('characters')}>
-                                        <p>+{project.characters.length - 6} more characters</p>
+                                        <p>+{currentProject.characters.length - 6} more characters</p>
                                         <p>Click to view all</p>
                                     </div>
                                 )}
@@ -300,9 +319,9 @@ export const ProjectView: React.FC = () => {
                             </button>
                         </div>
                         
-                        {project.locations.length > 0 ? (
+                        {currentProject.locations.length > 0 ? (
                             <div className="items-grid">
-                                {project.locations.slice(0, 6).map(location => (
+                                {currentProject.locations.slice(0, 6).map(location => (
                                     <div 
                                         key={location.id} 
                                         className="item-card"
@@ -312,9 +331,9 @@ export const ProjectView: React.FC = () => {
                                         <p className="item-card-meta">{location.description}</p>
                                     </div>
                                 ))}
-                                {project.locations.length > 6 && (
+                                {currentProject.locations.length > 6 && (
                                     <div className="show-more-card" onClick={() => navigateToSection('locations')}>
-                                        <p>+{project.locations.length - 6} more locations</p>
+                                        <p>+{currentProject.locations.length - 6} more locations</p>
                                         <p>Click to view all</p>
                                     </div>
                                 )}
@@ -345,9 +364,9 @@ export const ProjectView: React.FC = () => {
                             </button>
                         </div>
                         
-                        {project.notes.length > 0 ? (
+                        {currentProject.notes.length > 0 ? (
                             <div className="items-grid">
-                                {project.notes.slice(0, 6).map(note => (
+                                {currentProject.notes.slice(0, 6).map(note => (
                                     <div 
                                         key={note.id} 
                                         className="item-card"
@@ -359,9 +378,9 @@ export const ProjectView: React.FC = () => {
                                         />
                                     </div>
                                 ))}
-                                {project.notes.length > 6 && (
+                                {currentProject.notes.length > 6 && (
                                     <div className="show-more-card" onClick={() => navigateToSection('notes')}>
-                                        <p>+{project.notes.length - 6} more notes</p>
+                                        <p>+{currentProject.notes.length - 6} more notes</p>
                                         <p>Click to view all</p>
                                     </div>
                                 )}
@@ -392,9 +411,9 @@ export const ProjectView: React.FC = () => {
                             </button>
                         </div>
                         
-                        {project.revisions.length > 0 ? (
+                        {currentProject.revisions.length > 0 ? (
                             <div className="items-grid">
-                                {project.revisions
+                                {currentProject.revisions
                                     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                                     .slice(0, 6)
                                     .map(revision => (
@@ -408,9 +427,9 @@ export const ProjectView: React.FC = () => {
                                         </p>
                                     </div>
                                 ))}
-                                {project.revisions.length > 6 && (
+                                {currentProject.revisions.length > 6 && (
                                     <div className="show-more-card" onClick={() => navigateToSection('revisions')}>
-                                        <p>+{project.revisions.length - 6} more revisions</p>
+                                        <p>+{currentProject.revisions.length - 6} more revisions</p>
                                         <p>Click to view all</p>
                                     </div>
                                 )}
@@ -441,9 +460,9 @@ export const ProjectView: React.FC = () => {
                             </button>
                         </div>
                         
-                        {project.todoItems.length > 0 ? (
+                        {currentProject.todoItems.length > 0 ? (
                             <div className="items-grid">
-                                {project.todoItems
+                                {currentProject.todoItems
                                     .slice(0, 6)
                                     .map(todo => (
                                     <div 
@@ -455,9 +474,9 @@ export const ProjectView: React.FC = () => {
                                         
                                     </div>
                                 ))}
-                                {project.todoItems.length > 6 && (
+                                {currentProject.todoItems.length > 6 && (
                                     <div className="show-more-card" onClick={() => navigateToSection('todo')}>
-                                        <p>+{project.todoItems.length - 6} more tasks</p>
+                                        <p>+{currentProject.todoItems.length - 6} more tasks</p>
                                         <p>Click to view all</p>
                                     </div>
                                 )}

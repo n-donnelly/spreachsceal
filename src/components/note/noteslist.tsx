@@ -4,11 +4,11 @@ import { NoteFile } from '../../types';
 import NoteCard from './notecard';
 import './notes.css';
 import { useNavigate } from 'react-router-dom';
-import { useProject, useProjectContext } from '../project/ProjectContext';
+import { useProjectContext } from '../project/ProjectContext';
 
 const NotesList: React.FC = () => {
     const navigate = useNavigate();
-    const { project, updateProject } = useProject();
+    const { currentProject, updateProject } = useProjectContext();
     const { getNextId } = useProjectContext();
     const [notes, setNotes] = useState<NoteFile[]>( []);
     const [showNewNoteForm, setShowNewNoteForm] = useState(false);
@@ -16,20 +16,20 @@ const NotesList: React.FC = () => {
     const [newNoteContent, setNewNoteContent] = useState('');
 
     useEffect(() => {
-        if (project) {
-            setNotes(project.notes || []);
+        if (currentProject) {
+            setNotes(currentProject.notes || []);
         } else {
             setNotes([]);
         }
-    }, [project]);
+    }, [currentProject]);
 
-    if (!project) {
+    if (!currentProject) {
         return <div className="no-project-selected">No project selected</div>;
     }
     const onNoteDelete = (noteId: number) => {
         const updatedProject = {
-            ...project,
-            notes: project.notes.filter((note) => note.id !== noteId)
+            ...currentProject,
+            notes: currentProject.notes.filter((note) => note.id !== noteId)
         };
         updateProject(updatedProject);
         setNotes(updatedProject.notes);
@@ -37,8 +37,8 @@ const NotesList: React.FC = () => {
 
     const onNoteEdit = (updatedNote: NoteFile) => {
         const updatedProject = {
-            ...project,
-            notes: project.notes.map(note => 
+            ...currentProject,
+            notes: currentProject.notes.map(note => 
                 note.id === updatedNote.id ? updatedNote : note
             )
         };
@@ -59,8 +59,8 @@ const NotesList: React.FC = () => {
         };
 
         const updatedProject = {
-            ...project,
-            notes: [...project.notes, newNote]
+            ...currentProject,
+            notes: [...currentProject.notes, newNote]
         };
 
         updateProject(updatedProject);

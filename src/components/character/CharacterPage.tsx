@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Character } from '../../types/character';
-import { useProject, useProjectContext } from '../project/ProjectContext';
-import { saveProject } from '../../data/storage';
+import { useProjectContext } from '../project/ProjectContext';
 import { NoteFile } from '../../types';
 import RichTextEditor from '../editor/texteditor';
 import './character.css';
@@ -10,7 +9,7 @@ import './character.css';
 export const CharacterPage: React.FC = () => {
   const { characterId } = useParams<{ characterId: string }>();
   const navigate = useNavigate();
-  const { project, updateProject } = useProject();
+  const { currentProject, updateProject } = useProjectContext();
   const { getNextId } = useProjectContext(); // Use the context to get the next ID function
 
   const [character, setCharacter] = useState<Character | null>(null);
@@ -22,22 +21,22 @@ export const CharacterPage: React.FC = () => {
   const [editedNoteTitle, setEditedNoteTitle] = useState('');
   const [editedNoteContent, setEditedNoteContent] = useState('');
 
-  // Find the character when project or characterId changes
+  // Find the character when currentProject or characterId changes
   useEffect(() => {
         const characterIdNum = parseInt(characterId || '', 10);
         if (isNaN(characterIdNum)) {
             return;
         }
-        if (project && characterId) {
-            const foundCharacter = project.characters.find(char => char.id === characterIdNum);
+        if (currentProject && characterId) {
+            const foundCharacter = currentProject.characters.find(char => char.id === characterIdNum);
             if (foundCharacter) {
                 setCharacter(foundCharacter);
             }
         }
-    }, [project, characterId]);
+    }, [currentProject, characterId]);
 
-    if (!project) {
-        return <div className="no-project-selected">No project selected</div>;
+    if (!currentProject) {
+        return <div className="no-currentProject-selected">No Project selected</div>;
     }
 
     if (!character) {
@@ -45,21 +44,20 @@ export const CharacterPage: React.FC = () => {
     }
 
   const handleBack = () => {
-    navigate(`/projects/${project.id}/characters`);
+    navigate(`/projects/${currentProject.id}/characters`);
   };
 
   const handleSaveCharacter = () => {
     if (!character) return;
 
     const updatedProject = {
-      ...project,
-      characters: project.characters.map(char => 
+      ...currentProject,
+      characters: currentProject.characters.map(char => 
         char.id === character.id ? character : char
       )
     };
     
     updateProject(updatedProject);
-    saveProject(updatedProject);
     setCharacter(character);
   };
 
@@ -184,7 +182,7 @@ export const CharacterPage: React.FC = () => {
     };
 
     // Get other characters for potential relationships
-    const otherCharacters = project.characters.filter(char => char.id !== character.id);
+    const otherCharacters = currentProject.characters.filter(char => char.id !== character.id);
 
     return (
         <div className="character-page-container">

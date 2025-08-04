@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import { Encyclopedia, EncyclopediaEntry } from '../../types';
 import './EncyclopediaPage.css';
 import RichTextEditor from '../editor/texteditor';
-import { useProject, useProjectContext } from '../project/ProjectContext';
+import { useProjectContext } from '../project/ProjectContext';
 
 export const EncyclopediaPage: React.FC = () => {
-    const { project, updateProject } = useProject();
+    const { currentProject, updateProject } = useProjectContext();
     const { getNextId } = useProjectContext();
 
     const [encyclopedia, setEncyclopedia] = useState<Encyclopedia | null>(null);
@@ -17,19 +17,19 @@ export const EncyclopediaPage: React.FC = () => {
     const [editedContent, setEditedContent] = useState('');
 
     useEffect(() => {
-        if (project && project.encyclopedia) {
-            setEncyclopedia(project.encyclopedia);
+        if (currentProject && currentProject.encyclopedia) {
+            setEncyclopedia(currentProject.encyclopedia);
         } else {
             setEncyclopedia({
                 entries: []
             });
         }
-    }, [project]);
+    }, [currentProject]);
 
     const handleEncyclopediaUpdate = (updatedEncyclopedia: Encyclopedia) => {
-        if (project) {
+        if (currentProject) {
             const updatedProject = {
-                ...project,
+                ...currentProject,
                 encyclopedia: updatedEncyclopedia
             };
             updateProject(updatedProject);

@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { TodoItem } from "../../types/todo-items";
-import { ProjectContext, useProject, useProjectContext } from "../project/ProjectContext";
+import { ProjectContext, useProjectContext } from "../project/ProjectContext";
 import './todo.css';
 
 export const NewToDoDialog: React.FC<{
@@ -59,28 +59,28 @@ export const NewToDoDialog: React.FC<{
 
 export const ToDoListView: React.FC = () => {
     const [todoItems, setTodoItems] = useState<TodoItem[]>([]);
-    const { project, updateProject } = useProject();
+    const { currentProject, updateProject } = useProjectContext();
     const { getNextId } = useProjectContext();
 
     const [showNewToDoDialog, setShowNewToDoDialog] = useState(false);
 
     useEffect(() => {
-        if (project) {
-            setTodoItems(project.todoItems || []);
+        if (currentProject) {
+            setTodoItems(currentProject.todoItems || []);
         } else {
             setTodoItems([]);
         }
-    }, [project]);
+    }, [currentProject]);
 
-    if (!project) {
+    if (!currentProject) {
         return <div className="no-project-selected">No project selected</div>;
     }
 
     const handleNewTodo = (newTodo: TodoItem) => {
         newTodo.id = getNextId('todoItem');
         const updatedProject = {
-            ...project,
-            todoItems: [...(project.todoItems || []), newTodo]
+            ...currentProject,
+            todoItems: [...(currentProject.todoItems || []), newTodo]
         };
         updateProject(updatedProject);
         setTodoItems((prev) => [...prev, newTodo]);        
@@ -91,7 +91,7 @@ export const ToDoListView: React.FC = () => {
             todo.id === updatedTodo.id ? updatedTodo : todo
         );
         const updatedProject = {
-            ...project,
+            ...currentProject,
             todoItems: updatedTodos
         };
         updateProject(updatedProject);
@@ -102,7 +102,7 @@ export const ToDoListView: React.FC = () => {
         if (window.confirm("Are you sure you want to delete this todo item? This action cannot be undone.")) {
             const updatedTodos = todoItems.filter(todo => todo.id !== todoId);
             const updatedProject = {
-                ...project,
+                ...currentProject,
                 todoItems: updatedTodos
             };
             updateProject(updatedProject);

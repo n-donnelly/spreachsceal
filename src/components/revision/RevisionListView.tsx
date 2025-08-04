@@ -3,20 +3,20 @@ import { Revision } from '../../types/revision';
 import './Revision.css';
 import { NewRevisionDialog } from './NewRevisionDialog';
 import { useNavigate } from 'react-router-dom';
-import { useProject } from '../project/ProjectContext';
+import { useProjectContext } from '../project/ProjectContext';
 
 export const RevisionListView: React.FC = () => {
   const navigate = useNavigate();
-  const { project, updateProject } = useProject();
+  const { currentProject, updateProject } = useProjectContext();
   const [ revisions, setRevisions ] = useState<Revision[]>([]);
   const [showNewRevisionDialog, setShowNewRevisionDialog] = useState(false);
 
-  if (!project) {
+  if (!currentProject) {
     return <div className="no-project-message">No project selected</div>;
   }
 
   const handleRevisionClick = (revisionId: number) => {
-    navigate(`/projects/${project.id}/revisions/${revisionId}`);
+    navigate(`/projects/${currentProject.id}/revisions/${revisionId}`);
   };
 
   const handleCreateRevision = (versionName: string) => {
@@ -26,15 +26,15 @@ export const RevisionListView: React.FC = () => {
   };
 
   const handleDeleteRevision = (revisionId: number) => {
-    if (!project) return;
-    
+    if (!currentProject) return;
+
     if (!window.confirm('Are you sure you want to delete this revision? This action cannot be undone.')) {
       return;
     }
 
-    const updatedRevisions = project.revisions.filter(revision => revision.id !== revisionId);
+    const updatedRevisions = currentProject.revisions.filter(revision => revision.id !== revisionId);
     const updatedProject = {
-      ...project,
+      ...currentProject,
       revisions: updatedRevisions
     };
     
@@ -43,17 +43,17 @@ export const RevisionListView: React.FC = () => {
   };
 
   const handleRestoreRevision = (revisionId: number) => {
-    if (!project) return;
-    
+    if (!currentProject) return;
+
     if (!window.confirm('Are you sure you want to restore this revision? This will replace your current chapters with the chapters from this revision.')) {
       return;
     }
 
-    const revision = project.revisions.find(r => r.id === revisionId);
+    const revision = currentProject.revisions.find(r => r.id === revisionId);
     if (!revision) return;
 
     const updatedProject = {
-      ...project,
+      ...currentProject,
       chapters: revision.chapters
     };
 
@@ -165,7 +165,7 @@ export const RevisionListView: React.FC = () => {
 
       {showNewRevisionDialog && (
         <NewRevisionDialog
-          projectId={project.id}
+          projectId={currentProject.id}
           onClose={() => setShowNewRevisionDialog(false)}
           onCreated={handleCreateRevision}
         />

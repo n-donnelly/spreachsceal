@@ -1,9 +1,40 @@
+import { Timestamp } from 'firebase/firestore';
 import { Project } from '../types/project';
 import { ProjectService } from './ProjectService';
 
 export class LocalProjectService implements ProjectService {
   private readonly PROJECT_PREFIX = 'spreachsceal_project_';
   private readonly PROJECTS_LIST_KEY = 'spreachsceal_projects_list';
+  private readonly CLOUD_SYNC_TIME_KEY = 'spreachsceal_cloud_sync_';
+
+  async syncWithCloud(project: Project): Promise<void> {
+    // Store the sync time for this project
+    localStorage.setItem(
+      `${this.CLOUD_SYNC_TIME_KEY}${project.id}`, 
+      Date.now().toString()
+    );
+  }
+
+  async checkForUpdates(projectId: string): Promise<boolean> {
+    const lastSyncStr = localStorage.getItem(`${this.CLOUD_SYNC_TIME_KEY}${projectId}`);
+    if (!lastSyncStr) return false;
+
+    const project = await this.getProject(projectId);
+    const lastSync = parseInt(lastSyncStr);
+    const projectUpdateTime = project.updatedAt.toMillis();
+
+    return projectUpdateTime > lastSync;
+  }
+
+  async getCloudVersion(projectId: string): Promise<Project | null> {
+    // In local storage, we don't have a separate cloud version
+    // Return the local version instead
+    try {
+      return await this.getProject(projectId);
+    } catch {
+      return null;
+    }
+  }
 
   async getProject(projectId: string): Promise<Project> {
     try {
@@ -20,6 +51,7 @@ export class LocalProjectService implements ProjectService {
 
   async saveProject(project: Project): Promise<void> {
     try {
+      project.updatedAt = new Timestamp(Date.now() / 1000, 0); // Update timestamp
       localStorage.setItem(`${this.PROJECT_PREFIX}${project.id}`, JSON.stringify(project));
       
       // Update projects list
@@ -30,7 +62,7 @@ export class LocalProjectService implements ProjectService {
     }
   }
 
-  async getUserProjects(): Promise<Project[]> {
+  async getUserProjects(userId: string): Promise<Project[]> {
     try {
       const projectsListJson = localStorage.getItem(this.PROJECTS_LIST_KEY);
       if (!projectsListJson) {

@@ -1,0 +1,188 @@
+[
+  {
+    "id": "1ea8490b-11e3-4d16-8600-3190c038ae43",
+    "title": "Test Project",
+    "genre": "Fiction",
+    "description": "<p>Test description</p><p>Another update</p><p>Something else</p>",
+    "outline": {
+      "content": "<p>The outline has been updated</p><p>And here's a new update to it!</p>",
+      "notes": []
+    },
+    "chapters": [
+      {
+        "id": 1,
+        "title": "AnuStart",
+        "index": 1,
+        "scenes": [
+          {
+            "id": 1,
+            "number": 1,
+            "overview": "Start scene",
+            "locationId": "",
+            "characters": [],
+            "content": "",
+            "notes": []
+          },
+          {
+            "id": 1,
+            "number": 2,
+            "overview": "Second scene",
+            "locationId": "",
+            "characters": [],
+            "content": "",
+            "notes": []
+          },
+          {
+            "id": 1,
+            "number": 3,
+            "overview": "Third Scene",
+            "locationId": 0,
+            "characters": [],
+            "content": "",
+            "notes": []
+          }
+        ],
+        "locations": [
+          1
+        ],
+        "characters": [
+          5,
+          2
+        ],
+        "notes": []
+      }
+    ],
+    "revisions": [
+      {
+        "id": "3dea5470-49a7-4e7b-adef-88f608689316",
+        "versionName": "Revision May 24, 2025 6:03 PM",
+        "chapters": [
+          {
+            "id": "61b6df02-0891-4a33-b2cd-60084dd24fe4",
+            "title": "Test Chapter",
+            "index": 1,
+            "scenes": [
+              {
+                "id": "7a5edc47-759e-4cc1-b746-1375c153c05f",
+                "number": 2,
+                "overview": "Quick scene",
+                "locationId": "",
+                "characters": [],
+                "content": "<p>So it begins</p>",
+                "notes": []
+              },
+              {
+                "id": "bccf5d38-421f-475c-ab77-4c542c4c0701",
+                "number": 1,
+                "overview": "",
+                "locationId": "",
+                "characters": [],
+                "content": "",
+                "notes": []
+              }
+            ],
+            "locations": [],
+            "characters": [],
+            "notes": []
+          }
+        ],
+        "date": "2025-05-24T17:03:41.889Z"
+      }
+    ],
+    "encyclopedia": {
+      "entries": [
+        {
+          "id": 1,
+          "key": "Character",
+          "content": "<p>Some content</p>",
+          "notes": []
+        },
+        {
+          "id": 2,
+          "key": "Magic System 1",
+          "content": "<p>Info on magic system</p>",
+          "notes": []
+        }
+      ]
+    },
+    "notes": [
+      {
+        "id": 1,
+        "title": "Note Title",
+        "content": "Some note content"
+      },
+      {
+        "id": 2,
+        "title": "Title",
+        "content": "Additional content"
+      }
+    ],
+    "characters": [
+      {
+        "id": 1,
+        "name": "Another new Character",
+        "aliases": [],
+        "notes": [],
+        "description": "",
+        "relationships": {}
+      },
+      {
+        "id": 2,
+        "name": "Character 1",
+        "aliases": [
+          "C1"
+        ],
+        "notes": [],
+        "description": "Character description",
+        "relationships": {}
+      },
+      {
+        "id": 3,
+        "name": "Character 2",
+        "aliases": [],
+        "notes": [],
+        "description": "",
+        "relationships": {}
+      },
+      {
+        "id": 4,
+        "name": "Character 3",
+        "aliases": [],
+        "notes": [],
+        "description": "",
+        "relationships": {}
+      },
+      {
+        "id": 5,
+        "name": "New Character",
+        "aliases": [],
+        "notes": [],
+        "description": "Test description",
+        "relationships": {}
+      },
+      {
+        "id": 6,
+        "name": "Test New Character",
+        "aliases": [],
+        "notes": [],
+        "description": "Testing data persistence",
+        "relationships": {}
+      }
+    ],
+    "locations": [
+      {
+        "id": 1,
+        "name": "City 1",
+        "description": "",
+        "notes": []
+      }
+    ],
+    "nextIds": {
+      "location": 2,
+      "character": 7,
+      "note": 3,
+      "encyclopediaEntry": 3
+    },
+    "todoItems": []
+  }
+]

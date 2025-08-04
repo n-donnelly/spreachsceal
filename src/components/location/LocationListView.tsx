@@ -3,35 +3,35 @@ import { Location } from '../../types/location';
 import './Location.css';
 import { NewLocationDialog } from './NewLocationDialog';
 import { useNavigate } from 'react-router-dom';
-import { useProject } from '../project/ProjectContext';
+import { useProjectContext } from '../project/ProjectContext';
 
 export const LocationListView: React.FC = () => {
     const navigate = useNavigate();
-    const { project, updateProject } = useProject();
+    const { currentProject, updateProject } = useProjectContext();
     const [locations, setLocations] = useState<Location[]>([]);
     const [showNewLocationDialog, setShowNewLocationDialog] = useState(false);
 
     useEffect(() => {
-        if (project) {
-            setLocations(project.locations || []);
+        if (currentProject) {
+            setLocations(currentProject.locations || []);
         } else {
             setLocations([]);
         }
-    }, [project]);
+    }, [currentProject]);
 
-    if (!project) {
+    if (!currentProject) {
         return <div className="no-project-selected">No project selected</div>;
     }
 
     const handleLocationSelect = (locationId: number) => {
-        navigate(`/projects/${project.id}/locations/${locationId}`);
+        navigate(`/projects/${currentProject.id}/locations/${locationId}`);
     };
 
 
     const handleNewLocationCreated = (newLocation: Location) => {
         const updatedProject = {
-            ...project,
-            locations: [...(project.locations || []), newLocation]
+            ...currentProject,
+            locations: [...(currentProject.locations || []), newLocation]
         };
         updateProject(updatedProject);
         setLocations((prev) => [...prev, newLocation]);
@@ -45,8 +45,8 @@ export const LocationListView: React.FC = () => {
 
         if (window.confirm("Are you sure you want to delete this location? This action cannot be undone.")) {
             const updatedProject = {
-                ...project,
-                locations: project.locations.filter((loc) => loc.id !== locationId)
+                ...currentProject,
+                locations: currentProject.locations.filter((loc: Location) => loc.id !== locationId)
             };
             updateProject(updatedProject);
             setLocations((prev) => prev.filter((loc) => loc.id !== locationId));

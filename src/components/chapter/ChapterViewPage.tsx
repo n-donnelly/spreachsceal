@@ -5,14 +5,14 @@ import { NewSceneDialog } from './scene/NewSceneDialog';
 import { SceneWritingModal } from './scene/SceneWritingModal';
 import './Chapter.css';
 import ReadOnlyEditor from '../editor/readonlyeditor';
-import { useProject } from '../project/ProjectContext';
+import { useProjectContext } from '../project/ProjectContext';
 import { Character, Location, Scene } from '../../types';
 
 export const ChapterViewPage: React.FC = () => {
   const { chapterId } = useParams<{ chapterId: string }>();
   const navigate = useNavigate();
-  const { project, updateProject, loading, error } = useProject();
-  
+  const { currentProject, updateProject, loading, error } = useProjectContext();
+
   const [chapter, setChapter] = useState<Chapter | null>(null);
   const [characters, setCharacters] = useState<Character[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
@@ -27,17 +27,17 @@ export const ChapterViewPage: React.FC = () => {
 
   // Find the chapter when project or chapterId changes
   useEffect(() => {
-    if (project && chapterId) {
-      const foundChapter = project.chapters.find(ch => ch.id === chapterIdNumber);
+    if (currentProject && chapterId) {
+      const foundChapter = currentProject.chapters.find(ch => ch.id === chapterIdNumber);
       if (foundChapter) {
         setChapter(foundChapter);
-        setCharacters(project.characters.filter(char => foundChapter.characters.includes(char.id)));
-        setLocations(project.locations.filter(loc => foundChapter.locations.includes(loc.id)));
+        setCharacters(currentProject.characters.filter(char => foundChapter.characters.includes(char.id)));
+        setLocations(currentProject.locations.filter(loc => foundChapter.locations.includes(loc.id)));
       } else {
         console.error(`Chapter with ID ${chapterId} not found`);
       }
     }
-  }, [project, chapterId]);
+  }, [currentProject, chapterId]);
 
   if (loading) {
     return <div className="chapter-loading">Loading project...</div>;
@@ -47,7 +47,7 @@ export const ChapterViewPage: React.FC = () => {
     return <div className="chapter-error">Error: {error}</div>;
   }
 
-  if (!project) {
+  if (!currentProject) {
     return <div className="chapter-error">Project not found</div>;
   }
 
@@ -55,7 +55,7 @@ export const ChapterViewPage: React.FC = () => {
     return (
       <div className="chapter-not-found">
         <h2>Chapter not found</h2>
-        <button onClick={() => navigate(`/projects/${project.id}/chapters`)}>
+        <button onClick={() => navigate(`/projects/${currentProject.id}/chapters`)}>
           ← Back to Chapters
         </button>
       </div>
@@ -63,7 +63,7 @@ export const ChapterViewPage: React.FC = () => {
   }
 
   const handleBack = () => {
-    navigate(`/projects/${project.id}/chapters`);
+    navigate(`/projects/${currentProject.id}/chapters`);
   };
 
   const toggleSceneExpand = (sceneId: number) => {
@@ -80,8 +80,8 @@ export const ChapterViewPage: React.FC = () => {
     setChapter(updatedChapter);
     
     const updatedProject = {
-      ...project,
-      chapters: project.chapters.map(ch => 
+      ...currentProject,
+      chapters: currentProject.chapters.map(ch => 
         ch.id === updatedChapter.id ? updatedChapter : ch
       )
     };    
@@ -124,8 +124,8 @@ export const ChapterViewPage: React.FC = () => {
     // Update both local and project state
     setChapter(updatedChapter);
     const updatedProject = {
-      ...project,
-      chapters: project.chapters.map(ch => 
+      ...currentProject,
+      chapters: currentProject.chapters.map(ch => 
         ch.id === chapter.id ? updatedChapter : ch
       )
     };
@@ -154,7 +154,7 @@ export const ChapterViewPage: React.FC = () => {
       characters: [...chapter.characters, characterId]
     };
     updateChapter(updatedChapter);
-    setCharacters([...characters, project.characters.find(char => char.id === characterId)!]);
+    setCharacters([...characters, currentProject.characters.find(char => char.id === characterId)!]);
   };
 
   const handleRemoveCharacter = (characterId: number) => {
@@ -177,7 +177,7 @@ export const ChapterViewPage: React.FC = () => {
       locations: [...chapter.locations, locationId]
     };
     updateChapter(updatedChapter);
-    setLocations([...locations, project.locations.find(loc => loc.id === locationId)!]);
+    setLocations([...locations, currentProject.locations.find(loc => loc.id === locationId)!]);
   };
 
   const handleRemoveLocation = (locationId: number) => {
@@ -356,7 +356,7 @@ export const ChapterViewPage: React.FC = () => {
               className="add-select"
             >
               <option value="">Add character...</option>
-              {project.characters
+              {currentProject.characters
                 .filter(char => !chapter.characters.includes(char.id))
                 .map(char => (
                   <option key={char.id} value={char.id}>
@@ -391,7 +391,7 @@ export const ChapterViewPage: React.FC = () => {
               className="add-select"
             >
               <option value="">Add location...</option>
-              {project.locations
+              {currentProject.locations
                 .filter(loc => !chapter.locations.includes(loc.id))
                 .map(loc => (
                   <option key={loc.id} value={loc.id}>
@@ -510,7 +510,7 @@ export const ChapterViewPage: React.FC = () => {
 
       {showNewSceneDialog && (
         <NewSceneDialog
-          projectId={project.id}
+          projectId={currentProject.id}
           chapterId={chapter.id}
           nextSceneNumber={chapter.scenes.length + 1}
           onClose={() => setShowNewSceneDialog(false)}

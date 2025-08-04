@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Location } from '../../types/location';
 import { NoteFile } from '../../types/notes';
-import { saveProject } from '../../data/storage';
 import RichTextEditor from '../editor/texteditor';
 import './Location.css';
 import '../../styles/shared.css';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useProject, useProjectContext } from '../project/ProjectContext';
+import { useProjectContext } from '../project/ProjectContext';
 
 export const LocationPage: React.FC = () => {
     const { locationId } = useParams<{ locationId: string }>();
     const navigate = useNavigate();
-    const { project, updateProject } = useProject();
+    const { currentProject, updateProject } = useProjectContext();
     const { getNextId } = useProjectContext();
 
     const [location, setLocation] = useState<Location | null>(null);
@@ -27,15 +26,15 @@ export const LocationPage: React.FC = () => {
         if (isNaN(locationIdNum)) {
             return;
         }
-        if (project && locationId) {
-            const foundLocation = project.locations.find(loc => loc.id === locationIdNum);
+        if (currentProject && locationId) {
+            const foundLocation = currentProject.locations.find(loc => loc.id === locationIdNum);
             if (foundLocation) {
                 setLocation(foundLocation);
             }
         }
     }, [location]);
 
-    if (!project) {
+    if (!currentProject) {
         return <div className="no-project-selected">No project selected</div>;
     }
 
@@ -44,7 +43,7 @@ export const LocationPage: React.FC = () => {
     }
 
     const handleBack = () => {
-        navigate(`/projects/${project.id}/locations`);
+        navigate(`/projects/${currentProject.id}/locations`);
     };
 
     const handleSaveLocation = () => {
@@ -53,14 +52,13 @@ export const LocationPage: React.FC = () => {
         }
 
         const updatedProject = {
-            ...project,
-            locations: project.locations.map(loc => 
+            ...currentProject,
+            locations: currentProject.locations.map(loc => 
                 loc.id === location.id ? location : loc
             )
         };
 
         updateProject(updatedProject);
-        saveProject(updatedProject);
         setLocation(location);
     };
 

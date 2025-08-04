@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Outline } from '../../types/outline';
 import { NoteFile } from '../../types/notes';
-import { saveProject } from '../../data/storage';
 import RichTextEditor from '../editor/texteditor';
 import './Outline.css';
 import { debounce } from '../../utils';
-import { useProject, useProjectContext } from '../project/ProjectContext';
+import { useProjectContext } from '../project/ProjectContext';
 
 export const OutlinePage: React.FC = () => {
-    const { project, updateProject } = useProject();
+    const { currentProject, updateProject } = useProjectContext();
     const { getNextId } = useProjectContext();
     const [outline, setOutline] = useState<Outline | null>(null);
     const [showAddNote, setShowAddNote] = useState(false);
@@ -19,37 +18,36 @@ export const OutlinePage: React.FC = () => {
     const [editedNoteContent, setEditedNoteContent] = useState('');
 
     useEffect(() => {
-        if (project && project.outline) {
-            setOutline(project.outline);
+        if (currentProject && currentProject.outline) {
+            setOutline(currentProject.outline);
         } else {
             setOutline({
                 content: '',
                 notes: []
             });
         }
-    }, [project]);
+    }, [currentProject]);
 
     const debouncedUpdateOutline = useCallback(
         debounce((updatedOutline: Outline) => {
-            if (project) {
+            if (currentProject) {
                 const updatedProject = {
-                    ...project,
+                    ...currentProject,
                     outline: updatedOutline
                 };
                 updateProject(updatedProject);
-                saveProject(updatedProject);
                 console.log('Outline updated:', updatedProject);
             }
         }, 1000),
-        [project, updateProject]
+        [currentProject, updateProject]
     );
 
-    if (!project) {
+    if (!currentProject) {
         return <div className="no-project-selected">No project selected</div>;
     }
 
     const handleContentChange = (content: string) => {
-        if (outline && project) {
+        if (outline && currentProject) {
             const updatedOutline = {
                 ...outline,
                 content
@@ -65,7 +63,7 @@ export const OutlinePage: React.FC = () => {
             return;
         }
 
-        if (outline && project) {
+        if (outline && currentProject) {
             const newNote: NoteFile = {
                 id: getNextId('note'),
                 title: newNoteTitle.trim(),
@@ -78,7 +76,7 @@ export const OutlinePage: React.FC = () => {
             };
 
             const updatedProject = {
-                ...project,
+                ...currentProject,
                 outline: updatedOutline
             };
 
@@ -93,7 +91,7 @@ export const OutlinePage: React.FC = () => {
     };
 
     const handleDeleteNote = (noteId: number) => {
-        if (!outline || !project) return;
+        if (!outline || !currentProject) return;
 
         if (!window.confirm('Are you sure you want to delete this note?')) {
             return;
@@ -105,7 +103,7 @@ export const OutlinePage: React.FC = () => {
         };
 
         const updatedProject = {
-            ...project,
+            ...currentProject,
             outline: updatedOutline
         };
 
@@ -120,7 +118,7 @@ export const OutlinePage: React.FC = () => {
     };
 
     const handleSaveEditedNote = () => {
-        if (!outline || !project || !editingNoteId) return;
+        if (!outline || !currentProject || !editingNoteId) return;
 
         if (!editedNoteTitle.trim()) {
             alert('Please enter a title for the note');
@@ -137,7 +135,7 @@ export const OutlinePage: React.FC = () => {
         };
 
         const updatedProject = {
-            ...project,
+            ...currentProject,
             outline: updatedOutline
         };
 

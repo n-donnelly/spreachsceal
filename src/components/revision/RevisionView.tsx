@@ -2,20 +2,20 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Project, Revision } from '../../types';
-import { getProject } from '../../data/storage';
+import { useProjectContext } from '../project/ProjectContext';
 
 const RevisionView = () => {
   const { id: projectId, revisionId } = useParams();
   const navigate = useNavigate();
+  const { currentProject } = useProjectContext();
 
   const [revision, setRevision] = useState<Revision | null>(null);
   const revisionIdNum = revisionId ? parseInt(revisionId, 10) : null;
 
   useEffect(() => {
-    const project = getProject(projectId!);
-    const revision = project?.revisions.find((rev) => rev.id === revisionIdNum);
+    const revision = currentProject?.revisions.find((rev) => rev.id === revisionIdNum);
     setRevision(revision || null);
-  }, [projectId, revisionId]);
+  }, [currentProject, revisionId]);
 
   if (!revision) {
     return <div className="p-6">Revision not found</div>;

@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import { getProject, saveProject } from '../../../data/storage';
 import { Scene } from '../../../types';
 import './Scene.css';
 import { useProjectContext } from '../../project/ProjectContext';
 
 interface Props {
-    projectId: string;
     chapterId: number;
     nextSceneNumber: number;
     onClose: () => void;
@@ -13,7 +11,6 @@ interface Props {
 }
 
 export const  NewSceneDialog: React.FC<Props> = ({ 
-    projectId, 
     chapterId, 
     nextSceneNumber, 
     onClose, 
@@ -22,7 +19,7 @@ export const  NewSceneDialog: React.FC<Props> = ({
     const [number, setNumber] = useState(nextSceneNumber);
     const [overview, setOverview] = useState('');
     const [error, setError] = useState<string | null>(null);
-    const { getNextId } = useProjectContext();
+    const { getNextId, currentProject, updateProject } = useProjectContext();
 
     const handleCreate = () => {
         // Clear any previous errors
@@ -34,13 +31,12 @@ export const  NewSceneDialog: React.FC<Props> = ({
             return;
         }
 
-        const project = getProject(projectId);
-        if (!project) {
+        if (!currentProject) {
             setError('Project not found');
             return;
         }
 
-        const chapter = project.chapters.find(chapter => chapter.id === chapterId);
+        const chapter = currentProject.chapters.find(chapter => chapter.id === chapterId);
         if (!chapter) {
             setError('Chapter not found');
             return;
@@ -67,8 +63,8 @@ export const  NewSceneDialog: React.FC<Props> = ({
         
         // Sort scenes by number to maintain order
         chapter.scenes.sort((a, b) => a.number - b.number);
-        
-        saveProject(project);
+
+        updateProject(currentProject);
         onCreated(newScene);
         onClose();
     };
