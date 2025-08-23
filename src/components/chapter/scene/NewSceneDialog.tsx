@@ -59,12 +59,6 @@ export const  NewSceneDialog: React.FC<Props> = ({
             notes: []
         };
 
-        chapter.scenes.push(newScene);
-        
-        // Sort scenes by number to maintain order
-        chapter.scenes.sort((a, b) => a.number - b.number);
-
-        updateProject(currentProject);
         onCreated(newScene);
         onClose();
     };

@@ -1,19 +1,25 @@
 import { useEffect, useState, useCallback } from "react";
 import { Scratchpad, Scratch } from "../types/scratchpad";
-import { LocalScratchPadService } from "../data/LocalScratchPadService";
 import RichTextEditor from "../components/editor/texteditor";
 import './ScratchPad.css';
 import { debounce } from "../utils";
+import { FirebaseScratchPadService } from "../data/FirebaseScratchPadService";
+import { useAuth } from "../authentication/AuthContext";
 
 export const ScratchPadView: React.FC = () => {
   const [scratchpad, setScratchpad] = useState<Scratchpad | null>(null);
   const [loading, setLoading] = useState(true);
-  const scratchPadService = new LocalScratchPadService();
+  const scratchPadService = new FirebaseScratchPadService();
+  const { user } = useAuth();
 
   useEffect(() => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     const fetchScratchpad = async () => {
       setLoading(true);
-      const data = await scratchPadService.getScratchpad();
+      const data = await scratchPadService.getScratchpad(user.uid);
       setScratchpad(data);
       setLoading(false);
     };

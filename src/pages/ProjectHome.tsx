@@ -1,12 +1,10 @@
 import { useState } from 'react';
-import { getProjects } from '../data/storage';
 import { CreateProjectDialog } from '../components/project/CreateProjectDialog';
+import { useProjectContext } from '../components/project/ProjectContext';
 
 const ProjectHome = () => {
     const [showDialog, setShowDialog] = useState(false);
-    const [projects, setProjects] = useState(getProjects());
-
-    const refreshProjects = () => setProjects(getProjects());
+    const { getProjects } = useProjectContext();
 
     return (
         <div className="p-6">
