@@ -51,8 +51,8 @@ export const CharacterListView: React.FC = () => {
 
   return (
     <div className="characters-container">
-      <div className="characters-header">
-        <h2>Characters</h2>
+      <div className="section-header">
+        <h1 className="section-title">Characters</h1>
         <button 
           onClick={() => setShowNewCharacterDialog(true)}
           className="add-character-button"

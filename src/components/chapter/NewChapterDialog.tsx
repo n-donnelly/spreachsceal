@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Chapter } from '../../types/chapter';
 import { useProjectContext } from '../project/ProjectContext';
-import './Chapter.css';
+import './chapter.css';
 
 interface Props {
   onClose: () => void;
@@ -49,13 +49,6 @@ export const NewChapterDialog: React.FC<Props> = ({ onClose, onCreated }) => {
           placeholder="Chapter Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-        />
-        <input
-          className="dialog-input"
-          placeholder="Chapter Number"
-          type="number"
-          value={index}
-          onChange={(e) => setIndex(parseInt(e.target.value) || 1)}
         />
         <div className="dialog-footer">
           <button onClick={onClose} className="cancel-button">

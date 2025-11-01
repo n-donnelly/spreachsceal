@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Chapter } from '../../types/chapter';
 import { NewSceneDialog } from './scene/NewSceneDialog';
 import { SceneWritingModal } from './scene/SceneWritingModal';
-import './Chapter.css';
+import './chapter.css';
 import ReadOnlyEditor from '../editor/readonlyeditor';
 import { useProjectContext } from '../project/ProjectContext';
 import { Character, Location, Scene } from '../../types';
@@ -510,7 +510,6 @@ export const ChapterViewPage: React.FC = () => {
 
       {showNewSceneDialog && (
         <NewSceneDialog
-          projectId={currentProject.id}
           chapterId={chapter.id}
           nextSceneNumber={chapter.scenes.length + 1}
           onClose={() => setShowNewSceneDialog(false)}

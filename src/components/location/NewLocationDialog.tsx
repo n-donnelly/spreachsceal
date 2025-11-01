@@ -33,19 +33,19 @@ export const NewLocationDialog: React.FC<NewLocationDialogProps> = ({ onClose, o
     };
 
     return (
-        <div className="location-dialog-overlay" onClick={onClose}>
-            <div className="location-dialog-content" onClick={(e) => e.stopPropagation()}>
-                <h2 className="location-dialog-title">Create New Location</h2>
+        <div className="dialog-overlay" onClick={onClose}>
+            <div className="dialog-content" onClick={(e) => e.stopPropagation()}>
+                <h2 className="dialog-title">Create New Location</h2>
                 
-                <form onSubmit={handleSubmit} className="location-dialog-form">
-                    <div className="location-dialog-field">
-                        <label htmlFor="location-name" className="location-dialog-label">
+                <form onSubmit={handleSubmit} className="dialog-form">
+                    <div className="dialog-field">
+                        <label htmlFor="location-name" className="dialog-label">
                             Name *
                         </label>
                         <input
                             id="location-name"
                             type="text"
-                            className="location-dialog-input"
+                            className="dialog-input"
                             placeholder="Location name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
@@ -53,20 +53,20 @@ export const NewLocationDialog: React.FC<NewLocationDialogProps> = ({ onClose, o
                         />
                     </div>
 
-                    <div className="location-dialog-field">
-                        <label htmlFor="location-description" className="location-dialog-label">
+                    <div className="dialog-field">
+                        <label htmlFor="location-description" className="dialog-label">
                             Description
                         </label>
                         <textarea
                             id="location-description"
-                            className="location-dialog-textarea"
+                            className="dialog-textarea"
                             placeholder="Location description"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                         />
                     </div>
 
-                    <div className="location-dialog-footer">
+                    <div className="dialog-footer">
                         <button 
                             type="button" 
                             className="location-cancel-button"

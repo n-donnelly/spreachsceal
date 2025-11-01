@@ -251,12 +251,14 @@ export const ProjectView: React.FC = () => {
                         ) : (
                             <div className="empty-state">
                                 <p>No chapters yet.</p>
-                                <button 
-                                    className="create-button"
-                                    onClick={() => navigateToSection('chapters')}
-                                >
-                                    Create First Chapter
-                                </button>
+                                <div className="empty-state-button-wrapper">
+                                    <button 
+                                        className="create-button"
+                                        onClick={() => navigateToSection('chapters')}
+                                    >
+                                        Create First Chapter
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -296,12 +298,14 @@ export const ProjectView: React.FC = () => {
                         ) : (
                             <div className="empty-state">
                                 <p>No characters yet.</p>
-                                <button 
-                                    className="create-button"
-                                    onClick={() => navigateToSection('characters')}
-                                >
-                                    Create First Character
-                                </button>
+                                <div className="empty-state-button-wrapper">
+                                    <button 
+                                        className="create-button"
+                                        onClick={() => navigateToSection('characters')}
+                                    >
+                                        Create First Character
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -341,12 +345,14 @@ export const ProjectView: React.FC = () => {
                         ) : (
                             <div className="empty-state">
                                 <p>No locations yet.</p>
-                                <button 
-                                    className="create-button"
-                                    onClick={() => navigateToSection('locations')}
-                                >
-                                    Create First Location
-                                </button>
+                                <div className="empty-state-button-wrapper">
+                                    <button 
+                                        className="create-button"
+                                        onClick={() => navigateToSection('locations')}
+                                    >
+                                        Create First Location
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -388,12 +394,14 @@ export const ProjectView: React.FC = () => {
                         ) : (
                             <div className="empty-state">
                                 <p>No notes yet.</p>
-                                <button 
-                                    className="create-button"
-                                    onClick={() => navigateToSection('notes')}
-                                >
-                                    Create First Note
-                                </button>
+                                <div className="empty-state-button-wrapper">
+                                    <button 
+                                        className="create-button"
+                                        onClick={() => navigateToSection('notes')}
+                                    >
+                                        Create First Note
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -437,12 +445,14 @@ export const ProjectView: React.FC = () => {
                         ) : (
                             <div className="empty-state">
                                 <p>No revisions yet.</p>
-                                <button 
-                                    className="create-button"
-                                    onClick={() => navigateToSection('revisions')}
-                                >
-                                    Create First Revision
-                                </button>
+                                <div className="empty-state-button-wrapper">
+                                    <button 
+                                        className="create-button"
+                                        onClick={() => navigateToSection('revisions')}
+                                    >
+                                        Create First Revision
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -484,12 +494,14 @@ export const ProjectView: React.FC = () => {
                         ) : (
                             <div className="empty-state">
                                 <p>No tasks yet.</p>
-                                <button 
-                                    className="create-button"
-                                    onClick={() => navigateToSection('todo')}
-                                >
-                                    Create First Task
-                                </button>
+                                <div className="empty-state-button-wrapper">
+                                    <button 
+                                        className="create-button"
+                                        onClick={() => navigateToSection('todo')}
+                                    >
+                                        Create First Task
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>

@@ -1,23 +1,30 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    // Use version 0.2.0 for VS Code launch configurations
     "version": "0.2.0",
     "configurations": [
-
+        // Launch a new Firefox instance and open the given URL (good for local web apps)
         {
-            "type": "msedge",
+            "name": "Launch Firefox (http://localhost:5173)",
+            "type": "firefox",
             "request": "launch",
-            "name": "Launch Edge against localhost",
             "url": "http://localhost:5173",
-            "webRoot": "${workspaceFolder}"
+            "webRoot": "${workspaceFolder}",
+            "reAttach": true
+            // "firefoxExecutable": "/usr/bin/firefox" // uncomment/adjust if you need a custom binary
+            // "profile": "${workspaceFolder}/.vscode/firefox-profile" // optional persistent profile
         },
+
+        // Attach to an already-running Firefox started with remote debugging:
+        // e.g. start firefox with `firefox --start-debugger-server 6000`
         {
-            "type": "chrome",
-            "request": "launch",
-            "name": "Launch Chrome against localhost",
-            "url": "http://localhost:5173",
-            "webRoot": "${workspaceFolder}"
+            "name": "Attach to Firefox (remote debugging)",
+            "type": "firefox",
+            "request": "attach",
+            "host": "localhost",
+            "port": 5173,
+            "webRoot": "${workspaceFolder}",
+            "reAttach": true
+            // "pathMappings": { "/": "${workspaceFolder}" } // add if your server serves files from a different root
         }
     ]
 }

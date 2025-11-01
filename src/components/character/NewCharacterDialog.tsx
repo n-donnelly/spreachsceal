@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Character } from '../../types/character';
-import './Character.css';
+import './character.css';
 import { Project } from '../../types';
 import { useProjectContext } from '../project/ProjectContext';
 
@@ -53,18 +53,18 @@ export const NewCharacterDialog: React.FC<Props> = ({ project, onClose, onCreate
   };
 
   return (
-    <div className="character-dialog-overlay">
-      <div className="character-dialog-content">
-        <h2 className="character-dialog-title">New Character</h2>
+    <div className="dialog-overlay">
+      <div className="dialog-content">
+        <h2 className="dialog-title">New Character</h2>
         
-        <form className="character-dialog-form" onSubmit={(e) => { e.preventDefault(); handleCreate(); }}>
-          <div className="character-dialog-field">
-            <label htmlFor="character-name" className="character-dialog-label">
+        <form className="dialog-form" onSubmit={(e) => { e.preventDefault(); handleCreate(); }}>
+          <div className="dialog-field">
+            <label htmlFor="character-name" className="dialog-label">
               Name *
             </label>
             <input
               id="character-name"
-              className="character-dialog-input"
+              className="dialog-input"
               placeholder="Character name"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -75,13 +75,13 @@ export const NewCharacterDialog: React.FC<Props> = ({ project, onClose, onCreate
             />
           </div>
 
-          <div className="character-dialog-field">
-            <label htmlFor="character-description" className="character-dialog-label">
+          <div className="dialog-field">
+            <label htmlFor="character-description" className="dialog-label">
               Description
             </label>
             <textarea
               id="character-description"
-              className="character-dialog-textarea"
+              className="dialog-textarea"
               placeholder="Character description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -89,18 +89,18 @@ export const NewCharacterDialog: React.FC<Props> = ({ project, onClose, onCreate
             />
           </div>
 
-          <div className="character-dialog-footer">
+          <div className="dialog-footer">
             <button
               type="button"
               onClick={onClose}
-              className="character-cancel-button"
+              className="cancel-button"
               disabled={isCreating}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="character-create-button"
+              className="create-button"
               disabled={isCreating || !name.trim()}
             >
               {isCreating ? 'Creating...' : 'Create'}

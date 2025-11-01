@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Chapter } from '../../types/chapter';
 import { NewChapterDialog } from './NewChapterDialog';
-import './Chapter.css';
+import './chapter.css';
 import { useProjectContext } from '../project/ProjectContext';
 
 export const ChapterListView: React.FC = () => {

@@ -1,7 +1,12 @@
 .morning-pages-container {
   max-width: 800px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  min-height: calc(100vh - 64px); /* Subtracts header height */
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .morning-pages-container h1 {
@@ -19,11 +24,13 @@
 
 .morning-pages-textarea {
   width: 100%;
-  min-height: 400px;
+  flex: 1 1 auto; /* Changed to flex-grow, flex-shrink, flex-basis */
   padding: 1.5rem;
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
   background: white;
+  resize: none;
+  margin-bottom: 0; /* Ensure no extra space at bottom */
 }
 
 .morning-pages-textarea:focus {
@@ -34,11 +41,12 @@
 
 .editable-content {
   width: 100%;
-  min-height: 400px;
+  flex: 1 1 auto; /* Changed to flex-grow, flex-shrink, flex-basis */
   font-size: 1.1rem;
   line-height: 1.6;
   outline: none;
   white-space: pre-wrap;
+  margin-bottom: 0; /* Ensure no extra space at bottom */
 }
 
 .editable-content:empty:before {

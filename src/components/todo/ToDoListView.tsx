@@ -28,28 +28,29 @@ export const NewToDoDialog: React.FC<{
     };
 
     return (
-        <div className="todo-dialog-overlay" onClick={onClose}>
-            <div className="todo-dialog-content" onClick={(e) => e.stopPropagation()}>
-                <h2 className="todo-dialog-title">Create New To Do Item</h2>
+        <div className="dialog-overlay" onClick={onClose}>
+            <div className="dialog-content" onClick={(e) => e.stopPropagation()}>
+                <h2 className="dialog-title">Create New To Do Item</h2>
 
-                <form onSubmit={handleCreate} className="todo-dialog-form">
-                    <div className="todo-dialog-field">
-                        <label className="todo-dialog-label">To Do</label>
+                <form onSubmit={handleCreate} className="dialog-form">
+                    <div className="dialog-field">
+                        <label className="dialog-label">To Do</label>
                         <input
                             type="text"
                             placeholder="Title"
+                            className="dialog-input"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                         />
                     </div>
                 </form>
                 
-                <div className="todo-dialog-footer">
-                    <button className="todo-dialog-button" onClick={handleCreate}>
-                        Create
-                    </button>
-                    <button className="todo-dialog-button" onClick={onClose}>
+                <div className="dialog-footer">
+                    <button className="cancel-button" onClick={onClose}>
                         Cancel
+                    </button>
+                    <button className="create-button" onClick={handleCreate}>
+                        Create
                     </button>
                 </div>
             </div>
@@ -117,7 +118,7 @@ export const ToDoListView: React.FC = () => {
             </div>
             <div className="todo-body">
                 <button
-                    className="add-todo-button"
+                    className="default-button add-todo-button"
                     onClick={() => setShowNewToDoDialog(true)}
                 >
                     Add Todo
@@ -134,10 +135,11 @@ export const ToDoListView: React.FC = () => {
                     <span>{todo.title}</span>
                     <input
                         type="checkbox"
+                        className="todo-complete-checkbox"
                         checked={todo.completed}
                         onChange={(e) => handleToDoUpdate({ ...todo, completed: e.target.checked })}
                     />
-                    <button onClick={() => handleDeleteTodo(todo.id)}>Delete</button>
+                    <button className="default-negative-button" onClick={() => handleDeleteTodo(todo.id)}>Delete</button>
                 </div>
             ))}
             {todoItems.some(todo => todo.completed) && (
