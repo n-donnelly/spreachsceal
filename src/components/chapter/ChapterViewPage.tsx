@@ -120,6 +120,8 @@ export const ChapterViewPage: React.FC = () => {
       ...chapter,
       scenes: [...chapter.scenes, newScene]
     };
+    // Sort scenes by number
+    updatedChapter.scenes.sort((a, b) => a.number - b.number);
 
     // Update both local and project state
     setChapter(updatedChapter);

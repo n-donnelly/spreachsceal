@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { createNewProject, Project } from "../../types";
+import { createNewProject } from "../../types";
 import "./CreateProjectDialog.css";
 import { useAuth } from "../../authentication/AuthContext";
-import { LocalProjectService } from "../../data/LocalProjectService";
+import { useProjectContext } from "./ProjectContext";
 
 interface Props {
   onClose: () => void;
@@ -14,14 +14,18 @@ export const CreateProjectDialog: React.FC<Props> = ({ onClose, onCreated }) => 
   const [genre, setGenre] = useState("");
   const [description, setDescription] = useState("");
   const { user } = useAuth();
-  const projectService = new LocalProjectService();
+  const { updateProject } = useProjectContext();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
     const newProject = createNewProject(user.uid, title, genre);
-    projectService.saveProject(newProject);
+    newProject.description = description; // Add description to new project
+
+    // Use updateProject from context which handles both local and cloud storage
+    await updateProject(newProject);
+    
     onCreated();
     onClose();
   };

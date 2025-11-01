@@ -61,10 +61,6 @@ export const ProjectView: React.FC = () => {
         navigate(`/projects/${currentProject.id}/locations/${locationId}`);
     };
 
-    const navigateToTodo = () => {
-        navigate(`/projects/${currentProject.id}/todo`);
-    };
-
 
 
     return (
