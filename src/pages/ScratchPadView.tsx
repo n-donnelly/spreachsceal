@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Scratchpad, Scratch } from "../types/scratchpad";
 import RichTextEditor from "../components/editor/texteditor";
 import './ScratchPad.css';
@@ -9,30 +9,58 @@ import { useAuth } from "../authentication/AuthContext";
 export const ScratchPadView: React.FC = () => {
   const [scratchpad, setScratchpad] = useState<Scratchpad | null>(null);
   const [loading, setLoading] = useState(true);
-  const scratchPadService = new FirebaseScratchPadService();
   const { user } = useAuth();
+  
+  const scratchPadService = useRef<FirebaseScratchPadService>(new FirebaseScratchPadService());
+  const isInitialized = useRef(false);
 
   useEffect(() => {
-    if (!user) {
+    let isMounted = true;
+
+    // Guard check before async function
+    if (!user || isInitialized.current) {
       setLoading(false);
       return;
     }
-    const fetchScratchpad = async () => {
-      setLoading(true);
-      const data = await scratchPadService.getScratchpad(user.uid);
-      setScratchpad(data);
-      setLoading(false);
+
+    isInitialized.current = true;
+
+    const initializeScratchpad = async () => {
+      try {
+        const data = await scratchPadService.current!.getScratchpad(user.uid);
+        if (isMounted) {
+          setScratchpad(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch scratchpad:', error);
+        if (isMounted) {
+          isInitialized.current = false;
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
     };
 
-    fetchScratchpad();
-  }, []);
+    initializeScratchpad();
 
-  // Create a debounced save function
+    return () => {
+      isMounted = false;
+    };
+  }, [user]); // Only depend on user changes
+
   const debouncedSave = useCallback(
     debounce(async (updatedScratchpad: Scratchpad) => {
-      await scratchPadService.saveScratchpad(updatedScratchpad);
-    }, 1000),
-    []
+      if (user) {
+        try {
+          await scratchPadService.current!.saveScratchpad(updatedScratchpad);
+        } catch (error) {
+          console.error('Failed to save scratchpad:', error);
+        }
+      }
+    }, 5000),
+    [user]
   );
 
   const handleAddScratch = () => {
@@ -78,7 +106,9 @@ export const ScratchPadView: React.FC = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="scratchpad-view">
+      <div className="loading-state">Loading your scratchpad...</div>
+    </div>;
   }
 
   return (
@@ -92,7 +122,7 @@ export const ScratchPadView: React.FC = () => {
         </div>
         <div className="header-actions">
           <button onClick={handleAddScratch} className="add-scratch-button">
-            Add New Note
+            Add New Idea
           </button>
         </div>
       </div>
