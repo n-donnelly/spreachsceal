@@ -99,9 +99,9 @@ export const NewCharacterDialog: React.FC<Props> = ({ project, onClose, onCreate
               Cancel
             </button>
             <button
-              type="submit"
               className="create-button"
               disabled={isCreating || !name.trim()}
+              onClick={handleCreate}
             >
               {isCreating ? 'Creating...' : 'Create'}
             </button>

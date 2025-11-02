@@ -3,11 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { NoteFile } from '../../types';
 import NoteCard from './notecard';
 import './notes.css';
-import { useNavigate } from 'react-router-dom';
 import { useProjectContext } from '../project/ProjectContext';
 
 const NotesList: React.FC = () => {
-    const navigate = useNavigate();
     const { currentProject, updateProject } = useProjectContext();
     const { getNextId } = useProjectContext();
     const [notes, setNotes] = useState<NoteFile[]>( []);
@@ -77,7 +75,7 @@ const NotesList: React.FC = () => {
             <div className="section-header">
                 <h1 className="section-title">Notes</h1>
                 <button 
-                    className="btn btn-primary"
+                    className="default-button"
                     onClick={() => setShowNewNoteForm(!showNewNoteForm)}
                 >
                     {showNewNoteForm ? 'Cancel' : 'Add Note'}
@@ -101,7 +99,7 @@ const NotesList: React.FC = () => {
                     />
                     <div className="new-note-actions">
                         <button 
-                            className="btn btn-text"
+                            className="default-negative-button"
                             onClick={() => {
                                 setShowNewNoteForm(false);
                                 setNewNoteTitle('');
@@ -111,7 +109,7 @@ const NotesList: React.FC = () => {
                             Cancel
                         </button>
                         <button 
-                            className="btn btn-primary"
+                            className="default-button"
                             onClick={handleAddNote}
                         >
                             Add Note

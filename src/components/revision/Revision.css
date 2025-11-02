@@ -517,13 +517,6 @@
   cursor: not-allowed;
 }
 
-.dialog-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  padding-top: 1rem;
-}
-
 .cancel-button {
   color: #6b7280;
   background: none;

@@ -55,7 +55,7 @@ export const CharacterListView: React.FC = () => {
         <h1 className="section-title">Characters</h1>
         <button 
           onClick={() => setShowNewCharacterDialog(true)}
-          className="add-character-button"
+          className="default-button"
         >
           Add Character
         </button>

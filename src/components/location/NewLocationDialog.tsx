@@ -13,7 +13,7 @@ export const NewLocationDialog: React.FC<NewLocationDialogProps> = ({ onClose, o
     const [description, setDescription] = useState('');
     const { getNextId } = useProjectContext();
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleCreate = (e: React.FormEvent) => {
         e.preventDefault();
         
         if (!name.trim()) {
@@ -37,7 +37,7 @@ export const NewLocationDialog: React.FC<NewLocationDialogProps> = ({ onClose, o
             <div className="dialog-content" onClick={(e) => e.stopPropagation()}>
                 <h2 className="dialog-title">Create New Location</h2>
                 
-                <form onSubmit={handleSubmit} className="dialog-form">
+                <form className="dialog-form">
                     <div className="dialog-field">
                         <label htmlFor="location-name" className="dialog-label">
                             Name *
@@ -68,16 +68,15 @@ export const NewLocationDialog: React.FC<NewLocationDialogProps> = ({ onClose, o
 
                     <div className="dialog-footer">
                         <button 
-                            type="button" 
-                            className="location-cancel-button"
+                            className="cancel-button"
                             onClick={onClose}
                         >
                             Cancel
                         </button>
                         <button 
-                            type="submit" 
-                            className="location-create-button"
+                            className="create-button"
                             disabled={!name.trim()}
+                            onClick={handleCreate}
                         >
                             Create Location
                         </button>

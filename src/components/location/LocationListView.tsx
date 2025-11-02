@@ -58,7 +58,7 @@ export const LocationListView: React.FC = () => {
             <div className="section-header">
                 <h1 className="section-title">Locations</h1>
                 <button 
-                    className="add-location-button"
+                    className="default-button"
                     onClick={() => setShowNewLocationDialog(true)}
                 >
                     Add Location

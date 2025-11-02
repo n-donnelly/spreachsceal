@@ -56,7 +56,7 @@ export const ChapterListView: React.FC = () => {
         <h1 className="section-title">Chapters</h1>
         <button 
           onClick={() => setShowNewChapterDialog(true)}
-          className="add-chapter-button"
+          className="default-button"
         >
           Add Chapter
         </button>
