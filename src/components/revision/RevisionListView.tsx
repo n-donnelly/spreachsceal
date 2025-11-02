@@ -2,11 +2,9 @@ import React, { useState } from 'react';
 import { Revision } from '../../types/revision';
 import './Revision.css';
 import { NewRevisionDialog } from './NewRevisionDialog';
-import { useNavigate } from 'react-router-dom';
 import { useProjectContext } from '../project/ProjectContext';
 
 export const RevisionListView: React.FC = () => {
-  const navigate = useNavigate();
   const { currentProject, updateProject } = useProjectContext();
   const [ revisions, setRevisions ] = useState<Revision[]>([]);
   const [showNewRevisionDialog, setShowNewRevisionDialog] = useState(false);
@@ -15,11 +13,7 @@ export const RevisionListView: React.FC = () => {
     return <div className="no-project-message">No project selected</div>;
   }
 
-  const handleRevisionClick = (revisionId: number) => {
-    navigate(`/projects/${currentProject.id}/revisions/${revisionId}`);
-  };
-
-  const handleCreateRevision = (versionName: string) => {
+  const handleCreateRevision = () => {
     // The NewRevisionDialog handles the creation and saving
     // We just need to refresh the project data
     setShowNewRevisionDialog(false);

@@ -10,7 +10,6 @@ interface Props {
 }
 
 export const NewRevisionDialog: React.FC<Props> = ({
-  projectId,
   onClose,
   onCreated,
 }) => {

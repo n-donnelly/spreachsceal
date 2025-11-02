@@ -10,13 +10,13 @@ interface Props {
   onCreated: (charater: Character) => void;
 }
 
-export const NewCharacterDialog: React.FC<Props> = ({ project, onClose, onCreated }) => {
+export const NewCharacterDialog: React.FC<Props> = ({ /*project,*/ onClose, onCreated }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const { getNextId } = useProjectContext();
 
-  const otherCharacters = project.characters || [];
+  //const otherCharacters = project.characters || [];
 
   const handleCreate = async () => {
     if (!name.trim()) {

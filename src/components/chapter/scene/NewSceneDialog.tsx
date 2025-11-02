@@ -19,7 +19,7 @@ export const  NewSceneDialog: React.FC<Props> = ({
     const [number, setNumber] = useState(nextSceneNumber);
     const [overview, setOverview] = useState('');
     const [error, setError] = useState<string | null>(null);
-    const { getNextId, currentProject, updateProject } = useProjectContext();
+    const { getNextId, currentProject } = useProjectContext();
 
     const handleCreate = () => {
         // Clear any previous errors

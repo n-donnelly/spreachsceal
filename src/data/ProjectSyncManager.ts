@@ -79,7 +79,7 @@ export class ProjectSyncManager {
         } catch (error) {
             console.error('Failed to fetch from cloud, falling back to local:', error);
             // Fallback to local storage if cloud fails
-            return await this.localService.getUserProjects(userId);
+            return await this.localService.getUserProjects();
         }
     }
 
@@ -87,7 +87,7 @@ export class ProjectSyncManager {
         // Remove from both local and cloud services
         await this.localService.deleteProject(projectId);
         try {
-            await this.cloudService.deleteProject(projectId);
+            await this.cloudService.deleteProject();
         } catch (error) {
             console.error('Failed to delete project from cloud:', error);
         }

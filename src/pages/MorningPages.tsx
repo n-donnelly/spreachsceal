@@ -2,7 +2,6 @@ import React, { useState, KeyboardEvent, useRef, useEffect } from 'react';
 import './MorningPages.css';
 
 const MorningPages: React.FC = () => {
-  const [text, setText] = useState('');
   const [isFading, setIsFading] = useState(false);
   const editableRef = useRef<HTMLDivElement>(null);
 

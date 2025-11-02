@@ -1,6 +1,6 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { TodoItem } from "../../types/todo-items";
-import { ProjectContext, useProjectContext } from "../project/ProjectContext";
+import { useProjectContext } from "../project/ProjectContext";
 import './todo.css';
 
 export const NewToDoDialog: React.FC<{
@@ -8,7 +8,7 @@ export const NewToDoDialog: React.FC<{
     onCreated: (newTodo: TodoItem) => void;
 }> = ({ onClose, onCreated }) => {
     const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
+    const [description] = useState("");
 
     const handleCreate = () => {
         if (title.trim() === "") {

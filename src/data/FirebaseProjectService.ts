@@ -46,7 +46,7 @@ export class FirebaseProjectService implements ProjectService {
     await this.saveProject(project);
   }
 
-  async deleteProject(projectId: string): Promise<void> {
+  async deleteProject(): Promise<void> {
     // TODO: Implement when Firebase is added
     throw new Error('Firebase service not implemented yet');
   }

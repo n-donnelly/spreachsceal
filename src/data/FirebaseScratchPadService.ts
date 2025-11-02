@@ -2,8 +2,7 @@ import { createScratchPad, Scratchpad } from "../types/scratchpad";
 import { ScratchPadService } from "./ScratchPadService";
 import { 
   doc, 
-  getDoc, 
-  setDoc, 
+  getDoc,
   collection, 
   query, 
   where, 

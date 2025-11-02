@@ -300,10 +300,6 @@ export const ChapterViewPage: React.FC = () => {
     setWritingModalSceneId(null);
   };
 
-  const writingModalScene = writingModalSceneId 
-    ? chapter.scenes.find(scene => scene.id === writingModalSceneId)
-    : null;
-
   return (
     <div className="chapter-view-container">
       <div className="chapter-view-header">

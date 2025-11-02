@@ -62,7 +62,7 @@ export class LocalProjectService implements ProjectService {
     }
   }
 
-  async getUserProjects(userId: string): Promise<Project[]> {
+  async getUserProjects(): Promise<Project[]> {
     try {
       const projectsListJson = localStorage.getItem(this.PROJECTS_LIST_KEY);
       if (!projectsListJson) {

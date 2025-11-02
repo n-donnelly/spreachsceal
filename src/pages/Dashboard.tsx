@@ -1,7 +1,7 @@
 import { ProjectProvider} from "../components/project/ProjectContext";
 import './Dashboard.css';
 import { ProjectNavigation } from "../components/project/ProjectNavigation";
-import { Link, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 
 export const Dashboard = () => {
     return (
