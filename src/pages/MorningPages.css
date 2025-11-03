@@ -1,6 +1,5 @@
 .morning-pages-container {
-  max-width: 800px;
-  width: 100%;
+  max-width: 80%;
   margin: 0 auto;
   padding: 2rem 1rem;
   min-height: calc(100vh - 64px); /* Subtracts header height */
@@ -64,5 +63,21 @@
   }
   to {
     opacity: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .morning-pages-container {
+    padding: 1rem;
+    max-width: 700px;
+    min-height: 60vh;
+  }
+
+  .morning-pages-container h1 {
+    font-size: 2rem;
+  }
+
+  .morning-pages-textarea {
+    width: unset;
   }
 }

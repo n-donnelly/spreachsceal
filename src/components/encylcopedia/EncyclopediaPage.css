@@ -5,19 +5,6 @@
   margin: 0 auto;
 }
 
-.add-entry-button {
-  background-color: #3b82f6;
-  color: white;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.add-entry-button:hover {
-  background-color: #2563eb;
-}
-
 .add-entry-form {
   margin-bottom: 24px;
   padding: 16px;
@@ -203,4 +190,14 @@
 
 .encyclopedia-not-found {
   padding: 24px;
+}
+
+@media (max-width: 768px) {
+  .entries-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .encyclopedia-container {
+    width: unset;
+  }
 }

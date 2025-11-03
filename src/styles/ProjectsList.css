@@ -282,6 +282,12 @@
       gap: 16px;
       padding: 16px 0;
     }
+
+    .page-header h1 {
+      font-size: 24px;
+      width:100%;
+      text-align: center;
+    }
     
     .projects-grid {
       grid-template-columns: 1fr;

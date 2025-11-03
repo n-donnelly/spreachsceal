@@ -123,11 +123,13 @@
   
   .scratchpad-header {
     flex-direction: column;
-    gap: 1rem;
+    align-items: normal;
+    border-bottom: unset;
+    justify-content: unset;;
   }
-  
-  .header-actions {
-    width: 100%;
+
+  .scratchpad-header h1 {
+    text-align: center;
   }
   
   .add-scratch-button, .save-button {

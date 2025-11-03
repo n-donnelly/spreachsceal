@@ -14,6 +14,7 @@
 
 /* New Note Form Styles */
 .new-note-form {
+    width: 93%;
     background: white;
     border: 1px solid #e5e7eb;
     border-radius: 0.75rem;
@@ -30,7 +31,7 @@
 }
 
 .new-note-title {
-    width: 100%;
+    width: calc(100% - 1.5rem);
     padding: 0.75rem;
     margin-bottom: 1rem;
     border: 1px solid #d1d5db;
@@ -48,7 +49,7 @@
 }
 
 .new-note-content {
-    width: 100%;
+    width: calc(100% - 1.5rem);
     padding: 0.75rem;
     margin-bottom: 1rem;
     border: 1px solid #d1d5db;
@@ -328,6 +329,10 @@
         opacity: 1;
         align-self: flex-end;
     }
+
+    .new-note-form {
+        width: unset;
+    }
     
     .new-note-actions {
         flex-direction: column;
@@ -351,7 +356,7 @@
     
     .new-note-form,
     .note-card {
-        padding: 1rem;
+        margin: 1rem;
     }
     
     .notes-title {

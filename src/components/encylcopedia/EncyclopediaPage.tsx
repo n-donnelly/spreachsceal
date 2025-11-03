@@ -118,7 +118,7 @@ export const EncyclopediaPage: React.FC = () => {
             <div className="section-header">
                 <h1 className="section-title">Encyclopedia</h1>
                 <button 
-                    className="add-entry-button"
+                    className="default-button"
                     onClick={() => setShowAddEntry(!showAddEntry)}
                 >
                     {showAddEntry ? 'Cancel' : 'Add Entry'}

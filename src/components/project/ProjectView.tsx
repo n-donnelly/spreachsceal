@@ -218,7 +218,7 @@ export const ProjectView: React.FC = () => {
                         <div className="tab-section-header">
                             <h2 className="tab-section-title">Chapters</h2>
                             <button 
-                                className="view-all-button"
+                                className="default-button"
                                 onClick={() => navigateToSection('chapters')}
                             >
                                 View All Chapters
@@ -265,7 +265,7 @@ export const ProjectView: React.FC = () => {
                         <div className="tab-section-header">
                             <h2 className="tab-section-title">Characters</h2>
                             <button 
-                                className="view-all-button"
+                                className="default-button"
                                 onClick={() => navigateToSection('characters')}
                             >
                                 View All Characters
@@ -312,7 +312,7 @@ export const ProjectView: React.FC = () => {
                         <div className="tab-section-header">
                             <h2 className="tab-section-title">Locations</h2>
                             <button 
-                                className="view-all-button"
+                                className="default-button"
                                 onClick={() => navigateToSection('locations')}
                             >
                                 View All Locations
@@ -359,7 +359,7 @@ export const ProjectView: React.FC = () => {
                         <div className="tab-section-header">
                             <h2 className="tab-section-title">Notes</h2>
                             <button 
-                                className="view-all-button"
+                                className="default-button"
                                 onClick={() => navigateToSection('notes')}
                             >
                                 View All Notes
@@ -408,7 +408,7 @@ export const ProjectView: React.FC = () => {
                         <div className="tab-section-header">
                             <h2 className="tab-section-title">Revisions</h2>
                             <button 
-                                className="view-all-button"
+                                className="default-button"
                                 onClick={() => navigateToSection('revisions')}
                             >
                                 View All Revisions
@@ -459,7 +459,7 @@ export const ProjectView: React.FC = () => {
                         <div className="tab-section-header">
                             <h2 className="tab-section-title">Todo List</h2>
                             <button 
-                                className="view-all-button"
+                                className="default-button"
                                 onClick={() => navigateToSection('todo')}
                             >
                                 View All Tasks

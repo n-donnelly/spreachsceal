@@ -290,6 +290,11 @@
     flex-wrap: wrap;
     gap: 1rem;
   }
+
+  .tab-button {
+    width: 5rem;
+    border-bottom-color: gray;
+  }
   
   .overview-grid {
     grid-template-columns: 1fr;
