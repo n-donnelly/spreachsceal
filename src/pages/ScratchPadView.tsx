@@ -23,19 +23,14 @@ export const ScratchPadView: React.FC = () => {
       return;
     }
 
-    isInitialized.current = true;
-
     const initializeScratchpad = async () => {
       try {
         const data = await scratchPadService.current!.getScratchpad(user.uid);
         if (isMounted) {
           setScratchpad(data);
-        }
+          isInitialized.current = true;
+        } 
       } catch (error) {
-        console.error('Failed to fetch scratchpad:', error);
-        if (isMounted) {
-          isInitialized.current = false;
-        }
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -47,6 +42,9 @@ export const ScratchPadView: React.FC = () => {
 
     return () => {
       isMounted = false;
+      if (!isInitialized.current) {  // Reset if initialization didn't complete
+        isInitialized.current = false;
+      }
     };
   }, [user]); // Only depend on user changes
 
@@ -121,7 +119,7 @@ export const ScratchPadView: React.FC = () => {
           </p>
         </div>
         <div className="header-actions">
-          <button onClick={handleAddScratch} className="add-scratch-button">
+          <button onClick={() => handleAddScratch()} className="default-button">
             Add New Idea
           </button>
         </div>
