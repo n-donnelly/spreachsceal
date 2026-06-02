@@ -8,6 +8,7 @@ import { StoryPlannerComponent } from './features/stories/story-planner/story-pl
 import { ProseEditorComponent } from './features/stories/prose-editor/prose-editor.component';
 import { IdeasComponent } from './features/ideas/ideas.component';
 import { MorningWordsComponent } from './features/morning-words/morning-words.component';
+import { ArchiveComponent } from './features/archive/archive.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -21,7 +22,8 @@ export const routes: Routes = [
       { path: 'worlds/:worldId/stories/:storyId', component: StoryPlannerComponent },
       { path: 'worlds/:worldId/stories/:storyId/chapters/:chapterId/scenes/:sceneId', component: ProseEditorComponent },
       { path: 'ideas', component: IdeasComponent },
-      { path: 'morning-words', component: MorningWordsComponent }
+      { path: 'morning-words', component: MorningWordsComponent },
+      { path: 'archive', component: ArchiveComponent }
     ]
   },
   { path: '**', redirectTo: '' }

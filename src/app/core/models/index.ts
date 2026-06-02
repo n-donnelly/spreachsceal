@@ -10,6 +10,7 @@ export interface World {
   description: string;
   ownerId: string;
   createdAt: any; // Firestore Timestamp
+  isArchived?: boolean;
 }
 
 export interface Character {
@@ -47,6 +48,7 @@ export interface Story {
   notes: string;
   characters: string[]; // Array of characterIds
   locations: string[]; // Array of locationIds
+  isArchived?: boolean;
 }
 
 export interface Chapter {
@@ -63,6 +65,14 @@ export interface Scene {
   chapterId?: string;
   order: number;
   content: string; // The rich text prose
+}
+
+export interface StoryRevision {
+  id?: string;
+  storyId: string;
+  name: string;
+  createdAt: any; // Firestore Timestamp
+  chaptersData: string; // JSON representation of chapters and scenes
 }
 
 export interface Idea {

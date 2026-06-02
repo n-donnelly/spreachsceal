@@ -1,9 +1,15 @@
 @if (story()) {
   <div class="world-header">
-    <div class="header-content">
-      <a [routerLink]="['/worlds', worldId()]" class="back-link">← Back to World Builder</a>
-      <h1>{{ story()?.title }}</h1>
-      <p class="meta">{{ story()?.description }}</p>
+    <div class="header-content" style="display: flex; justify-content: space-between; align-items: flex-start;">
+      <div>
+        <a [routerLink]="['/worlds', worldId()]" class="back-link">← Back to World Builder</a>
+        <h1>{{ story()?.title }}</h1>
+        <p class="meta">{{ story()?.description }}</p>
+      </div>
+      <div style="display: flex; gap: 0.5rem;">
+        <button class="btn btn-secondary" (click)="archiveStory()">🗄️ Archive</button>
+        <button class="btn btn-primary" (click)="openExportModal()">Export Story</button>
+      </div>
     </div>
   </div>
 
@@ -11,10 +17,43 @@
     <div class="tabs">
       <button class="tab-btn" [class.active]="activeTab() === 'outline'" (click)="setTab('outline')">Outline & Setup</button>
       <button class="tab-btn" [class.active]="activeTab() === 'chapters'" (click)="setTab('chapters')">Chapters ({{ chapters().length }})</button>
+      <button class="tab-btn" [class.active]="activeTab() === 'revisions'" (click)="setTab('revisions')">Revisions ({{ revisions().length }})</button>
     </div>
   </div>
 
-  <div class="tab-content">
+  @if (viewingRevision()) {
+    <div class="revision-viewer form-card glass-card" style="margin-bottom: 2rem; border-color: var(--primary);">
+      <div class="section-header-row" style="margin-bottom: 1rem;">
+        <div>
+          <h2 style="margin: 0; color: var(--primary);">Read-Only Preview: {{ viewingRevision()?.name }}</h2>
+          <p class="muted-text">Saved on {{ viewingRevision()?.createdAt?.toDate() | date:'medium' }}</p>
+        </div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <select [value]="exportFormat()" (change)="exportFormat.set($any($event.target).value)" style="padding: 0.4rem; border-radius: 0.25rem;">
+            <option value="pdf">PDF</option>
+            <option value="docx">DOC</option>
+          </select>
+          <button class="btn btn-secondary" (click)="exportRevision(viewingRevision())" [disabled]="isExporting()">Export</button>
+          <button class="btn btn-primary" (click)="restoreRevision(viewingRevision())">Restore This Revision to Edit</button>
+          <button class="btn btn-secondary" (click)="closeRevisionView()">Close Preview</button>
+        </div>
+      </div>
+      
+      <div class="prose-content" style="max-height: 60vh; overflow-y: auto; padding-right: 1rem;">
+        @for (chap of viewingRevision()?.parsedData; track chap.id) {
+          <h3 style="margin-top: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">Chapter {{ chap.order }}: {{ chap.title }}</h3>
+          @for (scene of chap.scenes; track scene.id) {
+            <div style="margin-bottom: 2rem;">
+              <h4 class="muted-text">Scene</h4>
+              <div [innerHTML]="scene.content || '<em>Empty scene</em>'"></div>
+            </div>
+          }
+        }
+      </div>
+    </div>
+  }
+
+  <div class="tab-content" [style.display]="viewingRevision() ? 'none' : 'block'">
     
     <!-- OUTLINE & SETUP -->
     @if (activeTab() === 'outline') {
@@ -162,9 +201,70 @@
       </div>
     }
 
+    <!-- REVISIONS -->
+    @if (activeTab() === 'revisions') {
+      <div class="section-header-row">
+        <h2>Story Revisions</h2>
+        <button class="btn btn-primary" (click)="saveRevision()">Save Current State as Revision</button>
+      </div>
+
+      <div class="revisions-list" style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 2rem;">
+        @for (rev of revisions(); track rev.id) {
+          <div class="entity-card glass-card" style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem;">
+            <div>
+              <h3 style="margin: 0 0 0.5rem 0; font-size: 1.25rem;">{{ rev.name }}</h3>
+              <span class="muted-text">Saved: {{ rev.createdAt?.toDate() | date:'medium' }}</span>
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+              <button class="btn btn-secondary" (click)="viewRevision(rev)">View Read-Only</button>
+              <button class="btn btn-primary" (click)="restoreRevision(rev)">Restore</button>
+              <button class="btn btn-secondary" style="color: var(--error); border-color: var(--error);" (click)="deleteRevision(rev.id)">Delete</button>
+            </div>
+          </div>
+        }
+        @if (revisions().length === 0) {
+          <p class="muted-text">No revisions saved. Create one to back up your current work!</p>
+        }
+      </div>
+    }
+
   </div>
 } @else {
   <div class="loading-state">
     <span class="spinner"></span> Loading Story Planner...
+  </div>
+}
+
+@if (showExportModal()) {
+  <div class="modal-overlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+    <div class="form-card glass-card" style="width: 100%; max-width: 500px;">
+      <h2 style="margin-top: 0;">Export "{{ story()?.title }}"</h2>
+      <p class="muted-text">Select the chapters you want to include in your export.</p>
+      
+      <div class="chapters-selection" style="max-height: 200px; overflow-y: auto; margin-bottom: 1.5rem; border: 1px solid var(--border); padding: 1rem; border-radius: 0.5rem;">
+        @for (chap of chapters(); track chap.id) {
+          <label class="checkbox-label" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <input type="checkbox" [checked]="selectedChaptersForExport().has(chap.id!)" (change)="toggleChapterExport(chap.id!)">
+            <span>Chapter {{ chap.order }}: {{ chap.title }}</span>
+          </label>
+        }
+        @if (chapters().length === 0) {
+          <p class="muted-text">No chapters to export yet.</p>
+        }
+      </div>
+
+      <div class="form-group">
+        <label>Format</label>
+        <select [value]="exportFormat()" (change)="exportFormat.set($any($event.target).value)">
+          <option value="pdf">PDF Document (.pdf)</option>
+          <option value="docx">Word Document (.doc)</option>
+        </select>
+      </div>
+
+      <div class="form-actions" style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+        <button class="btn btn-secondary" (click)="closeExportModal()">Cancel</button>
+        <button class="btn btn-primary" (click)="exportStory()" [disabled]="selectedChaptersForExport().size === 0">Download Export</button>
+      </div>
+    </div>
   </div>
 }

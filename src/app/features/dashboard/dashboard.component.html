@@ -22,7 +22,8 @@
       }
       
       @for (world of worlds(); track world.id) {
-        <div class="world-card glass-card" [routerLink]="['/worlds', world.id]">
+        <div class="world-card glass-card" [routerLink]="['/worlds', world.id]" style="position: relative;">
+          <button class="btn btn-secondary text-sm" style="position: absolute; top: 1rem; right: 1rem; padding: 0.2rem 0.5rem;" (click)="archiveWorld($event, world.id!)" title="Archive World">🗄️</button>
           <div class="card-content">
             <h3>{{ world.name }}</h3>
             <p>{{ world.description }}</p>
@@ -43,17 +44,19 @@
     </div>
     
     <div class="card-list">
-      @for (story of stories; track story.id) {
-        <div class="story-list-item glass-card">
+      @if (stories().length === 0) {
+        <div class="empty-state">
+          <p>You haven't created any stories yet.</p>
+        </div>
+      }
+      @for (story of stories(); track story.id) {
+        <div class="story-list-item glass-card" [routerLink]="['/worlds', story.worldId, 'stories', story.id]" style="cursor: pointer;">
           <div class="story-info">
             <h3>{{ story.title }}</h3>
-            <span class="badge">{{ story.world }}</span>
+            <span class="badge">{{ story.worldName }}</span>
           </div>
           <div class="story-meta">
-            <div class="progress-bar-container">
-              <div class="progress-bar" [style.width.%]="story.progress"></div>
-            </div>
-            <span class="status-text">{{ story.status }}</span>
+            <button class="btn btn-secondary text-sm" (click)="archiveStory($event, story.worldId, story.id!)" title="Archive Story">🗄️ Archive</button>
           </div>
         </div>
       }

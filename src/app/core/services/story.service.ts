@@ -83,4 +83,22 @@ export class StoryService {
     const sceneRef = doc(this.firestore, `worlds/${worldId}/stories/${storyId}/chapters/${chapterId}/scenes/${sceneId}`);
     return deleteDoc(sceneRef);
   }
+
+  // --- Revisions ---
+  async getRevisions(worldId: string, storyId: string): Promise<any[]> {
+    const revsRef = collection(this.firestore, `worlds/${worldId}/stories/${storyId}/revisions`);
+    const q = query(revsRef, orderBy('createdAt', 'desc'));
+    const snap = await getDocs(q);
+    return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  }
+
+  async addRevision(worldId: string, storyId: string, revisionData: any) {
+    const revsRef = collection(this.firestore, `worlds/${worldId}/stories/${storyId}/revisions`);
+    return addDoc(revsRef, revisionData);
+  }
+
+  async deleteRevision(worldId: string, storyId: string, revisionId: string) {
+    const revRef = doc(this.firestore, `worlds/${worldId}/stories/${storyId}/revisions/${revisionId}`);
+    return deleteDoc(revRef);
+  }
 }

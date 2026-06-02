@@ -1,0 +1,39 @@
+<div class="archive-container">
+  <div class="header-row">
+    <h1>Archive</h1>
+  </div>
+
+  <section class="archive-section">
+    <h2>Archived Worlds</h2>
+    <div class="grid-list">
+      @if (archivedWorlds().length === 0) {
+        <p class="muted-text">No archived worlds.</p>
+      }
+      @for (world of archivedWorlds(); track world.id) {
+        <div class="entity-card glass-card" style="position: relative;">
+          <button class="btn btn-primary btn-sm" style="position: absolute; top: 1rem; right: 1rem; padding: 0.2rem 0.5rem;" (click)="restoreWorld(world.id!)">Restore</button>
+          <h3 style="margin-top: 0;">{{ world.name }}</h3>
+          <p>{{ world.description }}</p>
+          <span class="muted-text" style="display: block; margin-top: 1rem;">Created: {{ world.createdAt?.toDate() | date:'mediumDate' }}</span>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="archive-section" style="margin-top: 3rem;">
+    <h2>Archived Stories</h2>
+    <div class="grid-list">
+      @if (archivedStories().length === 0) {
+        <p class="muted-text">No archived stories.</p>
+      }
+      @for (story of archivedStories(); track story.id) {
+        <div class="entity-card glass-card" style="position: relative;">
+          <button class="btn btn-primary btn-sm" style="position: absolute; top: 1rem; right: 1rem; padding: 0.2rem 0.5rem;" (click)="restoreStory(story.worldId, story.id!)">Restore</button>
+          <h3 style="margin-top: 0;">{{ story.title }}</h3>
+          <span class="badge">{{ story.worldName }}</span>
+          <p style="margin-top: 1rem;">{{ story.description }}</p>
+        </div>
+      }
+    </div>
+  </section>
+</div>
