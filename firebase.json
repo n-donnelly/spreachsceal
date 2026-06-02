@@ -1,5 +1,20 @@
 {
   "firestore": {
     "rules": "firestore.rules"
+  },
+  "hosting": {
+    "site": "spreachsceal",
+    "public": "dist/spreachsceal/browser",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
   }
 }
