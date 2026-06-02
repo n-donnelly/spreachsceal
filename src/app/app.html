@@ -1,18 +1,22 @@
 @if (authService.currentUser() !== undefined) {
   @if (authService.currentUser()) {
     <div class="app-layout">
-      <aside class="sidebar">
+      <!-- Mobile Overlay -->
+      <div class="mobile-overlay" [class.open]="isSidebarOpen()" (click)="closeSidebar()"></div>
+
+      <aside class="sidebar" [class.open]="isSidebarOpen()">
         <div class="sidebar-header">
           <h2>Spreachsceal</h2>
+          <button class="close-btn" (click)="closeSidebar()">×</button>
         </div>
         <nav class="sidebar-nav">
-          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeSidebar()">
             <span class="icon">🏠</span> Dashboard
           </a>
-          <a routerLink="/ideas" routerLinkActive="active">
+          <a routerLink="/ideas" routerLinkActive="active" (click)="closeSidebar()">
             <span class="icon">💡</span> Ideas Notebook
           </a>
-          <a routerLink="/morning-words" routerLinkActive="active">
+          <a routerLink="/morning-words" routerLinkActive="active" (click)="closeSidebar()">
             <span class="icon">🌅</span> Morning Words
           </a>
         </nav>
@@ -28,6 +32,7 @@
 
       <main class="main-content">
         <header class="top-nav">
+          <button class="hamburger-btn" (click)="toggleSidebar()">☰</button>
           <!-- User profile, breadcrumbs, etc. will go here -->
           <div style="margin-left: auto;">
              {{ authService.currentUser()?.email }}

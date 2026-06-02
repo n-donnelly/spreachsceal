@@ -13,6 +13,7 @@ import { ToastComponent } from './core/components/toast/toast.component';
 export class App implements OnInit {
   protected readonly title = signal('spreachsceal');
   public isDarkMode = signal<boolean>(false);
+  public isSidebarOpen = signal<boolean>(false);
   public authService = inject(AuthService);
 
   ngOnInit() {
@@ -33,5 +34,13 @@ export class App implements OnInit {
       document.documentElement.removeAttribute('data-theme');
       localStorage.setItem('theme', 'light');
     }
+  }
+
+  toggleSidebar() {
+    this.isSidebarOpen.update(v => !v);
+  }
+
+  closeSidebar() {
+    this.isSidebarOpen.set(false);
   }
 }
