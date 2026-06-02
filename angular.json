@@ -31,6 +31,13 @@
             ],
             "styles": [
               "src/styles.scss"
+            ],
+            "allowedCommonJsDependencies": [
+              "quill-delta",
+              "file-saver",
+              "pdfmake/build/pdfmake",
+              "pdfmake/build/vfs_fonts",
+              "html-to-pdfmake"
             ]
           },
           "configurations": {
@@ -38,8 +45,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2MB",
-                  "maximumError": "4MB"
+                  "maximumWarning": "4MB",
+                  "maximumError": "6MB"
                 },
                 {
                   "type": "anyComponentStyle",

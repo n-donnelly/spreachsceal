@@ -6,7 +6,7 @@
 
       <aside class="sidebar" [class.open]="isSidebarOpen()">
         <div class="sidebar-header">
-          <h2>Spreachsceal</h2>
+          <h2>Spréachscéal</h2>
           <button class="close-btn" (click)="closeSidebar()">×</button>
         </div>
         <nav class="sidebar-nav">
@@ -16,14 +16,17 @@
           <a routerLink="/ideas" routerLinkActive="active" (click)="closeSidebar()">
             <span class="icon">💡</span> Ideas Notebook
           </a>
-          <a routerLink="/morning-words" routerLinkActive="active" (click)="closeSidebar()">
-            <span class="icon">🌅</span> Morning Words
+          <a routerLink="/the-ether" routerLinkActive="active" (click)="closeSidebar()">
+            <span class="icon">☁️</span> The Ether
           </a>
           <a routerLink="/archive" routerLinkActive="active" (click)="closeSidebar()">
             <span class="icon">🗄️</span> Archive
           </a>
         </nav>
         <div class="sidebar-footer">
+          <div style="margin-bottom: 0.75rem; font-size: 0.875rem; color: var(--text-secondary); text-align: center; word-break: break-all;">
+            {{ authService.currentUser()?.email }}
+          </div>
           <button class="theme-toggle" (click)="toggleTheme()">
             {{ isDarkMode() ? '☀️ Light Mode' : '🌙 Dark Mode' }}
           </button>
@@ -36,10 +39,7 @@
       <main class="main-content">
         <header class="top-nav">
           <button class="hamburger-btn" (click)="toggleSidebar()">☰</button>
-          <!-- User profile, breadcrumbs, etc. will go here -->
-          <div style="margin-left: auto;">
-             {{ authService.currentUser()?.email }}
-          </div>
+          <h2 class="mobile-app-title">Spréachscéal</h2>
         </header>
         <div class="content-area">
           <router-outlet></router-outlet>

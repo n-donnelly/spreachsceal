@@ -35,6 +35,6 @@ export class MorningWordsComponent implements AfterViewInit {
       this.content.set('');
       this.isFading.set(false);
       setTimeout(() => this.editor.nativeElement.focus(), 0);
-    }, 1500); // 1.5 seconds to match CSS transition
+    }, 3000); // 3 seconds to match CSS transition
   }
 }

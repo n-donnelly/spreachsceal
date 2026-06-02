@@ -47,7 +47,7 @@
   padding: 1rem;
   outline: none;
   opacity: 0.9;
-  transition: opacity 1.5s ease-in-out, transform 1.5s ease-in-out, filter 1.5s ease-in-out;
+  transition: opacity 3s ease-in-out, transform 3s ease-in-out, filter 3s ease-in-out;
 
   &::placeholder {
     color: var(--text-color);
@@ -57,7 +57,7 @@
 
   &.fading {
     opacity: 0;
-    transform: translateY(-20px) scale(1.02);
-    filter: blur(4px);
+    transform: translateY(-50px) scale(1.15) translateX(40px);
+    filter: blur(8px);
   }
 }

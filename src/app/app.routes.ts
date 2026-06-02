@@ -22,7 +22,7 @@ export const routes: Routes = [
       { path: 'worlds/:worldId/stories/:storyId', component: StoryPlannerComponent },
       { path: 'worlds/:worldId/stories/:storyId/chapters/:chapterId/scenes/:sceneId', component: ProseEditorComponent },
       { path: 'ideas', component: IdeasComponent },
-      { path: 'morning-words', component: MorningWordsComponent },
+      { path: 'the-ether', component: MorningWordsComponent },
       { path: 'archive', component: ArchiveComponent }
     ]
   },
