@@ -1,0 +1,22 @@
+<div class="morning-words-container">
+  <div class="zen-header">
+    <h1>Morning Words</h1>
+    <p>Write your thoughts and let them go...</p>
+    <br>
+    <p><i>Everything not saved will be lost</i></p>
+    <p>- Nintendo</p>
+  </div>
+
+  <div class="editor-wrapper">
+    <textarea 
+      #editor
+      class="zen-textarea"
+      [class.fading]="isFading()"
+      [ngModel]="content()"
+      (ngModelChange)="content.set($event)"
+      (keydown)="onKeyDown($event)"
+      placeholder="Just write..."
+      [readonly]="isFading()"
+    ></textarea>
+  </div>
+</div>

@@ -1,0 +1,170 @@
+@if (story()) {
+  <div class="world-header">
+    <div class="header-content">
+      <a [routerLink]="['/worlds', worldId()]" class="back-link">← Back to World Builder</a>
+      <h1>{{ story()?.title }}</h1>
+      <p class="meta">{{ story()?.description }}</p>
+    </div>
+  </div>
+
+  <div class="tabs-container">
+    <div class="tabs">
+      <button class="tab-btn" [class.active]="activeTab() === 'outline'" (click)="setTab('outline')">Outline & Setup</button>
+      <button class="tab-btn" [class.active]="activeTab() === 'chapters'" (click)="setTab('chapters')">Chapters ({{ chapters().length }})</button>
+    </div>
+  </div>
+
+  <div class="tab-content">
+    
+    <!-- OUTLINE & SETUP -->
+    @if (activeTab() === 'outline') {
+      <div class="planner-grid">
+        
+        <!-- Main Story Info -->
+        <div class="main-column">
+          <div class="section-header-row">
+            <h2>Story Outline</h2>
+            <button class="btn btn-secondary" (click)="isEditingOutline.set(!isEditingOutline())">
+              {{ isEditingOutline() ? 'Cancel Edit' : 'Edit Outline' }}
+            </button>
+          </div>
+
+          @if (isEditingOutline()) {
+            <div class="form-card glass-card">
+              <form [formGroup]="outlineForm" (ngSubmit)="saveOutline()">
+                <div class="form-group">
+                  <label>Title</label>
+                  <input type="text" formControlName="title">
+                </div>
+                <div class="form-group">
+                  <label>Elevator Pitch</label>
+                  <textarea formControlName="description" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                  <label>Full Outline</label>
+                  <textarea formControlName="outline" rows="8"></textarea>
+                </div>
+                <div class="form-group">
+                  <label>Additional Notes</label>
+                  <textarea formControlName="notes" rows="4"></textarea>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary" [disabled]="outlineForm.invalid">Save Changes</button>
+                </div>
+              </form>
+            </div>
+          } @else {
+            <div class="glass-card outline-display">
+              <div class="prose-content">
+                <h3>Full Outline</h3>
+                <p style="white-space: pre-wrap;">{{ story()?.outline || 'No outline written yet.' }}</p>
+                <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);" />
+                <h3>Author Notes</h3>
+                <p style="white-space: pre-wrap;">{{ story()?.notes || 'No notes written yet.' }}</p>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Attached Entities -->
+        <div class="side-column">
+          <div class="glass-card attachments-card">
+            <h3>Story Cast</h3>
+            <p class="muted-text text-sm">Select characters from the world to include in this story.</p>
+            <div class="checklist">
+              @for (char of characters(); track char.id) {
+                <label class="checkbox-label">
+                  <input type="checkbox" 
+                         [checked]="story()?.characters?.includes(char.id!)"
+                         (change)="toggleCharacterAttachment(char.id!)">
+                  <span>{{ char.name }}</span>
+                </label>
+              }
+            </div>
+
+            <hr class="divider">
+
+            <h3>Story Locations</h3>
+            <p class="muted-text text-sm">Select locations from the world.</p>
+            <div class="checklist">
+              @for (loc of locations(); track loc.id) {
+                <label class="checkbox-label">
+                  <input type="checkbox" 
+                         [checked]="story()?.locations?.includes(loc.id!)"
+                         (change)="toggleLocationAttachment(loc.id!)">
+                  <span>{{ loc.name }}</span>
+                </label>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- CHAPTERS -->
+    @if (activeTab() === 'chapters') {
+      <div class="section-header-row">
+        <h2>Chapters</h2>
+        <button class="btn btn-primary" (click)="openChapterForm()">+ Add Chapter</button>
+      </div>
+
+      @if (showChapterForm()) {
+        <div class="form-card glass-card">
+          <form [formGroup]="chapterForm" (ngSubmit)="saveChapter()">
+            <div class="form-group">
+              <label>Chapter Title</label>
+              <input type="text" formControlName="title" placeholder="e.g. The Boy Who Lived">
+            </div>
+            <div class="form-group">
+              <label>Order (Number)</label>
+              <input type="number" formControlName="order">
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary" (click)="closeChapterForm()">Cancel</button>
+              <button type="submit" class="btn btn-primary" [disabled]="chapterForm.invalid">Save Chapter</button>
+            </div>
+          </form>
+        </div>
+      }
+
+      <div class="chapters-list">
+        @for (chap of chapters(); track chap.id) {
+          <div class="chapter-card glass-card" style="margin-bottom: 1.5rem; padding: 1.5rem;">
+            <div class="chapter-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+              <h3 style="margin: 0;">Chapter {{ chap.order }}: {{ chap.title }}</h3>
+              <button class="btn btn-secondary" style="font-size: 0.8rem;" (click)="addScene(chap.id!)">+ Add Scene</button>
+            </div>
+            
+            <div class="scenes-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
+              @for (scene of scenesByChapter()[chap.id!]; track scene.id) {
+                <div class="scene-row" style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: var(--bg-color); border-radius: 0.5rem; border: 1px solid var(--border);">
+                  <div class="scene-info">
+                    <span style="font-weight: 500;">Scene {{ $index + 1 }}</span>
+                    @if (!scene.content) {
+                      <span class="badge badge-accent" style="margin-left: 0.5rem;">Empty</span>
+                    }
+                  </div>
+                  <div class="scene-actions" style="display: flex; gap: 0.5rem;">
+                    <a [routerLink]="['/worlds', worldId(), 'stories', storyId(), 'chapters', chap.id, 'scenes', scene.id]" class="btn btn-primary" style="padding: 0.25rem 0.75rem; font-size: 0.85rem;">Write Prose →</a>
+                    <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.85rem; color: var(--error); border-color: var(--error);" (click)="deleteScene(chap.id!, scene.id!)">Delete</button>
+                  </div>
+                </div>
+              }
+              @if (!scenesByChapter()[chap.id!]?.length) {
+                <p class="muted-text" style="font-size: 0.9rem; font-style: italic;">No scenes in this chapter yet.</p>
+              }
+            </div>
+          </div>
+        }
+        @if (chapters().length === 0 && !showChapterForm()) {
+          <p class="muted-text">No chapters yet. Let's start writing!</p>
+        }
+      </div>
+    }
+
+  </div>
+} @else {
+  <div class="loading-state">
+    <span class="spinner"></span> Loading Story Planner...
+  </div>
+}

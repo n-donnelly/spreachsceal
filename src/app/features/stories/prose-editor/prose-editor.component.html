@@ -1,0 +1,43 @@
+<div class="prose-editor-layout">
+  
+  <header class="editor-header">
+    <div class="header-left">
+      <a [routerLink]="['/worlds', worldId(), 'stories', storyId()]" class="back-link">
+        ← Back to Story Planner
+      </a>
+      @if (story() && chapter()) {
+        <span class="breadcrumb">
+          {{ story()?.title }} <span class="separator">/</span> Chapter {{ chapter()?.order }}: {{ chapter()?.title }}
+        </span>
+      }
+    </div>
+
+    <div class="header-right">
+      <div class="save-status" [class]="saveStatus()">
+        @if (saveStatus() === 'Saving...') {
+          <span class="status-icon saving"></span> Saving...
+        } @else if (saveStatus() === 'Saved') {
+          <span class="status-icon saved">✓</span> Saved
+        } @else if (saveStatus() === 'Error') {
+          <span class="status-icon error">!</span> Error Saving
+        } @else {
+          <span class="status-icon unsaved">•</span> Unsaved changes
+        }
+      </div>
+    </div>
+  </header>
+
+  <div class="editor-container">
+    @if (scene()) {
+      <quill-editor 
+        [formControl]="contentControl"
+        placeholder="Start writing your scene..."
+        [styles]="{height: '100%'}">
+      </quill-editor>
+    } @else {
+      <div style="display: flex; justify-content: center; align-items: center; height: 100%; color: var(--text-color); opacity: 0.5;">
+        Loading editor...
+      </div>
+    }
+  </div>
+</div>

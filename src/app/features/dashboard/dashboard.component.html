@@ -1,0 +1,62 @@
+<div class="dashboard-header">
+  <div>
+    <h1>Welcome back, Author</h1>
+    <p>Here's an overview of your active worlds and stories.</p>
+  </div>
+  <button routerLink="/worlds/new" class="btn btn-primary">+ Create New World</button>
+</div>
+
+<div class="dashboard-grid">
+  <!-- Worlds Section -->
+  <section class="dashboard-section">
+    <div class="section-header">
+      <h2>Your Worlds</h2>
+      <button class="btn btn-secondary text-sm">View All</button>
+    </div>
+    
+    <div class="card-grid">
+      @if (worlds().length === 0) {
+        <div class="empty-state">
+          <p>You haven't created any worlds yet.</p>
+        </div>
+      }
+      
+      @for (world of worlds(); track world.id) {
+        <div class="world-card glass-card" [routerLink]="['/worlds', world.id]">
+          <div class="card-content">
+            <h3>{{ world.name }}</h3>
+            <p>{{ world.description }}</p>
+          </div>
+          <div class="card-footer">
+            <span class="muted-text">Created: {{ world.createdAt?.toDate() | date:'mediumDate' }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Stories Section -->
+  <section class="dashboard-section">
+    <div class="section-header">
+      <h2>Active Stories</h2>
+      <button class="btn btn-secondary text-sm">View All</button>
+    </div>
+    
+    <div class="card-list">
+      @for (story of stories; track story.id) {
+        <div class="story-list-item glass-card">
+          <div class="story-info">
+            <h3>{{ story.title }}</h3>
+            <span class="badge">{{ story.world }}</span>
+          </div>
+          <div class="story-meta">
+            <div class="progress-bar-container">
+              <div class="progress-bar" [style.width.%]="story.progress"></div>
+            </div>
+            <span class="status-text">{{ story.status }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+</div>

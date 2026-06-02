@@ -1,0 +1,57 @@
+<div class="page-container">
+  <div class="header">
+    <a routerLink="/" class="back-link">← Back to Dashboard</a>
+    <h1>Create a New World</h1>
+    <p>Give your universe a name and a brief overview to get started.</p>
+  </div>
+
+  <div class="form-card glass-card">
+    <form [formGroup]="worldForm" (ngSubmit)="onSubmit()" class="create-form">
+      
+      <div class="form-group">
+        <label for="name">World Name</label>
+        <input 
+          id="name" 
+          type="text" 
+          formControlName="name" 
+          placeholder="e.g., Aethelgard"
+          [class.invalid]="worldForm.controls.name.invalid && worldForm.controls.name.touched"
+        >
+        @if (worldForm.controls.name.invalid && worldForm.controls.name.touched) {
+          <span class="error-text">A name of at least 3 characters is required.</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea 
+          id="description" 
+          formControlName="description" 
+          placeholder="A brief overview of what makes this world unique..."
+          rows="5"
+          [class.invalid]="worldForm.controls.description.invalid && worldForm.controls.description.touched"
+        ></textarea>
+        <div class="char-count">
+          {{ worldForm.controls.description.value.length }} / 500
+        </div>
+      </div>
+
+      @if (errorMessage()) {
+        <div class="error-banner">
+          {{ errorMessage() }}
+        </div>
+      }
+
+      <div class="actions">
+        <button type="button" routerLink="/" class="btn btn-secondary">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="worldForm.invalid || isLoading()">
+          @if (isLoading()) {
+            <span class="spinner"></span> Creating...
+          } @else {
+            Create World
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

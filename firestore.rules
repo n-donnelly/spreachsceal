@@ -1,0 +1,20 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Only allow users to read and write worlds they own
+    match /worlds/{worldId} {
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.ownerId;
+      
+      // Allow access to all subcollections (characters, stories, etc) if they own the parent world
+      match /{document=**} {
+        allow read, write: if request.auth != null && get(/databases/$(database)/documents/worlds/$(worldId)).data.ownerId == request.auth.uid;
+      }
+    }
+    
+    // Allow users to manage their own ideas notebook
+    match /users/{userId}/ideas/{ideaId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

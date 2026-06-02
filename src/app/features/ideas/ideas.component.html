@@ -1,0 +1,45 @@
+<div class="ideas-container">
+  <div class="header-row">
+    <h1>Ideas Notebook</h1>
+    <button class="btn btn-primary" (click)="openForm()">+ New Idea</button>
+  </div>
+
+  @if (showForm()) {
+    <div class="form-card glass-card">
+      <form [formGroup]="ideaForm" (ngSubmit)="saveIdea()">
+        <div class="form-group">
+          <label>Idea Title</label>
+          <input type="text" formControlName="title" placeholder="e.g. A character who steals memories...">
+        </div>
+        <div class="form-group">
+          <label>Details</label>
+          <textarea formControlName="content" rows="6" placeholder="Flesh it out here..."></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeForm()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="ideaForm.invalid">
+            {{ editingId() ? 'Update Idea' : 'Save Idea' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <div class="grid-list">
+    @for (idea of ideas(); track idea.id) {
+      <div class="entity-card glass-card idea-card">
+        <div class="card-title-row">
+          <h3 class="idea-title">{{ idea.title }}</h3>
+          <div class="action-buttons">
+            <button class="btn btn-secondary btn-sm" (click)="openForm(idea)">Edit</button>
+            <button class="btn btn-secondary btn-sm btn-delete" (click)="deleteIdea(idea.id!)">Delete</button>
+          </div>
+        </div>
+        <p class="idea-content">{{ idea.content }}</p>
+      </div>
+    }
+    @if (ideas().length === 0 && !showForm()) {
+      <p class="muted-text">No ideas yet. Jot something down!</p>
+    }
+  </div>
+</div>

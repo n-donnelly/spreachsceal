@@ -1,0 +1,55 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h2>Spreachsceal</h2>
+      <p>{{ isLoginMode() ? 'Welcome back to your worlds' : 'Begin your journey' }}</p>
+    </div>
+
+    <form [formGroup]="authForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input 
+          id="email" 
+          type="email" 
+          formControlName="email" 
+          placeholder="author@example.com"
+          [class.invalid]="authForm.controls.email.invalid && authForm.controls.email.touched"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input 
+          id="password" 
+          type="password" 
+          formControlName="password" 
+          placeholder="••••••••"
+          [class.invalid]="authForm.controls.password.invalid && authForm.controls.password.touched"
+        >
+      </div>
+
+      @if (errorMessage()) {
+        <div class="error-banner">
+          {{ errorMessage() }}
+        </div>
+      }
+
+      <button type="submit" class="btn btn-primary submit-btn" [disabled]="authForm.invalid || isLoading()">
+        @if (isLoading()) {
+          <span class="spinner"></span> Loading...
+        } @else {
+          {{ isLoginMode() ? 'Sign In' : 'Create Account' }}
+        }
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <p>
+        {{ isLoginMode() ? "Don't have an account?" : "Already have an account?" }}
+        <button type="button" class="link-btn" (click)="toggleMode()">
+          {{ isLoginMode() ? 'Sign Up' : 'Log In' }}
+        </button>
+      </p>
+    </div>
+  </div>
+</div>

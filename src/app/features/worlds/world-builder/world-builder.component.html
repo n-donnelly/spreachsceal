@@ -1,0 +1,239 @@
+@if (world()) {
+  <div class="world-header">
+    <div class="header-content">
+      <a routerLink="/" class="back-link">← Back to Dashboard</a>
+      <h1>{{ world()?.name }}</h1>
+      <p class="meta">Created on {{ world()?.createdAt?.toDate() | date:'longDate' }}</p>
+    </div>
+  </div>
+
+  <div class="tabs-container">
+    <div class="tabs">
+      <button class="tab-btn" [class.active]="activeTab() === 'overview'" (click)="setTab('overview')">Overview</button>
+      <button class="tab-btn" [class.active]="activeTab() === 'characters'" (click)="setTab('characters')">Characters ({{ characters().length }})</button>
+      <button class="tab-btn" [class.active]="activeTab() === 'locations'" (click)="setTab('locations')">Locations ({{ locations().length }})</button>
+      <button class="tab-btn" [class.active]="activeTab() === 'encyclopedia'" (click)="setTab('encyclopedia')">Encyclopedia ({{ encyclopedia().length }})</button>
+      <button class="tab-btn" [class.active]="activeTab() === 'stories'" (click)="setTab('stories')">Stories ({{ stories().length }})</button>
+    </div>
+  </div>
+
+  <div class="tab-content">
+    
+    <!-- OVERVIEW -->
+    @if (activeTab() === 'overview') {
+      <div class="overview-section glass-card">
+        <h2>World Description</h2>
+        <p>{{ world()?.description }}</p>
+      </div>
+    }
+    
+    <!-- CHARACTERS -->
+    @if (activeTab() === 'characters') {
+      <div class="section-header-row">
+        <h2>Characters</h2>
+        <button class="btn btn-primary" type="button" (click)="openCharForm()">+ Add Character</button>
+      </div>
+
+      @if (showCharForm()) {
+        <div class="form-card glass-card">
+          <form [formGroup]="charForm" (ngSubmit)="saveCharacter()">
+            <div class="form-group">
+              <label>Name</label>
+              <input type="text" formControlName="name" placeholder="Character Name">
+            </div>
+            <div class="form-group">
+              <label>Role</label>
+              <input type="text" formControlName="role" placeholder="e.g. Protagonist, Villain, Merchant">
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <textarea formControlName="description" rows="3" placeholder="Brief description..."></textarea>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary" (click)="closeCharForm()">Cancel</button>
+              <button type="submit" class="btn btn-primary" [disabled]="charForm.invalid">
+                {{ editingCharId() ? 'Update Character' : 'Save Character' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      }
+
+      <div class="grid-list">
+        @for (char of characters(); track char.id) {
+          <div class="entity-card glass-card">
+            <div class="card-title-row" style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div>
+                <h3 style="margin: 0; margin-bottom: 0.5rem;">{{ char.name }}</h3>
+                <span class="badge">{{ char.role || 'Unassigned' }}</span>
+              </div>
+              <div class="action-buttons" style="display: flex; gap: 0.5rem;">
+                <button type="button" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" (click)="openCharForm(char)">Edit</button>
+                <button type="button" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; border-color: var(--error); color: var(--error);" (click)="deleteCharacter(char.id!)">Delete</button>
+              </div>
+            </div>
+            <p style="margin-top: 1rem;">{{ char.description }}</p>
+          </div>
+        }
+        @if (characters().length === 0 && !showCharForm()) {
+          <p class="muted-text">No characters yet.</p>
+        }
+      </div>
+    }
+
+    <!-- LOCATIONS -->
+    @if (activeTab() === 'locations') {
+      <div class="section-header-row">
+        <h2>Locations</h2>
+        <button class="btn btn-primary" type="button" (click)="openLocForm()">+ Add Location</button>
+      </div>
+
+      @if (showLocForm()) {
+        <div class="form-card glass-card">
+          <form [formGroup]="locForm" (ngSubmit)="saveLocation()">
+            <div class="form-group">
+              <label>Name</label>
+              <input type="text" formControlName="name" placeholder="Location Name">
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <textarea formControlName="description" rows="3" placeholder="Brief description..."></textarea>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary" (click)="closeLocForm()">Cancel</button>
+              <button type="submit" class="btn btn-primary" [disabled]="locForm.invalid">
+                {{ editingLocId() ? 'Update Location' : 'Save Location' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      }
+
+      <div class="grid-list">
+        @for (loc of locations(); track loc.id) {
+          <div class="entity-card glass-card">
+            <div class="card-title-row" style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <h3 style="margin: 0;">{{ loc.name }}</h3>
+              <div class="action-buttons" style="display: flex; gap: 0.5rem;">
+                <button type="button" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" (click)="openLocForm(loc)">Edit</button>
+                <button type="button" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; border-color: var(--error); color: var(--error);" (click)="deleteLocation(loc.id!)">Delete</button>
+              </div>
+            </div>
+            <p style="margin-top: 1rem;">{{ loc.description }}</p>
+          </div>
+        }
+        @if (locations().length === 0 && !showLocForm()) {
+          <p class="muted-text">No locations yet.</p>
+        }
+      </div>
+    }
+
+    <!-- ENCYCLOPEDIA -->
+    @if (activeTab() === 'encyclopedia') {
+      <div class="section-header-row">
+        <h2>Encyclopedia Entries</h2>
+        <button class="btn btn-primary" type="button" (click)="openEncForm()">+ Add Entry</button>
+      </div>
+
+      @if (showEncForm()) {
+        <div class="form-card glass-card">
+          <form [formGroup]="encForm" (ngSubmit)="saveEncyclopedia()">
+            <div class="form-group">
+              <label>Title</label>
+              <input type="text" formControlName="title" placeholder="e.g. Magic System, The Elven Council">
+            </div>
+            <div class="form-group">
+              <label>Type</label>
+              <select formControlName="type">
+                <option value="Culture">Culture</option>
+                <option value="Magic System">Magic System</option>
+                <option value="Faction">Faction</option>
+                <option value="Rule">Rule</option>
+                <option value="History">History</option>
+                <option value="Item">Item / Artifact</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Content</label>
+              <textarea formControlName="content" rows="6" placeholder="Document the details..."></textarea>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary" (click)="closeEncForm()">Cancel</button>
+              <button type="submit" class="btn btn-primary" [disabled]="encForm.invalid">
+                {{ editingEncId() ? 'Update Entry' : 'Save Entry' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      }
+
+      <div class="grid-list">
+        @for (entry of encyclopedia(); track entry.id) {
+          <div class="entity-card glass-card">
+            <div class="card-title-row" style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div>
+                <h3 style="margin: 0; margin-bottom: 0.5rem;">{{ entry.title }}</h3>
+                <span class="badge badge-accent">{{ entry.type }}</span>
+              </div>
+              <div class="action-buttons" style="display: flex; gap: 0.5rem;">
+                <button type="button" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" (click)="openEncForm(entry)">Edit</button>
+                <button type="button" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; border-color: var(--error); color: var(--error);" (click)="deleteEncyclopedia(entry.id!)">Delete</button>
+              </div>
+            </div>
+            <p style="margin-top: 1rem; white-space: pre-wrap;">{{ entry.content }}</p>
+          </div>
+        }
+        @if (encyclopedia().length === 0 && !showEncForm()) {
+          <p class="muted-text">No entries yet.</p>
+        }
+      </div>
+    }
+
+    <!-- STORIES -->
+    @if (activeTab() === 'stories') {
+      <div class="section-header-row">
+        <h2>Stories in this World</h2>
+        <button class="btn btn-primary" type="button" (click)="openStoryForm()">+ Create Story</button>
+      </div>
+
+      @if (showStoryForm()) {
+        <div class="form-card glass-card">
+          <form [formGroup]="storyForm" (ngSubmit)="saveStory()">
+            <div class="form-group">
+              <label>Story Title</label>
+              <input type="text" formControlName="title" placeholder="e.g. The Lord of the Rings">
+            </div>
+            <div class="form-group">
+              <label>Elevator Pitch</label>
+              <textarea formControlName="description" rows="3" placeholder="A short description of the story..."></textarea>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary" (click)="closeStoryForm()">Cancel</button>
+              <button type="submit" class="btn btn-primary" [disabled]="storyForm.invalid">Save Story</button>
+            </div>
+          </form>
+        </div>
+      }
+
+      <div class="grid-list">
+        @for (story of stories(); track story.id) {
+          <div class="entity-card glass-card">
+            <h3>{{ story.title }}</h3>
+            <p>{{ story.description }}</p>
+            <div style="margin-top: 1rem;">
+              <a [routerLink]="['/worlds', worldId(), 'stories', story.id]" class="btn btn-primary" style="display: inline-block; padding: 0.5rem 1rem; font-size: 0.875rem;">Open Story Planner →</a>
+            </div>
+          </div>
+        }
+        @if (stories().length === 0 && !showStoryForm()) {
+          <p class="muted-text">No stories yet. Create one to start planning!</p>
+        }
+      </div>
+    }
+
+  </div>
+} @else {
+  <div class="loading-state">
+    <span class="spinner"></span> Loading world...
+  </div>
+}

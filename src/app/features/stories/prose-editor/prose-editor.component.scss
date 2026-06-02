@@ -1,0 +1,130 @@
+.prose-editor-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: var(--bg-color);
+}
+
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: var(--surface-color);
+  border-bottom: 1px solid var(--border);
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+
+    .back-link {
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+      
+      &:hover {
+        color: var(--accent);
+      }
+    }
+
+    .breadcrumb {
+      color: var(--text-color);
+      font-size: 0.95rem;
+      opacity: 0.8;
+
+      .separator {
+        margin: 0 0.5rem;
+        color: var(--border);
+      }
+    }
+  }
+
+  .header-right {
+    .save-status {
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      background: var(--bg-color);
+
+      &.Saved { color: #10b981; }
+      &.Saving\.\.\. { color: #f59e0b; }
+      &.Unsaved { color: #6b7280; }
+      &.Error { color: #ef4444; }
+
+      .status-icon {
+        display: inline-block;
+        &.saving {
+          width: 10px;
+          height: 10px;
+          border: 2px solid currentColor;
+          border-right-color: transparent;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+      }
+    }
+  }
+}
+
+.editor-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  /* Target the Quill element directly */
+  quill-editor {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    
+    .ql-toolbar {
+      border: none !important;
+      border-bottom: 1px solid var(--border) !important;
+      background-color: var(--surface-color);
+      padding: 0.75rem 2rem;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .ql-container {
+      border: none !important;
+      flex: 1;
+      overflow-y: auto;
+      background-color: var(--bg-color);
+      font-family: inherit;
+      font-size: 1.1rem;
+      line-height: 1.8;
+      
+      .ql-editor {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 4rem 2rem;
+        min-height: 100%;
+
+        /* Typography improvements */
+        p {
+          margin-bottom: 1.5rem;
+        }
+        
+        &.ql-blank::before {
+          font-style: normal;
+          opacity: 0.5;
+        }
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
